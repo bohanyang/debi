@@ -36,3 +36,5 @@ If `-c CN` is used, Chinese Special options will be setup for good connectivity 
  - Default NTP server is `ntp1.aliyun.com`.
  - All custom settings will override above defaults.
  - Security mirror linking (`-l`) will be turned on and can't be turned off. Specify separate security mirror by `-s` option.
+
+Finally, reboot and enter Debian Installer. It will setup all things automatically.
