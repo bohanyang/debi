@@ -100,18 +100,18 @@ NTPSERVER=${NTPSERVER:-pool.ntp.org}
 UPGRADE=${UPGRADE:-full-upgrade}
 LINKED=${LINKED:-false}
 
-if [ -z "$PASSWORD" ]; then
-  PASSWORD=$(mkpasswd -m sha-512)
-else
-  PASSWORD=$(mkpasswd -m sha-512 "$PASSWORD")
-fi
-
 if [ -z "$SECURITY" ]; then
   if $LINKED; then
     SECURITY=$TRANSPORT://$MIRROR${DIRECTORY%/*}/debian-security
   else
     SECURITY=http://security.debian.org/debian-security
   fi
+fi
+
+if [ -z "$PASSWORD" ]; then
+  PASSWORD=$(mkpasswd -m sha-512)
+else
+  PASSWORD=$(mkpasswd -m sha-512 "$PASSWORD")
 fi
 
 BOOT=/boot/debian-$SUITE
