@@ -67,6 +67,10 @@ while [ $# -gt 0 ]; do
     -l)
       LINKED=true
       ;;
+    -g)
+      UPGRADE=$2
+      shift
+      ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -93,6 +97,7 @@ SUITE=${SUITE:-stretch}
 USERNAME=${USERNAME:-debian}
 TIMEZONE=${TIMEZONE:-UTC}
 NTPSERVER=${NTPSERVER:-pool.ntp.org}
+UPGRADE=${UPGRADE:-full-upgrade}
 LINKED=${LINKED:-false}
 
 if [ -z "$PASSWORD" ]; then
@@ -129,6 +134,7 @@ cat >> preseed.cfg << EOF
 # TIMEZONE: 5
 # NTPSERVER: 5
 # SECURITY: 8
+# UPGRADE: 9
 
 # 1. Localization: COUNTRY
 
@@ -196,10 +202,10 @@ d-i apt-setup/services-select multiselect updates
 d-i apt-setup/local0/repository string {{-SECURITY-}} {{-SUITE-}}/updates main
 d-i apt-setup/local0/source boolean true
 
-# 9. Package selection: TASKS
+# 9. Package selection: TASKS, UPGRADE
 
 tasksel tasksel/first multiselect ssh-server
-d-i pkgsel/upgrade select none
+d-i pkgsel/upgrade select {{-UPGRADE-}}
 popularity-contest popularity-contest/participate boolean false
 
 # 10. Boot loader installation
@@ -219,6 +225,7 @@ sed -i 's/{{-PASSWORD-}}/'$(echo "$PASSWORD" | sed 's/\//\\\//g')'/g' preseed.cf
 sed -i 's/{{-TIMEZONE-}}/'$(echo "$TIMEZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-NTPSERVER-}}/'"$NTPSERVER"'/g' preseed.cfg
 sed -i 's/{{-SECURITY-}}/'$(echo "$SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-UPGRADE-}}/'"$UPGRADE"'/g' preseed.cfg
 
 wget "$URL/linux" "$URL/initrd.gz"
 gunzip initrd.gz

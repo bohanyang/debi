@@ -22,6 +22,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-p <PASSWORD>` Password of the account. If not specified, it will be asked interactively.
  - `-z <TIMEZONE>` [Time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). Default is `UTC`.
  - `-t <NTPSERVER>` NTP server. Default is `pool.ntp.org`.
+ - `-g <UPGRADE>` Whether to upgrade packages after debootstrap. Default is `full-upgrade`. `none` and `safe-upgrade` is also available.
  - `-s <SECURITY>` Custom URL for security repository mirror. Default is `http://security.debian.org/debian-security`.
  - `-l` Security mirror linking. If the option present, security repository will be setup as same as the archive mirror instead of `security.debian.org`.
 
