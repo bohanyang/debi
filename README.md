@@ -7,7 +7,7 @@
 Replace following `<OPTIONS>` with your options.
 
 ```
-sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
+sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
 ```
 
 ### All Options
