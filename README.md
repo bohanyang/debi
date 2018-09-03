@@ -4,6 +4,15 @@
 
 ## Step 2. Run the Script
 
+Check these dependencies:
+
+- `ca-certificates` (if using https)
+- `cpio`
+- `gzip`
+- `mkpasswd` (`whois` package)
+- `sed`
+- `wget`
+
 Replace following `<OPTIONS>` with your options.
 
 ```
