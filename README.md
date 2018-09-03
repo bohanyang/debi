@@ -14,7 +14,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
 
  - `-c <COUNTRY>` Debian Installer Country. Default is `US`.
  - `-h <HOST>` Hostname. Default is `debian`.
- - `-t <TRANSPORT>` Transport protocol for archive mirror only (not security repo). Default is `http`. `https` and `ftp` is also available.
+ - `-x <TRANSPORT>` Transport protocol for archive mirror only (not security repo). Default is `http`. `https` and `ftp` is also available.
  - `-m <MIRROR>` Host name for archive mirror only (not security repo). Default is `deb.debian.org`.
  - `-d <DIRECTORY>` Directory path relative to root of the mirror. Default is `/debian`.
  - `-r <SUITE>` Suite to install. Suite name (`stable`, `testing`, etc.) or releases code name (`stretch`, etc.) Default is `stretch`.
