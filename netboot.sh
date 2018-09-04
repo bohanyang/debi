@@ -87,6 +87,10 @@ while [ $# -gt 0 ]; do
       DNS=$2
       shift
       ;;
+    --incl|--include)
+      INCLUDE=$2
+      shift
+      ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -239,6 +243,13 @@ d-i apt-setup/local0/source boolean true
 # 9. Package selection: TASKS, UPGRADE
 
 tasksel tasksel/first multiselect ssh-server
+EOF
+
+if [ -n "$INCLUDE" ]; then
+  echo "d-i pkgsel/include string $INCLUDE" >> preseed.cfg
+fi
+
+cat >> preseed.cfg << EOF
 d-i pkgsel/upgrade select {{-UPGRADE-}}
 popularity-contest popularity-contest/participate boolean false
 

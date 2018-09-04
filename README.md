@@ -38,6 +38,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `--mask <NETMASK>` Netmask for manual network configuration
  - `--gate <GATEWAY>` Gateway for manual network configuration
  - `--dns <DNS>` Domain Name Server for manual network configuration
+ - `--incl <INCLUDE>` Include individual additional packages to install
 
 ### Chinese Special
 
