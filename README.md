@@ -34,6 +34,10 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-g <UPGRADE>` Whether to upgrade packages after debootstrap. Default is `full-upgrade`. `none` and `safe-upgrade` is also available.
  - `-s <SECURITY>` Custom URL for security repository mirror. Default is `http://security.debian.org/debian-security`.
  - `-l` Security mirror linking. If the option present, security repository will be setup as same as the archive mirror instead of `security.debian.org`.
+ - `--addr <IPADDR>` Configure network manually with an IP address. Following options only work when IP address specified.
+ - `--mask <NETMASK>` Netmask for manual network configuration
+ - `--gate <GATEWAY>` Gateway for manual network configuration
+ - `--dns <DNS>` Domain Name Server for manual network configuration
 
 ### Chinese Special
 

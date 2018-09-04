@@ -20,55 +20,71 @@ set -ex
 
 while [ $# -gt 0 ]; do
   case $1 in
-    -c)
+    -c|--country)
       COUNTRY=$2
       shift
       ;;
-    -h)
+    -h|--hostname)
       HOST=$2
       shift
       ;;
-    -x)
+    -x|--transport|--protocol)
       TRANSPORT=$2
       shift
       ;;
-    -m)
+    -m|--mirror|--host)
       MIRROR=$2
       shift
       ;;
-    -d)
+    -d|--dir|--path|--directory)
       DIRECTORY=${2%/}
       shift
       ;;
-    -r)
+    -r|--suite|--release)
       SUITE=$2
       shift
       ;;
-    -u)
+    -u|--user|--username)
       USERNAME=$2
       shift
       ;;
-    -p)
+    -p|--pass|--password)
       PASSWORD=$2
       shift
       ;;
-    -z)
+    -z|--time|--zone|--timezone)
       TIMEZONE=$2
       shift
       ;;
-    -t)
+    -t|--ntp|--ntpserver)
       NTPSERVER=$2
       shift
       ;;
-    -s)
+    -s|--security)
       SECURITY=$2
       shift
       ;;
-    -l)
+    -l|--link|--linked|--linking)
       LINKED=true
       ;;
-    -g)
+    -g|--upgrade)
       UPGRADE=$2
+      shift
+      ;;
+    --addr|--ipaddr)
+      IPADDR=$2
+      shift
+      ;;
+    --mask|--netmask)
+      NETMASK=$2
+      shift
+      ;;
+    --gate|--gateway)
+      GATEWAY=$2
+      shift
+      ;;
+    --dns|--dnserver|--dnsserver)
+      DNS=$2
       shift
       ;;
     *)
@@ -147,6 +163,24 @@ d-i keyboard-configuration/xkb-keymap select us
 # 2. Network configuration: HOST
 
 d-i netcfg/choose_interface select auto
+EOF
+
+if [ -n "$IPADDR" ]; then
+  echo "d-i netcfg/disable_autoconfig boolean true" >> preseed.cfg
+  echo "d-i netcfg/get_ipaddress string $IPADDR" >> preseed.cfg
+  if [ -n "$NETMASK" ]; then
+    echo "d-i netcfg/get_netmask string $NETMASK" >> preseed.cfg
+  fi
+  if [ -n "$GATEWAY" ]; then
+    echo "d-i netcfg/get_gateway string $GATEWAY" >> preseed.cfg
+  fi
+  if [ -n "$DNS" ]; then
+    echo "d-i netcfg/get_nameservers string $DNS" >> preseed.cfg
+  fi
+  echo "d-i netcfg/confirm_static boolean true" >> preseed.cfg
+fi
+
+cat >> preseed.cfg << EOF
 d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string unassigned-domain
 d-i netcfg/hostname string {{-HOST-}}
