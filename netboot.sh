@@ -45,7 +45,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -u)
-      USERNAME=$2
+      USER=$2
       shift
       ;;
     -p)
@@ -110,7 +110,7 @@ HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
 DIR=${DIR:-/debian}
 ARCH=$(dpkg --print-architecture)
 SUITE=${SUITE:-stretch}
-USERNAME=${USERNAME:-ubuntu}
+USER=${USER:-ubuntu}
 TIMEZONE=${TIMEZONE:-UTC}
 NTP=${NTP:-time.google.com}
 UPGRADE=${UPGRADE:-full-upgrade}
@@ -149,7 +149,7 @@ cat >> preseed.cfg << EOF
 # HOST: 3
 # DIR: 3
 # SUITE: 3, 8
-# USERNAME: 4
+# USER: 4
 # PASSWD: 4
 # TIMEZONE: 5
 # NTP: 5
@@ -207,11 +207,11 @@ d-i mirror/{{-PROTO-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
 
-# 4. Account setup: USERNAME, PASSWD
+# 4. Account setup: USER, PASSWD
 
 d-i passwd/root-login boolean false
 d-i passwd/user-fullname string
-d-i passwd/username string {{-USERNAME-}}
+d-i passwd/username string {{-USER-}}
 d-i passwd/user-password-crypted password {{-PASSWD-}}
 
 # 5. Clock and time zone setup: TIMEZONE, NTP
@@ -275,7 +275,7 @@ sed -i 's/{{-PROTO-}}/'"$PROTO"'/g' preseed.cfg
 sed -i 's/{{-HOST-}}/'"$HOST"'/g' preseed.cfg
 sed -i 's/{{-DIR-}}/'$(echo "$DIR" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-SUITE-}}/'"$SUITE"'/g' preseed.cfg
-sed -i 's/{{-USERNAME-}}/'"$USERNAME"'/g' preseed.cfg
+sed -i 's/{{-USER-}}/'"$USER"'/g' preseed.cfg
 sed -i 's/{{-PASSWD-}}/'$(echo "$PASSWD" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-TIMEZONE-}}/'$(echo "$TIMEZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-NTP-}}/'"$NTP"'/g' preseed.cfg
