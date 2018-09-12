@@ -20,74 +20,71 @@ set -ex
 
 while [ $# -gt 0 ]; do
   case $1 in
-    -c|--country)
+    -c)
       COUNTRY=$2
       shift
       ;;
-    -h|--hostname)
+    -fqdn)
+      FQDN=$2
+      shift
+      ;;
+    -proto)
+      PROTO=$2
+      shift
+      ;;
+    -host)
       HOST=$2
       shift
       ;;
-    -x|--transport|--protocol)
-      TRANSPORT=$2
+    -dir)
+      DIR=${2%/}
       shift
       ;;
-    -m|--mirror|--host)
-      MIRROR=$2
-      shift
-      ;;
-    -d|--dir|--path|--directory)
-      DIRECTORY=${2%/}
-      shift
-      ;;
-    -r|--suite|--release)
+    -suite)
       SUITE=$2
       shift
       ;;
-    -u|--user|--username)
+    -u)
       USERNAME=$2
       shift
       ;;
-    -p|--pass|--password)
-      PASSWORD=$2
+    -p)
+      PASSWD=$2
       shift
       ;;
-    -z|--time|--zone|--timezone)
+    -tz)
       TIMEZONE=$2
       shift
       ;;
-    -t|--ntp|--ntpserver)
-      NTPSERVER=$2
+    -ntp)
+      NTP=$2
       shift
       ;;
-    -s|--security)
+    -s)
       SECURITY=$2
       shift
       ;;
-    -l|--link|--linked|--linking)
-      LINKED=true
-      ;;
-    -g|--upgrade)
+    --upgrade)
       UPGRADE=$2
       shift
       ;;
-    --addr|--ipaddr)
-      IPADDR=$2
+    -ip)
+      IP_ADDR=$2
       shift
       ;;
-    --mask|--netmask)
+    -cidr)
       NETMASK=$2
       shift
       ;;
-    --gate|--gateway)
+    -gw)
       GATEWAY=$2
       shift
       ;;
-    --dns|--dnserver|--dnsserver)
+    -ns)
       DNS=$2
       shift
       ;;
-    --incl|--include)
+    -add)
       INCLUDE=$2
       shift
       ;;
@@ -100,42 +97,42 @@ done
 
 case "$COUNTRY" in
   CN)
-    TRANSPORT=${TRANSPORT:-https}
-    MIRROR=${MIRROR:-chinanet.mirrors.ustc.edu.cn}
+    PROTO=${PROTO:-https}
+    HOST=${HOST:-chinanet.mirrors.ustc.edu.cn}
     TIMEZONE=${TIMEZONE:-Asia/Shanghai}
-    NTPSERVER=${NTPSERVER:-ntp1.aliyun.com}
-    LINKED=${LINKED:-true}
+    NTP=${NTP:-ntp1.aliyun.com}
+    SECURITY=${SECURITY:-true}
 esac
 
 COUNTRY=${COUNTRY:-US}
-HOST=${HOST:-debian}
-TRANSPORT=${TRANSPORT:-http}
-MIRROR=${MIRROR:-deb.debian.org}
-DIRECTORY=${DIRECTORY:-/debian}
+FQDN=${FQDN:-localhost}
+PROTO=${PROTO:-https}
+HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
+DIR=${DIR:-/debian}
 ARCH=$(dpkg --print-architecture)
 SUITE=${SUITE:-stretch}
-USERNAME=${USERNAME:-debian}
+USERNAME=${USERNAME:-ubuntu}
 TIMEZONE=${TIMEZONE:-UTC}
-NTPSERVER=${NTPSERVER:-pool.ntp.org}
+NTP=${NTP:-time.google.com}
 UPGRADE=${UPGRADE:-full-upgrade}
-LINKED=${LINKED:-false}
+DNS=${DNS:-1.1.1.1 156.154.70.5 8.8.8.8}
 
 if [ -z "$SECURITY" ]; then
-  if $LINKED; then
-    SECURITY=$TRANSPORT://$MIRROR${DIRECTORY%/*}/debian-security
-  else
-    SECURITY=http://security.debian.org/debian-security
+  SECURITY=https://dpvctowv9b08b.cloudfront.net/debian-security
+else
+  if [ "$SECURITY" = true ]; then
+    SECURITY=$PROTO://$HOST${DIR%/*}/debian-security
   fi
 fi
 
-if [ -z "$PASSWORD" ]; then
-  PASSWORD=$(mkpasswd -m sha-512)
+if [ -z "$PASSWD" ]; then
+  PASSWD=$(mkpasswd -m sha-512)
 else
-  PASSWORD=$(mkpasswd -m sha-512 "$PASSWORD")
+  PASSWD=$(mkpasswd -m sha-512 "$PASSWD")
 fi
 
 BOOT=/boot/debian-$SUITE
-URL=$TRANSPORT://$MIRROR$DIRECTORY/dists/$SUITE/main/installer-$ARCH/current/images/netboot/debian-installer/$ARCH
+URL=$PROTO://$HOST$DIR/dists/$SUITE/main/installer-$ARCH/current/images/netboot/debian-installer/$ARCH
 
 update-grub
 rm -fr "$BOOT"
@@ -144,15 +141,15 @@ cd "$BOOT"
 
 cat >> preseed.cfg << EOF
 # COUNTRY: 1
-# HOST: 2
-# TRANSPORT: 3
-# MIRROR: 3
-# DIRECTORY: 3
+# FQDN: 2
+# PROTO: 3
+# HOST: 3
+# DIR: 3
 # SUITE: 3, 8
 # USERNAME: 4
-# PASSWORD: 4
+# PASSWD: 4
 # TIMEZONE: 5
-# NTPSERVER: 5
+# NTP: 5
 # SECURITY: 8
 # UPGRADE: 9
 
@@ -164,14 +161,14 @@ d-i debian-installer/country string {{-COUNTRY-}}
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
-# 2. Network configuration: HOST
+# 2. Network configuration: FQDN
 
 d-i netcfg/choose_interface select auto
 EOF
 
-if [ -n "$IPADDR" ]; then
+if [ -n "$IP_ADDR" ]; then
   echo "d-i netcfg/disable_autoconfig boolean true" >> preseed.cfg
-  echo "d-i netcfg/get_ipaddress string $IPADDR" >> preseed.cfg
+  echo "d-i netcfg/get_ipaddress string $IP_ADDR" >> preseed.cfg
   if [ -n "$NETMASK" ]; then
     echo "d-i netcfg/get_netmask string $NETMASK" >> preseed.cfg
   fi
@@ -187,32 +184,32 @@ fi
 cat >> preseed.cfg << EOF
 d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string unassigned-domain
-d-i netcfg/hostname string {{-HOST-}}
+d-i netcfg/hostname string {{-FQDN-}}
 d-i hw-detect/load_firmware boolean true
 
-# 3. Mirror settings: TRANSPORT, MIRROR, DIRECTORY, SUITE
+# 3. Mirror settings: PROTO, HOST, DIR, SUITE
 
 d-i mirror/country string manual
-d-i mirror/protocol string {{-TRANSPORT-}}
-d-i mirror/{{-TRANSPORT-}}/hostname string {{-MIRROR-}}
-d-i mirror/{{-TRANSPORT-}}/directory string {{-DIRECTORY-}}
-d-i mirror/{{-TRANSPORT-}}/proxy string
+d-i mirror/protocol string {{-PROTO-}}
+d-i mirror/{{-PROTO-}}/hostname string {{-HOST-}}
+d-i mirror/{{-PROTO-}}/directory string {{-DIR-}}
+d-i mirror/{{-PROTO-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
 
-# 4. Account setup: USERNAME, PASSWORD
+# 4. Account setup: USERNAME, PASSWD
 
 d-i passwd/root-login boolean false
 d-i passwd/user-fullname string
 d-i passwd/username string {{-USERNAME-}}
-d-i passwd/user-password-crypted password {{-PASSWORD-}}
+d-i passwd/user-password-crypted password {{-PASSWD-}}
 
-# 5. Clock and time zone setup: TIMEZONE, NTPSERVER
+# 5. Clock and time zone setup: TIMEZONE, NTP
 
 d-i clock-setup/utc boolean true
 d-i time/zone string {{-TIMEZONE-}}
 d-i clock-setup/ntp boolean true
-d-i clock-setup/ntp-server string {{-NTPSERVER-}}
+d-i clock-setup/ntp-server string {{-NTP-}}
 
 # 6. Partitioning
 
@@ -260,15 +257,15 @@ d-i grub-installer/bootdev string default
 EOF
 
 sed -i 's/{{-COUNTRY-}}/'"$COUNTRY"'/g' preseed.cfg
+sed -i 's/{{-FQDN-}}/'"$FQDN"'/g' preseed.cfg
+sed -i 's/{{-PROTO-}}/'"$PROTO"'/g' preseed.cfg
 sed -i 's/{{-HOST-}}/'"$HOST"'/g' preseed.cfg
-sed -i 's/{{-TRANSPORT-}}/'"$TRANSPORT"'/g' preseed.cfg
-sed -i 's/{{-MIRROR-}}/'"$MIRROR"'/g' preseed.cfg
-sed -i 's/{{-DIRECTORY-}}/'$(echo "$DIRECTORY" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-DIR-}}/'$(echo "$DIR" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-SUITE-}}/'"$SUITE"'/g' preseed.cfg
 sed -i 's/{{-USERNAME-}}/'"$USERNAME"'/g' preseed.cfg
-sed -i 's/{{-PASSWORD-}}/'$(echo "$PASSWORD" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-PASSWD-}}/'$(echo "$PASSWD" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-TIMEZONE-}}/'$(echo "$TIMEZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-NTPSERVER-}}/'"$NTPSERVER"'/g' preseed.cfg
+sed -i 's/{{-NTP-}}/'"$NTP"'/g' preseed.cfg
 sed -i 's/{{-SECURITY-}}/'$(echo "$SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-UPGRADE-}}/'"$UPGRADE"'/g' preseed.cfg
 
