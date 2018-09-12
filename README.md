@@ -24,6 +24,8 @@ Replace following `<OPTIONS>` with your options.
 sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
 ```
 
+**Remember** to enter your current user's password for `sudo` (if need) and then enter the new user's password (if not specified by `-p`).
+
 ### All Options
 
  - `-c US` Debian Installer Country
@@ -33,7 +35,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-dir /debian` Directory path relative to root of the mirror
  - `-suite stretch` Suite (`stable`, `testing`, `stretch`, etc.)
  - `-u ubuntu` Username of admin account with sudo privilege
- - `-p secret` Password of the account (if not specified, it will be asked interactively)
+ - `-p secret` Password of the account **(if not specified, it will be asked interactively)**
  - `-tz UTC` [Time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
  - `-ntp time.google.com` NTP server
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
