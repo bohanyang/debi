@@ -105,7 +105,7 @@ case "$COUNTRY" in
 esac
 
 COUNTRY=${COUNTRY:-US}
-FQDN=${FQDN:-localhost}
+FQDN=${FQDN:-localhost.localdomain}
 PROTO=${PROTO:-https}
 HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
 DIR=${DIR:-/debian}

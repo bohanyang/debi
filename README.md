@@ -22,7 +22,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
 ### All Options
 
  - `-c US` Debian Installer Country
- - `-fqdn localhost` FQDN including hostname and domain
+ - `-fqdn localhost.localdomain` FQDN including hostname and domain
  - `-proto https` Transport protocol for archive mirror only but not security repository (`http`, `https`, `ftp`)
  - `-host dpvctowv9b08b.cloudfront.net` Host for archive mirror only but not security repository
  - `-dir /debian` Directory path relative to root of the mirror
