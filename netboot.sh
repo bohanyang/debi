@@ -64,7 +64,7 @@ while [ $# -gt 0 ]; do
       SECURITY=$2
       shift
       ;;
-    --upgrade)
+    -upgrade)
       UPGRADE=$2
       shift
       ;;
@@ -105,7 +105,6 @@ case "$COUNTRY" in
 esac
 
 COUNTRY=${COUNTRY:-US}
-FQDN=${FQDN:-localhost.localdomain}
 PROTO=${PROTO:-https}
 HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
 DIR=${DIR:-/debian}
@@ -141,6 +140,10 @@ cd "$BOOT"
 
 cat >> preseed.cfg << EOF
 # COUNTRY: 1
+# IP_ADDR: 2
+# NETMASK: 2
+# GATEWAY: 2
+# DNS: 2
 # FQDN: 2
 # PROTO: 3
 # HOST: 3
@@ -151,6 +154,7 @@ cat >> preseed.cfg << EOF
 # TIMEZONE: 5
 # NTP: 5
 # SECURITY: 8
+# INCLUDE: 9
 # UPGRADE: 9
 
 # 1. Localization: COUNTRY
@@ -161,7 +165,7 @@ d-i debian-installer/country string {{-COUNTRY-}}
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
-# 2. Network configuration: FQDN
+# 2. Network configuration: IP_ADDR, NETMASK, GATEWAY, DNS, FQDN
 
 d-i netcfg/choose_interface select auto
 EOF
@@ -182,9 +186,15 @@ if [ -n "$IP_ADDR" ]; then
 fi
 
 cat >> preseed.cfg << EOF
-d-i netcfg/get_hostname string unassigned-hostname
-d-i netcfg/get_domain string unassigned-domain
-d-i netcfg/hostname string {{-FQDN-}}
+d-i netcfg/get_hostname string localhost
+d-i netcfg/get_domain string localdomain
+EOF
+
+if [ -n "$FQDN" ]; then
+  echo "d-i netcfg/hostname string $FQDN" >> preseed.cfg
+fi
+
+cat >> preseed.cfg << EOF
 d-i hw-detect/load_firmware boolean true
 
 # 3. Mirror settings: PROTO, HOST, DIR, SUITE
@@ -237,7 +247,7 @@ d-i apt-setup/services-select multiselect updates
 d-i apt-setup/local0/repository string {{-SECURITY-}} {{-SUITE-}}/updates main
 d-i apt-setup/local0/source boolean true
 
-# 9. Package selection: TASKS, UPGRADE
+# 9. Package selection: INCLUDE, UPGRADE
 
 tasksel tasksel/first multiselect ssh-server
 EOF
@@ -257,7 +267,6 @@ d-i grub-installer/bootdev string default
 EOF
 
 sed -i 's/{{-COUNTRY-}}/'"$COUNTRY"'/g' preseed.cfg
-sed -i 's/{{-FQDN-}}/'"$FQDN"'/g' preseed.cfg
 sed -i 's/{{-PROTO-}}/'"$PROTO"'/g' preseed.cfg
 sed -i 's/{{-HOST-}}/'"$HOST"'/g' preseed.cfg
 sed -i 's/{{-DIR-}}/'$(echo "$DIR" | sed 's/\//\\\//g')'/g' preseed.cfg
