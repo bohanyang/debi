@@ -264,6 +264,10 @@ popularity-contest popularity-contest/participate boolean false
 
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
+
+# 11. Finishing up the installation
+
+d-i finish-install/reboot_in_progress note
 EOF
 
 sed -i 's/{{-COUNTRY-}}/'"$COUNTRY"'/g' preseed.cfg

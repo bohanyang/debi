@@ -1,17 +1,22 @@
 # Setup Clean Debian OS for Your (Cloud) VPS
 
-## Step 1. (Todo)
+## Step 1. Preparation
+
+ - A clean normally running true virtualization (e.g. KVM) VPS with GRUB2 and VNC access. This script have been tested on SolusVM KVM VPS & Alibaba Cloud ECS with Debian 8/9 & Ubuntu 16.04/18.04.
+
+ - Then check `/etc/default/grub` with your preferred editor (e.g. `nano` or `vi`).
+
+ - Make sure there's **no** `GRUB_HIDDEN_TIMEOUT_QUIET` and `GRUB_HIDDEN_TIMEOUT`. **Just delete them.**
+
+ - Make sure there's reasonable number for `GRUB_DEFAULT` **timeout**. You can just set `GRUB_DEFAULT=999` which will be fine (about 16 minutes).
+
+Install dependencies:
+
+```
+sudo apt update && sudo apt -y install ca-certificates cpio wget whois
+```
 
 ## Step 2. Run the Script
-
-Check these dependencies:
-
-- `ca-certificates` (if using https)
-- `cpio`
-- `gzip`
-- `mkpasswd` (`whois` package)
-- `sed`
-- `wget`
 
 Replace following `<OPTIONS>` with your options.
 
@@ -49,4 +54,10 @@ If `-c CN` is used, Chinese Special options will be setup for good connectivity 
  - Default NTP server is `ntp1.aliyun.com`.
  - All custom settings will override above defaults.
 
-Finally, reboot and enter Debian Installer. It will setup all things automatically.
+## Step 3. Entering Debian Installer
+
+ - Keep your SSH connection and **open VNC console** on your Provider's control panel.
+ - `sudo reboot` with your SSH and the VM should **reboot**.
+ - Switch to your VNC window **quickly**. You should enter the **GRUB selection menu** now.
+ - Use your keyboard to **select** `New Install` and **enter** it. Also, **be quick**, just do not miss the `GRUB_DEFAULT` timeout you've set.
+ - Finally, you should see the screen of Debian Installer now. It will setup all things automatically and reboot when complete.
