@@ -45,7 +45,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -u)
-      SUDOUSER=$2
+      ADMIN=$2
       shift
       ;;
     -p)
@@ -53,7 +53,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -tz)
-      TIMEZONE=$2
+      TIME_ZONE=$2
       shift
       ;;
     -ntp)
@@ -88,6 +88,10 @@ while [ $# -gt 0 ]; do
       INCLUDE=$2
       shift
       ;;
+    -ssh)
+      SSH_PASSWD=$2
+      shift
+      ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -99,9 +103,10 @@ case "$COUNTRY" in
   CN)
     PROTO=${PROTO:-https}
     HOST=${HOST:-chinanet.mirrors.ustc.edu.cn}
-    TIMEZONE=${TIMEZONE:-Asia/Shanghai}
+    TIME_ZONE=${TIME_ZONE:-Asia/Shanghai}
     NTP=${NTP:-ntp1.aliyun.com}
     SECURITY=${SECURITY:-true}
+    DNS=${DNS:-1.2.4.8 119.29.29.29}
 esac
 
 COUNTRY=${COUNTRY:-US}
@@ -110,8 +115,8 @@ HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
 DIR=${DIR:-/debian}
 ARCH=$(dpkg --print-architecture)
 SUITE=${SUITE:-stretch}
-SUDOUSER=${SUDOUSER:-ubuntu}
-TIMEZONE=${TIMEZONE:-UTC}
+ADMIN=${ADMIN:-ubuntu}
+TIME_ZONE=${TIME_ZONE:-UTC}
 NTP=${NTP:-time.google.com}
 UPGRADE=${UPGRADE:-full-upgrade}
 DNS=${DNS:-1.1.1.1 156.154.70.5 8.8.8.8}
@@ -145,13 +150,14 @@ cat >> preseed.cfg << EOF
 # GATEWAY: 2
 # DNS: 2
 # FQDN: 2
+# SSH_PASSWD: 2
 # PROTO: 3
 # HOST: 3
 # DIR: 3
 # SUITE: 3, 8
-# SUDOUSER: 4
+# ADMIN: 4
 # PASSWD: 4
-# TIMEZONE: 5
+# TIME_ZONE: 5
 # NTP: 5
 # SECURITY: 8
 # INCLUDE: 9
@@ -165,7 +171,7 @@ d-i debian-installer/country string {{-COUNTRY-}}
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
-# 2. Network configuration: IP_ADDR, NETMASK, GATEWAY, DNS, FQDN
+# 2. Network configuration: IP_ADDR, NETMASK, GATEWAY, DNS, FQDN, SSH_PASSWD
 
 d-i netcfg/choose_interface select auto
 EOF
@@ -196,7 +202,15 @@ fi
 
 cat >> preseed.cfg << EOF
 d-i hw-detect/load_firmware boolean true
+EOF
 
+if [ -n "$SSH_PASSWD" ]; then
+  echo "d-i anna/choose_modules string network-console" >> preseed.cfg
+  echo "d-i network-console/password password $SSH_PASSWD" >> preseed.cfg
+  echo "d-i network-console/password-again password $SSH_PASSWD" >> preseed.cfg
+fi
+
+cat >> preseed.cfg << EOF
 # 3. Mirror settings: PROTO, HOST, DIR, SUITE
 
 d-i mirror/country string manual
@@ -207,17 +221,17 @@ d-i mirror/{{-PROTO-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
 
-# 4. Account setup: SUDOUSER, PASSWD
+# 4. Account setup: ADMIN, PASSWD
 
 d-i passwd/root-login boolean false
 d-i passwd/user-fullname string
-d-i passwd/username string {{-SUDOUSER-}}
+d-i passwd/username string {{-ADMIN-}}
 d-i passwd/user-password-crypted password {{-PASSWD-}}
 
-# 5. Clock and time zone setup: TIMEZONE, NTP
+# 5. Clock and time zone setup: TIME_ZONE, NTP
 
 d-i clock-setup/utc boolean true
-d-i time/zone string {{-TIMEZONE-}}
+d-i time/zone string {{-TIME_ZONE-}}
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string {{-NTP-}}
 
@@ -275,9 +289,9 @@ sed -i 's/{{-PROTO-}}/'"$PROTO"'/g' preseed.cfg
 sed -i 's/{{-HOST-}}/'"$HOST"'/g' preseed.cfg
 sed -i 's/{{-DIR-}}/'$(echo "$DIR" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-SUITE-}}/'"$SUITE"'/g' preseed.cfg
-sed -i 's/{{-SUDOUSER-}}/'"$SUDOUSER"'/g' preseed.cfg
+sed -i 's/{{-ADMIN-}}/'"$ADMIN"'/g' preseed.cfg
 sed -i 's/{{-PASSWD-}}/'$(echo "$PASSWD" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-TIMEZONE-}}/'$(echo "$TIMEZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-TIME_ZONE-}}/'$(echo "$TIME_ZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-NTP-}}/'"$NTP"'/g' preseed.cfg
 sed -i 's/{{-SECURITY-}}/'$(echo "$SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-UPGRADE-}}/'"$UPGRADE"'/g' preseed.cfg

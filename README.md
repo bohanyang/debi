@@ -45,6 +45,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-gw 1.2.3.1` Gateway for manual network configuration
  - `-ns "1.1.1.1 156.154.70.5 8.8.8.8"` DNS for manual network configuration
  - `-add "ca-certificates curl openssl"` Include individual additional packages to install
+ - `-ssh secret` Enable network console and specify **password for SSH access during install process**.
 
 ### Chinese Special
 
@@ -54,6 +55,7 @@ If `-c CN` is used, Chinese Special options will be setup for good connectivity 
  - Default security mirror is `https://chinanet.mirrors.ustc.edu.cn/debian-security`.
  - Default time zone is `Asia/Shanghai`.
  - Default NTP server is `ntp1.aliyun.com`.
+ - Default DNS is `1.2.4.8 119.29.29.29`.
  - All custom settings will override above defaults.
 
 ## Step 3. Entering Debian Installer
