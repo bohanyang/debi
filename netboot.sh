@@ -209,9 +209,11 @@ if [ -n "$SSH_PASSWD" ]; then
   echo "d-i preseed/early_command string anna-install network-console" >> preseed.cfg
   echo "d-i network-console/password password $SSH_PASSWD" >> preseed.cfg
   echo "d-i network-console/password-again password $SSH_PASSWD" >> preseed.cfg
+  echo "d-i network-console/start select Continue" >> preseed.cfg
 fi
 
 cat >> preseed.cfg << EOF
+
 # 3. Mirror settings: PROTO, HOST, DIR, SUITE
 
 d-i mirror/country string manual
