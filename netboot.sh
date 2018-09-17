@@ -206,6 +206,7 @@ EOF
 
 if [ -n "$SSH_PASSWD" ]; then
   echo "d-i anna/choose_modules string network-console" >> preseed.cfg
+  echo "d-i preseed/early_command string anna-install network-console" >> preseed.cfg
   echo "d-i network-console/password password $SSH_PASSWD" >> preseed.cfg
   echo "d-i network-console/password-again password $SSH_PASSWD" >> preseed.cfg
 fi
