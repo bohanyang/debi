@@ -45,7 +45,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-gw 1.2.3.1` Gateway for manual network configuration
  - `-ns "1.1.1.1 156.154.70.5 8.8.8.8"` DNS for manual network configuration
  - `-add "ca-certificates curl openssl"` Include individual additional packages to install
- - `-ssh secret` Enable network console and specify **password for SSH access during install process**.
+ - `-ssh secret` Enable network console and specify **password for SSH access during install process**. You can login with `installer` user and check system logs.
 
 ### Chinese Special
 
