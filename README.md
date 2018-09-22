@@ -29,33 +29,33 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
 ### All Options
 
  - `-c US` Debian Installer Country
- - `-fqdn localhost.localdomain` FQDN including hostname and domain
- - `-proto https` Transport protocol for archive mirror only but not security repository (`http`, `https`, `ftp`)
- - `-host dpvctowv9b08b.cloudfront.net` Host for archive mirror only but not security repository
+ - `-fqdn unassigned-hostname.unassigned-domain` FQDN including hostname and domain
+ - `-proto http` Transport protocol for archive mirror only but not security repository (`http`, `https`, `ftp`)
+ - `-host deb.debian.org` Host for archive mirror only but not security repository
  - `-dir /debian` Directory path relative to root of the mirror
  - `-suite stretch` Suite (`stable`, `testing`, `stretch`, etc.)
- - `-u ubuntu` Username of admin account with sudo privilege
+ - `-u debian` Username of admin account with sudo privilege
  - `-p secret` Password of the account **(if not specified, it will be asked interactively)**
  - `-tz UTC` [Time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
- - `-ntp time.google.com` NTP server
+ - `-ntp pool.ntp.org` NTP server
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
- - `-s https://dpvctowv9b08b.cloudfront.net/debian-security` Custom URL for security repository mirror
- - `-ip 1.2.3.4` Configure network manually with an IP address (following options only work when IP address specified)
+ - `-s http://security.debian.org/debian-security` Custom URL for security repository mirror
+ - `-ip 192.168.1.42` Configure network manually with an IP address (following options only work when IP address specified)
  - `-cidr 255.255.255.0` Netmask for manual network configuration
- - `-gw 1.2.3.1` Gateway for manual network configuration
- - `-ns "1.1.1.1 156.154.70.5 8.8.8.8"` DNS for manual network configuration
- - `-add "ca-certificates curl openssl"` Include individual additional packages to install
+ - `-gw 192.168.1.1` Gateway for manual network configuration
+ - `-ns "8.8.8.8 8.8.4.4"` DNS for manual network configuration
+ - `-add "ca-certificates curl fail2ban openssl whois"` Include individual additional packages to install
  - `-ssh secret` Enable network console and specify **password for SSH access during install process**. You can login with `installer` user and check system logs.
 
 ### Chinese Special
 
 If `-c CN` is used, Chinese Special options will be setup for good connectivity and experience against GFW.
 
- - Default archive mirror is `https://chinanet.mirrors.ustc.edu.cn/debian`.
- - Default security mirror is `https://chinanet.mirrors.ustc.edu.cn/debian-security`.
+ - Default archive mirror is `http://ftp.cn.debian.org/debian`.
+ - Default security mirror is `http://ftp.cn.debian.org/debian-security`.
  - Default time zone is `Asia/Shanghai`.
- - Default NTP server is `ntp1.aliyun.com`.
- - Default DNS is `1.2.4.8 119.29.29.29`.
+ - Default NTP server is `cn.ntp.org.cn`.
+ - Default DNS is `156.154.70.5 156.154.71.5`.
  - All custom settings will override above defaults.
 
 ## Step 3. Entering Debian Installer

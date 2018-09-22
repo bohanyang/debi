@@ -101,28 +101,28 @@ done
 
 case "$COUNTRY" in
   CN)
-    PROTO=${PROTO:-https}
-    HOST=${HOST:-chinanet.mirrors.ustc.edu.cn}
+    PROTO=${PROTO:-http}
+    HOST=${HOST:-ftp.cn.debian.org}
     TIME_ZONE=${TIME_ZONE:-Asia/Shanghai}
-    NTP=${NTP:-ntp1.aliyun.com}
+    NTP=${NTP:-cn.ntp.org.cn}
     SECURITY=${SECURITY:-true}
-    DNS=${DNS:-1.2.4.8 119.29.29.29}
+    DNS=${DNS:-156.154.70.5 156.154.71.5}
 esac
 
 COUNTRY=${COUNTRY:-US}
-PROTO=${PROTO:-https}
-HOST=${HOST:-dpvctowv9b08b.cloudfront.net}
+PROTO=${PROTO:-http}
+HOST=${HOST:-deb.debian.org}
 DIR=${DIR:-/debian}
 ARCH=$(dpkg --print-architecture)
 SUITE=${SUITE:-stretch}
-ADMIN=${ADMIN:-ubuntu}
+ADMIN=${ADMIN:-debian}
 TIME_ZONE=${TIME_ZONE:-UTC}
-NTP=${NTP:-time.google.com}
+NTP=${NTP:-pool.ntp.org}
 UPGRADE=${UPGRADE:-full-upgrade}
-DNS=${DNS:-1.1.1.1 156.154.70.5 8.8.8.8}
+DNS=${DNS:-8.8.8.8 8.8.4.4}
 
 if [ -z "$SECURITY" ]; then
-  SECURITY=https://dpvctowv9b08b.cloudfront.net/debian-security
+  SECURITY=http://security.debian.org/debian-security
 else
   if [ "$SECURITY" = true ]; then
     SECURITY=$PROTO://$HOST${DIR%/*}/debian-security
@@ -192,8 +192,8 @@ if [ -n "$IP_ADDR" ]; then
 fi
 
 cat >> preseed.cfg << EOF
-d-i netcfg/get_hostname string localhost
-d-i netcfg/get_domain string localdomain
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string unassigned-domain
 EOF
 
 if [ -n "$FQDN" ]; then
