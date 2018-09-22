@@ -51,8 +51,8 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
 
 If `-c CN` is used, Chinese Special options will be setup for good connectivity and experience against GFW.
 
- - Default archive mirror is `http://ftp.cn.debian.org/debian`.
- - Default security mirror is `http://ftp.cn.debian.org/debian-security`.
+ - Default archive mirror is `https://mirrors.ustc.edu.cn/debian`.
+ - Default security mirror is `https://mirrors.ustc.edu.cn/debian-security`.
  - Default time zone is `Asia/Shanghai`.
  - Default NTP server is `cn.ntp.org.cn`.
  - Default DNS is `156.154.70.5 156.154.71.5`.

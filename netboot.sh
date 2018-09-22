@@ -101,8 +101,8 @@ done
 
 case "$COUNTRY" in
   CN)
-    PROTO=${PROTO:-http}
-    HOST=${HOST:-ftp.cn.debian.org}
+    PROTO=${PROTO:-https}
+    HOST=${HOST:-mirrors.ustc.edu.cn}
     TIME_ZONE=${TIME_ZONE:-Asia/Shanghai}
     NTP=${NTP:-cn.ntp.org.cn}
     SECURITY=${SECURITY:-true}
