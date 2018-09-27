@@ -8,7 +8,7 @@
 
  - Make sure there's **no** `GRUB_HIDDEN_TIMEOUT_QUIET` and `GRUB_HIDDEN_TIMEOUT`. **Just delete them.**
 
- - Make sure there's reasonable number for `GRUB_DEFAULT` **timeout**. You can just set `GRUB_DEFAULT=999` which will be fine (about 16 minutes).
+ - Make sure there's reasonable number for `GRUB_TIMEOUT` **timeout**. You can just set `GRUB_TIMEOUT=600` which will be fine (it's 10 minutes).
 
 Install dependencies:
 
@@ -63,5 +63,5 @@ If `-c CN` is used, Chinese Special options will be setup for good connectivity 
  - Keep your SSH connection and **open VNC console** on your Provider's control panel.
  - `sudo reboot` with your SSH and the VM should **reboot**.
  - Switch to your VNC window **quickly**. You should enter the **GRUB selection menu** now.
- - Use your keyboard to **select** `New Install` and **enter** it. Also, **be quick**, just do not miss the `GRUB_DEFAULT` timeout you've set.
+ - Use your keyboard to **select** `New Install` and **enter** it. Also, **be quick**, just do not miss the `GRUB_TIMEOUT` timeout you've set.
  - Finally, you should see the screen of Debian Installer now. It will setup all things automatically and reboot when complete.
