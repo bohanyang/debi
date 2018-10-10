@@ -92,6 +92,13 @@ while [ $# -gt 0 ]; do
       SSH_PASSWD=$2
       shift
       ;;
+    -fs)
+      FILESYS=$2
+      shift
+      ;;
+    -dry-run)
+      DRYRUN=true
+    ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -102,7 +109,7 @@ done
 case "$COUNTRY" in
   CN)
     PROTO=${PROTO:-https}
-    HOST=${HOST:-mirrors.ustc.edu.cn}
+    HOST=${HOST:-chinanet.mirrors.ustc.edu.cn}
     TIME_ZONE=${TIME_ZONE:-Asia/Shanghai}
     NTP=${NTP:-cn.ntp.org.cn}
     SECURITY=${SECURITY:-true}
@@ -120,6 +127,7 @@ TIME_ZONE=${TIME_ZONE:-UTC}
 NTP=${NTP:-pool.ntp.org}
 UPGRADE=${UPGRADE:-full-upgrade}
 DNS=${DNS:-8.8.8.8 8.8.4.4}
+FILESYS=${FILESYS:-ext4}
 
 if [ -z "$SECURITY" ]; then
   SECURITY=http://security.debian.org/debian-security
@@ -135,6 +143,9 @@ else
   PASSWD=$(mkpasswd -m sha-512 "$PASSWD")
 fi
 
+
+if [ "$DRYRUN" != true ]; then
+
 BOOT=/boot/debian-$SUITE
 URL=$PROTO://$HOST$DIR/dists/$SUITE/main/installer-$ARCH/current/images/netboot/debian-installer/$ARCH
 
@@ -142,6 +153,8 @@ update-grub
 rm -fr "$BOOT"
 mkdir -p "$BOOT"
 cd "$BOOT"
+
+fi
 
 cat >> preseed.cfg << EOF
 # COUNTRY: 1
@@ -159,6 +172,7 @@ cat >> preseed.cfg << EOF
 # PASSWD: 4
 # TIME_ZONE: 5
 # NTP: 5
+# FILESYS: 6
 # SECURITY: 8
 # INCLUDE: 9
 # UPGRADE: 9
@@ -192,8 +206,8 @@ if [ -n "$IP_ADDR" ]; then
 fi
 
 cat >> preseed.cfg << EOF
-d-i netcfg/get_hostname string unassigned-hostname
-d-i netcfg/get_domain string unassigned-domain
+d-i netcfg/get_hostname string debian
+d-i netcfg/get_domain string
 EOF
 
 if [ -n "$FQDN" ]; then
@@ -238,7 +252,7 @@ d-i time/zone string {{-TIME_ZONE-}}
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string {{-NTP-}}
 
-# 6. Partitioning
+# 6. Partitioning: FILESYS
 
 d-i partman-basicfilesystems/no_swap boolean false
 d-i partman-auto/method string regular
@@ -246,7 +260,7 @@ d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-md/device_remove_md boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 ext4 $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } filesystem{ ext4 } mountpoint{ / } .
+d-i partman-auto/expert_recipe string naive :: 0 1 -1 {{-FILESYS-}} $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } filesystem{ {{-FILESYS-}} } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
@@ -298,6 +312,9 @@ sed -i 's/{{-TIME_ZONE-}}/'$(echo "$TIME_ZONE" | sed 's/\//\\\//g')'/g' preseed.
 sed -i 's/{{-NTP-}}/'"$NTP"'/g' preseed.cfg
 sed -i 's/{{-SECURITY-}}/'$(echo "$SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-UPGRADE-}}/'"$UPGRADE"'/g' preseed.cfg
+sed -i 's/{{-FILESYS-}}/'"$FILESYS"'/g' preseed.cfg
+
+if [ "$DRYRUN" != true ]; then
 
 wget "$URL/linux" "$URL/initrd.gz"
 gunzip initrd.gz
@@ -313,3 +330,5 @@ linux $BOOT/linux
 initrd $BOOT/initrd.gz
 }
 EOF
+
+fi
