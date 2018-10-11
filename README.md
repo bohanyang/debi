@@ -38,8 +38,8 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-ntp pool.ntp.org` NTP server
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
  - `-s http://security.debian.org/debian-security` Custom URL for security repository mirror
- - `-ip 192.168.1.42` Configure network manually with an IP address (following options only work when IP address specified)
  - `-fs ext4` Filesystem for partition
+ - `-ip 192.168.1.42` Configure network manually with an IP address (following options only work when IP address specified)
  - `-cidr 255.255.255.0` Netmask for manual network configuration
  - `-gw 192.168.1.1` Gateway for manual network configuration
  - `-ns "8.8.8.8 8.8.4.4"` DNS for manual network configuration
