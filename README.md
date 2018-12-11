@@ -19,7 +19,7 @@ sudo apt update && sudo apt -y install ca-certificates whois
 Replace following `<OPTIONS>` with your options.
 
 ```
-sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
+sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
 ```
 
 **Remember** to enter your current user's password for `sudo` (if need) and then enter the new user's password (if not specified by `-p`).
@@ -27,7 +27,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
 ### All Options
 
  - `-c US` Debian Installer Country
- - `-fqdn debian` FQDN including hostname and domain
+ - `-fqdn debian` FQDN including hostname and domain. Priority: `-fqdn` option > rDNS > `debian` as default.
  - `-proto http` Transport protocol for archive mirror only but not security repository (`http`, `https`, `ftp`)
  - `-host deb.debian.org` Host for archive mirror only but not security repository
  - `-dir /debian` Directory path relative to root of the mirror
@@ -39,7 +39,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
  - `-s http://security.debian.org/debian-security` Custom URL for security repository mirror
  - `-fs ext4` Filesystem for partition
- - `-ip 192.168.1.42` Configure network manually with an IP address **(the following `-cidr`, `-gw` and `-dns` options only work when an IP address is specified)**
+ - `-ip 192.168.1.42` Configure network manually with an IP address **(the following** `-cidr`**,** `-gw` **and** `-dns` **options only work when an IP address is specified)**
  - `-cidr 255.255.255.0` Netmask for manual network configuration
  - `-gw 192.168.1.1` Gateway for manual network configuration
  - `-ns "8.8.8.8 8.8.4.4"` DNS for manual network configuration
