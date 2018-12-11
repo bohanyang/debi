@@ -4,14 +4,14 @@
 
  - A clean normally running true virtualization (e.g. KVM) VPS with GRUB2 and VNC access. This script have been tested on SolusVM KVM VPS & Alibaba Cloud ECS with Debian 8/9 & Ubuntu 16.04/18.04.
  - Then check `/etc/default/grub` with your preferred editor (e.g. `nano` or `vi`).
- - Set `GRUB_DEFAULT` to `2` (which means select 3rd entry by default) will let **most of** virtual instances boot to installer automatically after timeout.
+ - Set `GRUB_DEFAULT` to `2` (which means select 3rd entry by default) will let **most of** the virtual instances boot to installer automatically after timeout.
  - Make sure there's reasonable number for `GRUB_TIMEOUT` **timeout**. You can just set `GRUB_TIMEOUT=30` which will be fine.
  - Make sure there's **no** `GRUB_HIDDEN_TIMEOUT_QUIET` and `GRUB_HIDDEN_TIMEOUT`. **Just delete them.**
 
 Install dependencies:
 
 ```
-sudo apt update && sudo apt -y install ca-certificates cpio wget whois
+sudo apt update && sudo apt -y install ca-certificates whois
 ```
 
 ## Step 2. Run the Script
@@ -39,7 +39,7 @@ sudo sh -c "$(wget -O - https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
  - `-s http://security.debian.org/debian-security` Custom URL for security repository mirror
  - `-fs ext4` Filesystem for partition
- - `-ip 192.168.1.42` Configure network manually with an IP address (following options only work when IP address specified)
+ - `-ip 192.168.1.42` Configure network manually with an IP address **(the following `-cidr`, `-gw` and `-dns` options only work when an IP address is specified)**
  - `-cidr 255.255.255.0` Netmask for manual network configuration
  - `-gw 192.168.1.1` Gateway for manual network configuration
  - `-ns "8.8.8.8 8.8.4.4"` DNS for manual network configuration
