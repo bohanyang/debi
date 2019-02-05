@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # Copyright 2018 Brent, Yang Bohan
 
@@ -99,6 +99,9 @@ while [ $# -gt 0 ]; do
     -dry-run)
       DRYRUN=true
     ;;
+    -crypto)
+      DISKCRYPTO="crypto"
+    ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -128,6 +131,7 @@ NTP=${NTP:-pool.ntp.org}
 UPGRADE=${UPGRADE:-full-upgrade}
 DNS=${DNS:-8.8.8.8 8.8.4.4}
 FILESYS=${FILESYS:-ext4}
+DISKCRYPTO=${DISKCRYPTO:-regular}
 
 if [ -z "$SECURITY" ]; then
   SECURITY=http://security.debian.org/debian-security
@@ -173,6 +177,7 @@ cat >> preseed.cfg << EOF
 # TIME_ZONE: 5
 # NTP: 5
 # FILESYS: 6
+# DISKCRYPTO: 6
 # SECURITY: 8
 # INCLUDE: 9
 # UPGRADE: 9
@@ -255,13 +260,22 @@ d-i clock-setup/ntp-server string {{-NTP-}}
 # 6. Partitioning: FILESYS
 
 d-i partman-basicfilesystems/no_swap boolean false
-d-i partman-auto/method string regular
+d-i partman/default_filesystem string {{-FILESYS-}}
+d-i partman-auto/method string {{-DISKCRYPTO-}}
 d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-md/device_remove_md boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 {{-FILESYS-}} $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } filesystem{ {{-FILESYS-}} } mountpoint{ / } .
+EOF
+
+if [ "$DISKCRYPTO" = "regular" ]; then
+cat >> preseed.cfg << EOF
+d-i partman-auto/expert_recipe string naive :: 0 1 -1 $default_filesystem $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } $default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
+EOF
+fi
+
+cat >> preseed.cfg << EOF
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
@@ -313,6 +327,7 @@ sed -i 's/{{-NTP-}}/'"$NTP"'/g' preseed.cfg
 sed -i 's/{{-SECURITY-}}/'$(echo "$SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-UPGRADE-}}/'"$UPGRADE"'/g' preseed.cfg
 sed -i 's/{{-FILESYS-}}/'"$FILESYS"'/g' preseed.cfg
+sed -i 's/{{-DISKCRYPTO-}}/'"$DISKCRYPTO"'/g' preseed.cfg
 
 if [ "$DRYRUN" != true ]; then
 
