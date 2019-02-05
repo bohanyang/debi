@@ -39,7 +39,7 @@ sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-upgrade full-upgrade` Whether to upgrade packages after debootstrap (`none`, `safe-upgrade`, `full-upgrade`)
  - `-s http://security.debian.org/debian-security` Custom URL for security repository mirror
  - `-fs ext4` Filesystem for partition
- - `-crypto` Full disk encryption (Can't be fully automated at current. Need connection to VNC to go through the steps)
+ - `-crypto` Full disk encryption (Can't be fully automated at current time. Need VNC connection to go through the steps)
  - `-ip 192.168.1.42` Configure network manually with an IP address **(the following** `-cidr`**,** `-gw` **and** `-dns` **options only work when an IP address is specified)**
  - `-cidr 255.255.255.0` Netmask for manual network configuration
  - `-gw 192.168.1.1` Gateway for manual network configuration
