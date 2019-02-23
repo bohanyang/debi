@@ -102,6 +102,9 @@ while [ $# -gt 0 ]; do
     -crypto)
       DISKCRYPTO="crypto"
     ;;
+    -no-auto-partition)
+      NOAUTOPART=true
+    ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -256,7 +259,10 @@ d-i clock-setup/utc boolean true
 d-i time/zone string {{-TIME_ZONE-}}
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string {{-NTP-}}
+EOF
 
+if [ "$NOAUTOPART" != true ]; then
+cat >> preseed.cfg << EOF
 # 6. Partitioning: FILESYS
 
 d-i partman-basicfilesystems/no_swap boolean false
@@ -281,7 +287,10 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 d-i partman/mount_style select uuid
+EOF
+fi
 
+cat >> preseed.cfg << EOF
 # 7. Base system installation
 
 d-i base-installer/install-recommends boolean false
