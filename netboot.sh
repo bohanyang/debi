@@ -276,7 +276,7 @@ EOF
 
 if [ "$DISKCRYPTO" = "regular" ]; then
 cat >> preseed.cfg << EOF
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 $default_filesystem $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } $default_filesystem{ } mountpoint{ / } .
+d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$default_filesystem \$primary{ } \$bootable{ } method{ format } format{ } use_filesystem{ } \$default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 EOF
 fi
