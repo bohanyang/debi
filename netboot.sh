@@ -106,7 +106,7 @@ while [ $# -gt 0 ]; do
       MANUALLY=true
     ;;
     -arch)
-      MACHARCH=$2
+      ARCH=$2
       shift
     ;;
     *)
@@ -130,7 +130,7 @@ COUNTRY=${COUNTRY:-US}
 PROTO=${PROTO:-http}
 HOST=${HOST:-deb.debian.org}
 DIR=${DIR:-/debian}
-if [ -z "$SECURITY" ]; then
+if [ -z "$ARCH" ]; then
 ARCH=$(dpkg --print-architecture)
 fi
 SUITE=${SUITE:-stretch}
