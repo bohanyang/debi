@@ -108,7 +108,7 @@ while [ $# -gt 0 ]; do
     -arch)
       MACHARCH=$2
       shift
-      ;;
+    ;;
     *)
       echo "Illegal option $1"
       exit 1
