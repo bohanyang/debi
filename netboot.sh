@@ -102,8 +102,8 @@ while [ $# -gt 0 ]; do
     -crypto)
       DISKCRYPTO="crypto"
     ;;
-    -no-auto-partition)
-      NOAUTOPART=true
+    -manually)
+      MANUALLY=true
     ;;
     *)
       echo "Illegal option $1"
@@ -144,7 +144,7 @@ else
   fi
 fi
 
-if [ -z "$PASSWD" ]; then
+if [ -z "$PASSWD" ] && [ "$MANUALLY" != true ]; then
   PASSWD=$(mkpasswd -m sha-512)
 else
   PASSWD=$(mkpasswd -m sha-512 "$PASSWD")
@@ -245,6 +245,10 @@ d-i mirror/{{-PROTO-}}/directory string {{-DIR-}}
 d-i mirror/{{-PROTO-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
+EOF
+
+if [ "$MANUALLY" != true ]; then
+cat >> preseed.cfg << EOF
 
 # 4. Account setup: ADMIN, PASSWD
 
@@ -261,8 +265,8 @@ d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string {{-NTP-}}
 EOF
 
-if [ "$NOAUTOPART" != true ]; then
 cat >> preseed.cfg << EOF
+
 # 6. Partitioning: FILESYS
 
 d-i partman-basicfilesystems/no_swap boolean false
@@ -288,9 +292,9 @@ d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 d-i partman/mount_style select uuid
 EOF
-fi
 
 cat >> preseed.cfg << EOF
+
 # 7. Base system installation
 
 d-i base-installer/install-recommends boolean false
@@ -323,6 +327,7 @@ d-i grub-installer/bootdev string default
 
 d-i finish-install/reboot_in_progress note
 EOF
+fi
 
 sed -i 's/{{-COUNTRY-}}/'"$COUNTRY"'/g' preseed.cfg
 sed -i 's/{{-PROTO-}}/'"$PROTO"'/g' preseed.cfg
