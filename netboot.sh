@@ -163,8 +163,13 @@ if [ "$DRYRUN" != true ]; then
 
 BOOT=/boot/debian-$SUITE
 URL=$PROTO://$HOST$DIR/dists/$SUITE/main/installer-$ARCH/current/images/netboot/debian-installer/$ARCH
-
+if type update-grub >/dev/null; then
 update-grub
+GRUBCFG=/boot/grub/grub.cfg
+else
+GRUBCFG=/boot/grub2/grub.cfg
+grub2-mkconfig –o "$GRUBCFG"
+fi
 rm -fr "$BOOT"
 mkdir -p "$BOOT"
 cd "$BOOT"
@@ -358,7 +363,7 @@ gunzip initrd.gz
 echo preseed.cfg | cpio -H newc -o -A -F initrd
 gzip initrd
 
-cat >> ../grub/grub.cfg << EOF
+cat >> "$GRUBCFG" << EOF
 menuentry 'New Install' {
 insmod part_msdos
 insmod ext2
