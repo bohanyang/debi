@@ -105,6 +105,10 @@ while [ $# -gt 0 ]; do
     -manually)
       MANUALLY=true
     ;;
+    -arch)
+      MACHARCH=$2
+      shift
+      ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -126,7 +130,9 @@ COUNTRY=${COUNTRY:-US}
 PROTO=${PROTO:-http}
 HOST=${HOST:-deb.debian.org}
 DIR=${DIR:-/debian}
+if [ -z "$SECURITY" ]; then
 ARCH=$(dpkg --print-architecture)
+fi
 SUITE=${SUITE:-stretch}
 ADMIN=${ADMIN:-debian}
 TIME_ZONE=${TIME_ZONE:-UTC}
