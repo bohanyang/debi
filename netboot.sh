@@ -150,10 +150,12 @@ else
   fi
 fi
 
-if [ -z "$PASSWD" ] && [ "$MANUALLY" != true ]; then
+if [ "$MANUALLY" != true ]; then
+if [ -z "$PASSWD" ]; then
   PASSWD=$(mkpasswd -m sha-512)
 else
   PASSWD=$(mkpasswd -m sha-512 "$PASSWD")
+fi
 fi
 
 
