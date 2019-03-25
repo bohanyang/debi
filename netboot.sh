@@ -109,6 +109,9 @@ while [ $# -gt 0 ]; do
       ARCH=$2
       shift
     ;;
+    -lvm)
+      ISLVM=true
+    ;;
     *)
       echo "Illegal option $1"
       exit 1
@@ -160,8 +163,14 @@ fi
 
 
 if [ "$DRYRUN" != true ]; then
-
-BOOT=/boot/debian-$SUITE
+BOOTNAME="debian-$SUITE"
+if [ "$ISLVM" = true ]; then
+BOOTROOT=/
+else
+BOOTROOT=/boot/
+fi
+BOOT="/boot/$BOOTNAME"
+OUTPUTBOOT="$BOOTROOT$BOOTNAME"
 URL=$PROTO://$HOST$DIR/dists/$SUITE/main/installer-$ARCH/current/images/netboot/debian-installer/$ARCH
 if type update-grub >/dev/null; then
 update-grub
@@ -173,7 +182,6 @@ fi
 rm -fr "$BOOT"
 mkdir -p "$BOOT"
 cd "$BOOT"
-
 fi
 
 cat >> preseed.cfg << EOF
@@ -368,8 +376,8 @@ menuentry 'New Install' {
 insmod part_msdos
 insmod ext2
 set root='(hd0,msdos1)'
-linux $BOOT/linux
-initrd $BOOT/initrd.gz
+linux $OUTPUTBOOT/linux
+initrd $OUTPUTBOOT/initrd.gz
 }
 EOF
 
