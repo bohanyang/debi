@@ -301,7 +301,7 @@ EOF
 
 if [ "$DEBNETB_DISKCRYPTO" = "regular" ]; then
 cat >> preseed.cfg << EOF
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$DEBNETB_default_filesystem \$DEBNETB_primary{ } \$DEBNETB_bootable{ } method{ format } format{ } use_filesystem{ } \$DEBNETB_default_filesystem{ } mountpoint{ / } .
+d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$default_filesystem \$primary{ } \$bootable{ } method{ format } format{ } use_filesystem{ } \$default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 EOF
 fi
