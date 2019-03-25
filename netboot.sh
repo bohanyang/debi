@@ -177,7 +177,7 @@ update-grub
 DEBNETB_GRUBCFG=/boot/grub/grub.cfg
 else
 DEBNETB_GRUBCFG=/boot/grub2/grub.cfg
-grub2-mkconfig –o "$DEBNETB_GRUBCFG"
+grub2-mkconfig > "$DEBNETB_GRUBCFG"
 fi
 rm -fr "$DEBNETB_BOOT"
 mkdir -p "$DEBNETB_BOOT"
