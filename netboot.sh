@@ -372,7 +372,7 @@ echo preseed.cfg | cpio -H newc -o -A -F initrd
 gzip initrd
 
 cat >> "$DEBNETB_GRUBCFG" << EOF
-menuentry 'New Install' {
+menuentry 'New Install' --id debian-netboot-installer {
 insmod part_msdos
 insmod ext2
 set root='(hd0,msdos1)'
