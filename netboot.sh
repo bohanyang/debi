@@ -375,7 +375,7 @@ cat >> "$DEBNETB_GRUBCFG" << EOF
 menuentry 'New Install' {
 insmod part_msdos
 insmod ext2
-set DEBNETB_root='(hd0,msdos1)'
+set root='(hd0,msdos1)'
 linux $DEBNETB_OUTPUTBOOT/linux
 initrd $DEBNETB_OUTPUTBOOT/initrd.gz
 }
