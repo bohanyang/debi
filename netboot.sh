@@ -206,12 +206,12 @@ cat >> preseed.cfg << EOF
 # INCLUDE: 9
 # UPGRADE: 9
 
-# 1. Localization: COUNTRY
+# 1. Localization:
 
-d-i debian-installer/locale string en_US
 d-i debian-installer/language string en
 d-i debian-installer/country string {{-COUNTRY-}}
 d-i debian-installer/locale string en_US.UTF-8
+d-i console-setup/ask_detect boolean false
 d-i keyboard-configuration/xkb-keymap select us
 
 # 2. Network configuration: IP_ADDR, NETMASK, GATEWAY, DNS, FQDN, SSH_PASSWD
