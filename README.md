@@ -4,7 +4,7 @@
 
  - A clean normally running true virtualization (e.g. KVM) VPS with GRUB 2 and VNC access. This script have been tested on SolusVM KVM VPS & Alibaba Cloud ECS with Debian 9 & Ubuntu 16.04.
  - Then check `/etc/default/grub` with your preferred editor (e.g. `nano` or `vi`).
- - Set `GRUB_DEFAULT` to `debian-netboot-installer` select the installer to boot automatically after timeout.
+ - Set `GRUB_DEFAULT` to `debi` select the installer to boot automatically after timeout.
  - Make sure there's reasonable number for `GRUB_TIMEOUT` **timeout**. You can just set `GRUB_TIMEOUT=10` which will be fine.
  - Make sure there's **no** `GRUB_HIDDEN_TIMEOUT_QUIET` and `GRUB_HIDDEN_TIMEOUT`. **Just delete them.**
 
@@ -78,5 +78,5 @@ You can select a template for quickly applying options. All custom settings will
  - `sudo reboot` with your SSH and the VM should **reboot**.
  - Switch to your VNC window **quickly**. You should enter the **GRUB selection menu** now.
  - If you've configured correct `GRUB_DEFAULT`, it should be booted into installer automatically after timeout.
- - Or, use your keyboard to **select** `New Install` and **enter** it. Also, **be quick**, just do not miss the `GRUB_TIMEOUT` timeout you've set.
+ - Or, use your keyboard to **select** `Debian Installer` and **enter** it. Also, **be quick**, just do not miss the `GRUB_TIMEOUT` timeout you've set.
  - Finally, you should see the screen of Debian Installer now. It will setup all things automatically and reboot when complete.

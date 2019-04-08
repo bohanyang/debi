@@ -359,7 +359,7 @@ if [ "$DEBI_DRYRUN" != true ]; then
   gzip initrd
 
   cat >> "$DEBI_GRUB_CONFIG" << EOF
-menuentry 'New Install' --id debian-netboot-installer {
+menuentry 'Debian Installer' --id debi {
 insmod part_msdos
 insmod ext2
 set root='(hd0,msdos1)'
