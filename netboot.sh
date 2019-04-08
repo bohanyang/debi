@@ -89,7 +89,13 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -ssh)
+      DEBNETB_SSH=true
       DEBNETB_SSH_PASSWD=$2
+      shift
+      ;;
+    -ssh-pubkey)
+      DEBNETB_SSH=true
+      DEBNETB_SSH_PUBKEY=$2
       shift
       ;;
     -fs)
@@ -155,12 +161,11 @@ fi
 
 if [ "$DEBNETB_MANUALLY" != true ]; then
 if [ -z "$DEBNETB_PASSWD" ]; then
-  DEBNETB_PASSWD=$(mkpasswd -m sha-512)
+DEBNETB_PASSWD=$(mkpasswd -m sha-512)
 else
-  DEBNETB_PASSWD=$(mkpasswd -m sha-512 "$DEBNETB_PASSWD")
+DEBNETB_PASSWD=$(mkpasswd -m sha-512 "$DEBNETB_PASSWD")
 fi
 fi
-
 
 if [ "$DEBNETB_DRYRUN" != true ]; then
 DEBNETB_BOOTNAME="debian-$DEBNETB_SUITE"
@@ -185,7 +190,6 @@ cd "$DEBNETB_BOOT"
 fi
 
 cat >> preseed.cfg << EOF
-# COUNTRY: 1
 # IP_ADDR: 2
 # NETMASK: 2
 # GATEWAY: 2
@@ -196,20 +200,18 @@ cat >> preseed.cfg << EOF
 # HOST: 3
 # DIR: 3
 # SUITE: 3, 8
-# ADMIN: 4
-# PASSWD: 4
-# TIME_ZONE: 5
-# NTP: 5
+# TIME_ZONE: 4
+# NTP: 4
+# ADMIN: 5
+# PASSWD: 5
 # FILESYS: 6
 # DISKCRYPTO: 6
 # SECURITY: 8
 # INCLUDE: 9
 # UPGRADE: 9
 
-# 1. Localization:
+# 1. Localization
 
-d-i debian-installer/language string en
-d-i debian-installer/country string {{-COUNTRY-}}
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
@@ -246,11 +248,16 @@ cat >> preseed.cfg << EOF
 d-i hw-detect/load_firmware boolean true
 EOF
 
-if [ -n "$DEBNETB_SSH_PASSWD" ]; then
+if [ "$DEBNETB_SSH" = true ]; then
   echo "d-i anna/choose_modules string network-console" >> preseed.cfg
   echo "d-i preseed/early_command string anna-install network-console" >> preseed.cfg
-  echo "d-i network-console/password password $DEBNETB_SSH_PASSWD" >> preseed.cfg
-  echo "d-i network-console/password-again password $DEBNETB_SSH_PASSWD" >> preseed.cfg
+  if [ -n "$DEBNETB_SSH_PASSWD" ]; then
+    echo "d-i network-console/password password $DEBNETB_SSH_PASSWD" >> preseed.cfg
+    echo "d-i network-console/password-again password $DEBNETB_SSH_PASSWD" >> preseed.cfg
+  fi
+  if [ -n "$DEBNETB_SSH_PUBKEY" ]; then
+    echo "d-i network-console/authorized_keys_url string $DEBNETB_SSH_PUBKEY" >> preseed.cfg
+  fi
   echo "d-i network-console/start select Continue" >> preseed.cfg
 fi
 
@@ -265,19 +272,8 @@ d-i mirror/{{-PROTO-}}/directory string {{-DIR-}}
 d-i mirror/{{-PROTO-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
-EOF
 
-if [ "$DEBNETB_MANUALLY" != true ]; then
-cat >> preseed.cfg << EOF
-
-# 4. Account setup: ADMIN, PASSWD
-
-d-i passwd/root-login boolean false
-d-i passwd/user-fullname string
-d-i passwd/username string {{-ADMIN-}}
-d-i passwd/user-password-crypted password {{-PASSWD-}}
-
-# 5. Clock and time zone setup: TIME_ZONE, NTP
+# 4. Clock and time zone setup: TIME_ZONE, NTP
 
 d-i clock-setup/utc boolean true
 d-i time/zone string {{-TIME_ZONE-}}
@@ -285,7 +281,15 @@ d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string {{-NTP-}}
 EOF
 
+if [ "$DEBNETB_MANUALLY" != true ]; then
 cat >> preseed.cfg << EOF
+
+# 5. Account setup: ADMIN, PASSWD
+
+d-i passwd/root-login boolean false
+d-i passwd/user-fullname string
+d-i passwd/username string {{-ADMIN-}}
+d-i passwd/user-password-crypted password {{-PASSWD-}}
 
 # 6. Partitioning: FILESYS
 
@@ -349,7 +353,6 @@ d-i finish-install/reboot_in_progress note
 EOF
 fi
 
-sed -i 's/{{-COUNTRY-}}/'"$DEBNETB_COUNTRY"'/g' preseed.cfg
 sed -i 's/{{-PROTO-}}/'"$DEBNETB_PROTO"'/g' preseed.cfg
 sed -i 's/{{-HOST-}}/'"$DEBNETB_HOST"'/g' preseed.cfg
 sed -i 's/{{-DIR-}}/'$(echo "$DEBNETB_DIR" | sed 's/\//\\\//g')'/g' preseed.cfg

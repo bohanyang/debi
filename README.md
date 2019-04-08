@@ -26,7 +26,7 @@ sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/ne
 
 ### All Options
 
- - `-c US` Debian Installer Country
+ - `-c CN` ~~Debian Installer Country~~ Only useful for the *Chinese Special* settings
  - `-fqdn debian` FQDN including hostname and domain. Priority: `-fqdn` option > rDNS > `debian` as default.
  - `-proto http` Transport protocol for archive mirror only but not security repository (`http`, `https`, `ftp`)
  - `-host deb.debian.org` Host for archive mirror only but not security repository
@@ -47,6 +47,9 @@ sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/ne
  - `-add "ca-certificates curl fail2ban openssl whois"` Include individual additional packages to install
  - `-ssh secret` Enable network console and specify **password for SSH access during install process**. You can login with `installer` user and check system logs.
  - `-dry-run` Generate `preseed.cfg` and save to current dir but don't actually do anything
+ - `-manually` Manually configure user account and disk partition, etc. (Network, repository mirror & time related settings will be auto-configured)
+ - `-arch amd64` Specify architecture (useful under CentOS)
+ - `-lvm` Use `/` as the boot root path for the `grub.cfg` instead of `/boot`, useful under LVM partition disks
 
 ### Chinese Special
 
