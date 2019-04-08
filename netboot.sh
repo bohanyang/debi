@@ -353,7 +353,7 @@ sed -i 's/{{-UPGRADE-}}/'"$DEBI_UPGRADE"'/g' preseed.cfg
 sed -i 's/{{-FILESYSTEM-}}/'"$DEBI_FILESYS"'/g' preseed.cfg
 sed -i 's/{{-DISK_ENCRYPTION-}}/'"$DEBI_DISK_ENCRYPTION"'/g' preseed.cfg
 
-if [ "$DEBI_DRYRUN" != true ]; then
+if [ "$DEBI_DRY_RUN" != true ]; then
   wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
   gunzip initrd.gz
   echo preseed.cfg | cpio -H newc -o -A -F initrd
