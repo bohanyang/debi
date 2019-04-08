@@ -104,20 +104,20 @@ while [ $# -gt 0 ]; do
       ;;
     --dry-run)
       DEBI_DRY_RUN=true
-    ;;
+      ;;
     --disk-encryption)
       DEBI_DISK_ENCRYPTION="crypto"
-    ;;
+      ;;
     --manual)
       DEBI_MANUAL=true
-    ;;
+      ;;
     --architecture)
       DEBI_ARCHITECTURE=$2
       shift
-    ;;
+      ;;
     --boot-partition)
       DEBI_BOOT_PARTITION=true
-    ;;
+      ;;
     *)
       echo "Illegal option $1"
       exit 1
