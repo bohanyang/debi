@@ -350,7 +350,7 @@ sed -i 's/{{-TIMEZONE-}}/'$(echo "$DEBI_TIMEZONE" | sed 's/\//\\\//g')'/g' prese
 sed -i 's/{{-NTP_SERVER-}}/'"$DEBI_NTP_SERVER"'/g' preseed.cfg
 sed -i 's/{{-SECURITY_MIRROR-}}/'$(echo "$DEBI_SECURITY_MIRROR" | sed 's/\//\\\//g')'/g' preseed.cfg
 sed -i 's/{{-UPGRADE-}}/'"$DEBI_UPGRADE"'/g' preseed.cfg
-sed -i 's/{{-FILESYSTEM-}}/'"$DEBI_FILESYS"'/g' preseed.cfg
+sed -i 's/{{-FILESYSTEM-}}/'"$DEBI_FILESYSTEM"'/g' preseed.cfg
 sed -i 's/{{-DISK_ENCRYPTION-}}/'"$DEBI_DISK_ENCRYPTION"'/g' preseed.cfg
 
 if [ "$DEBI_DRY_RUN" != true ]; then
