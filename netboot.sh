@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-# Copyright 2018 Brent, Yang Bohan
+# Copyright 2018-present Brent, Yang Bohan
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,103 +20,103 @@ set -ex
 
 while [ $# -gt 0 ]; do
   case $1 in
-    -c)
-      DEBNETB_COUNTRY=$2
+    --template)
+      DEBI_TEMPLATE=$2
       shift
       ;;
-    -fqdn)
-      DEBNETB_FQDN=$2
+    --hostname)
+      DEBI_HOSTNAME=$2
       shift
       ;;
-    -proto)
-      DEBNETB_PROTO=$2
+    --protocol)
+      DEBI_PROTOCOL=$2
       shift
       ;;
-    -host)
-      DEBNETB_HOST=$2
+    --mirror)
+      DEBI_MIRROR=$2
       shift
       ;;
-    -dir)
-      DEBNETB_DIR=${2%/}
+    --directory)
+      DEBI_DIRECTORY=${2%/}
       shift
       ;;
-    -suite)
-      DEBNETB_SUITE=$2
+    --suite)
+      DEBI_SUITE=$2
       shift
       ;;
-    -u)
-      DEBNETB_ADMIN=$2
+    --username)
+      DEBI_USERNAME=$2
       shift
       ;;
-    -p)
-      DEBNETB_PASSWD=$2
+    --password)
+      DEBI_PASSWORD=$2
       shift
       ;;
-    -tz)
-      DEBNETB_TIME_ZONE=$2
+    --timezone)
+      DEBI_TIMEZONE=$2
       shift
       ;;
-    -ntp)
-      DEBNETB_NTP=$2
+    --ntp-server)
+      DEBI_NTP_SERVER=$2
       shift
       ;;
-    -s)
-      DEBNETB_SECURITY=$2
+    --security-mirror)
+      DEBI_SECURITY_MIRROR=$2
       shift
       ;;
-    -upgrade)
-      DEBNETB_UPGRADE=$2
+    --upgrade)
+      DEBI_UPGRADE=$2
       shift
       ;;
-    -ip)
-      DEBNETB_IP_ADDR=$2
+    --ip)
+      DEBI_IP=$2
       shift
       ;;
-    -cidr)
-      DEBNETB_NETMASK=$2
+    --netmask)
+      DEBI_NETMASK=$2
       shift
       ;;
-    -gw)
-      DEBNETB_GATEWAY=$2
+    --gateway)
+      DEBI_GATEWAY=$2
       shift
       ;;
-    -ns)
-      DEBNETB_DNS=$2
+    --dns)
+      DEBI_DNS=$2
       shift
       ;;
-    -add)
-      DEBNETB_INCLUDE=$2
+    --include)
+      DEBI_INCLUDE=$2
       shift
       ;;
-    -ssh)
-      DEBNETB_SSH=true
-      DEBNETB_SSH_PASSWD=$2
+    --ssh-password)
+      DEBI_SSH=true
+      DEBI_SSH_PASSWD=$2
       shift
       ;;
-    -ssh-pubkey)
-      DEBNETB_SSH=true
-      DEBNETB_SSH_PUBKEY=$2
+    --ssh-keys)
+      DEBI_SSH=true
+      DEBI_SSH_KEYS=$2
       shift
       ;;
-    -fs)
-      DEBNETB_FILESYS=$2
+    --filesystem)
+      DEBI_FILESYSTEM=$2
       shift
       ;;
-    -dry-run)
-      DEBNETB_DRYRUN=true
+    --dry-run)
+      DEBI_DRY_RUN=true
     ;;
-    -crypto)
-      DEBNETB_DISKCRYPTO="crypto"
+    --disk-encryption)
+      DEBI_DISK_ENCRYPTION="crypto"
     ;;
-    -manually)
-      DEBNETB_MANUALLY=true
+    --manual)
+      DEBI_MANUAL=true
     ;;
-    -arch)
-      DEBNETB_ARCH=$2
+    --architecture)
+      DEBI_ARCHITECTURE=$2
       shift
     ;;
-    -lvm)
-      DEBNETB_ISLVM=true
+    --boot-partition)
+      DEBI_BOOT_PARTITION=true
     ;;
     *)
       echo "Illegal option $1"
@@ -125,112 +125,98 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-case "$DEBNETB_COUNTRY" in
-  CN)
-    DEBNETB_PROTO=${DEBNETB_PROTO:-https}
-    DEBNETB_HOST=${DEBNETB_HOST:-chinanet.mirrors.ustc.edu.cn}
-    DEBNETB_TIME_ZONE=${DEBNETB_TIME_ZONE:-Asia/Shanghai}
-    DEBNETB_NTP=${DEBNETB_NTP:-cn.ntp.org.cn}
-    DEBNETB_SECURITY=${DEBNETB_SECURITY:-true}
-    DEBNETB_DNS=${DEBNETB_DNS:-156.154.70.5 156.154.71.5}
+case "$DEBI_TEMPLATE" in
+  china)
+    DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
+    DEBI_MIRROR=${DEBI_MIRROR:-chinanet.mirrors.ustc.edu.cn}
+    DEBI_TIMEZONE=${DEBI_TIMEZONE:-Asia/Shanghai}
+    DEBI_NTP_SERVER=${DEBI_NTP_SERVER:-cn.ntp.org.cn}
+    DEBI_SECURITY_MIRROR=${DEBI_SECURITY_MIRROR:-true}
+    DEBI_DNS=${DEBI_DNS:-156.154.70.5 156.154.71.5}
+  vps)
+    DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
+    DEBI_MIRROR=${DEBI_MIRROR:-cdn-aws.deb.debian.org}
+    DEBI_NTP_SERVER=${DEBI_NTP_SERVER:-time.google.com}
+    DEBI_SECURITY_MIRROR=${DEBI_SECURITY_MIRROR:-true}
 esac
 
-DEBNETB_COUNTRY=${DEBNETB_COUNTRY:-US}
-DEBNETB_PROTO=${DEBNETB_PROTO:-http}
-DEBNETB_HOST=${DEBNETB_HOST:-deb.debian.org}
-DEBNETB_DIR=${DEBNETB_DIR:-/debian}
-if [ -z "$DEBNETB_ARCH" ]; then
-DEBNETB_ARCH=$(dpkg --print-architecture)
-fi
-DEBNETB_SUITE=${DEBNETB_SUITE:-stretch}
-DEBNETB_ADMIN=${DEBNETB_ADMIN:-debian}
-DEBNETB_TIME_ZONE=${DEBNETB_TIME_ZONE:-UTC}
-DEBNETB_NTP=${DEBNETB_NTP:-pool.ntp.org}
-DEBNETB_UPGRADE=${DEBNETB_UPGRADE:-full-upgrade}
-DEBNETB_DNS=${DEBNETB_DNS:-8.8.8.8 8.8.4.4}
-DEBNETB_FILESYS=${DEBNETB_FILESYS:-ext4}
-DEBNETB_DISKCRYPTO=${DEBNETB_DISKCRYPTO:-regular}
+DEBI_PROTOCOL=${DEBI_PROTOCOL:-http}
+DEBI_MIRROR=${DEBI_MIRROR:-deb.debian.org}
+DEBI_DIRECTORY=${DEBI_DIRECTORY:-/debian}
 
-if [ -z "$DEBNETB_SECURITY" ]; then
-  DEBNETB_SECURITY=http://security.debian.org/debian-security
+if [ -z "$DEBI_ARCHITECTURE" ]; then
+  DEBI_ARCHITECTURE=$(dpkg --print-architecture)
+fi
+
+DEBI_SUITE=${DEBI_SUITE:-stretch}
+DEBI_USERNAME=${DEBI_USERNAME:-debian}
+DEBI_TIMEZONE=${DEBI_TIMEZONE:-UTC}
+DEBI_NTP_SERVER=${DEBI_NTP_SERVER:-pool.ntp.org}
+DEBI_UPGRADE=${DEBI_UPGRADE:-full-upgrade}
+DEBI_DNS=${DEBI_DNS:-1.1.1.1 1.0.0.1}
+DEBI_FILESYSTEM=${DEBI_FILESYSTEM:-ext4}
+DEBI_DISK_ENCRYPTION=${DEBI_DISK_ENCRYPTION:-regular}
+
+if [ -z "$DEBI_SECURITY_MIRROR" ]; then
+  DEBI_SECURITY_MIRROR=http://security.debian.org/debian-security
 else
-  if [ "$DEBNETB_SECURITY" = true ]; then
-    DEBNETB_SECURITY=$DEBNETB_PROTO://$DEBNETB_HOST${DEBNETB_DIR%/*}/debian-security
+  if [ "$DEBI_SECURITY_MIRROR" = true ]; then
+    DEBI_SECURITY_MIRROR=$DEBI_PROTOCOL://$DEBI_MIRROR${DEBI_DIRECTORY%/*}/debian-security
   fi
 fi
 
-if [ "$DEBNETB_MANUALLY" != true ]; then
-if [ -z "$DEBNETB_PASSWD" ]; then
-DEBNETB_PASSWD=$(mkpasswd -m sha-512)
-else
-DEBNETB_PASSWD=$(mkpasswd -m sha-512 "$DEBNETB_PASSWD")
-fi
+if [ "$DEBI_MANUAL" != true ]; then
+  if [ -z "$DEBI_PASSWORD" ]; then
+    DEBI_PASSWORD=$(mkpasswd -m sha-512)
+  else
+    DEBI_PASSWORD=$(mkpasswd -m sha-512 "$DEBI_PASSWORD")
+  fi
 fi
 
-if [ "$DEBNETB_DRYRUN" != true ]; then
-DEBNETB_BOOTNAME="debian-$DEBNETB_SUITE"
-if [ "$DEBNETB_ISLVM" = true ]; then
-DEBNETB_BOOTROOT=/
-else
-DEBNETB_BOOTROOT=/boot/
-fi
-DEBNETB_BOOT="/boot/$DEBNETB_BOOTNAME"
-DEBNETB_OUTPUTBOOT="$DEBNETB_BOOTROOT$DEBNETB_BOOTNAME"
-DEBNETB_URL=$DEBNETB_PROTO://$DEBNETB_HOST$DEBNETB_DIR/dists/$DEBNETB_SUITE/main/installer-$DEBNETB_ARCH/current/images/netboot/debian-installer/$DEBNETB_ARCH
-if type update-grub >/dev/null; then
-update-grub
-DEBNETB_GRUBCFG=/boot/grub/grub.cfg
-else
-DEBNETB_GRUBCFG=/boot/grub2/grub.cfg
-grub2-mkconfig > "$DEBNETB_GRUBCFG"
-fi
-rm -fr "$DEBNETB_BOOT"
-mkdir -p "$DEBNETB_BOOT"
-cd "$DEBNETB_BOOT"
+if [ "$DEBI_DRY_RUN" != true ]; then
+  DEBI_TARGET="debian-$DEBI_SUITE"
+  if [ "$DEBI_BOOT_PARTITION" = true ]; then
+    DEBI_BOOT_DIRECTORY=/
+  else
+    DEBI_BOOT_DIRECTORY=/boot/
+  fi
+  DEBI_WORKDIR="/boot/$DEBI_TARGET"
+  DEBI_TARGET_PATH="$DEBI_BOOT_DIRECTORY$DEBI_TARGET"
+  DEBI_BASE_URL=$DEBI_PROTOCOL://$DEBI_MIRROR$DEBI_DIRECTORY/dists/$DEBI_SUITE/main/installer-$DEBI_ARCHITECTURE/current/images/netboot/debian-installer/$DEBI_ARCHITECTURE
+  if type update-grub >/dev/null; then
+    update-grub
+    DEBI_GRUB_CONFIG=/boot/grub/grub.cfg
+  else
+    DEBI_GRUB_CONFIG=/boot/grub2/grub.cfg
+    grub2-mkconfig > "$DEBI_GRUB_CONFIG"
+  fi
+  rm -fr "$DEBI_WORKDIR"
+  mkdir -p "$DEBI_WORKDIR"
+  cd "$DEBI_WORKDIR"
 fi
 
 cat >> preseed.cfg << EOF
-# IP_ADDR: 2
-# NETMASK: 2
-# GATEWAY: 2
-# DNS: 2
-# FQDN: 2
-# SSH_PASSWD: 2
-# PROTO: 3
-# HOST: 3
-# DIR: 3
-# SUITE: 3, 8
-# TIME_ZONE: 4
-# NTP: 4
-# ADMIN: 5
-# PASSWD: 5
-# FILESYS: 6
-# DISKCRYPTO: 6
-# SECURITY: 8
-# INCLUDE: 9
-# UPGRADE: 9
-
-# 1. Localization
+# Localization
 
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
-# 2. Network configuration: IP_ADDR, NETMASK, GATEWAY, DNS, FQDN, SSH_PASSWD
+# Network configuration
 
 d-i netcfg/choose_interface select auto
 EOF
 
-if [ -n "$DEBNETB_IP_ADDR" ]; then
+if [ -n "$DEBI_IP" ]; then
   echo "d-i netcfg/disable_autoconfig boolean true" >> preseed.cfg
-  echo "d-i netcfg/get_ipaddress string $DEBNETB_IP_ADDR" >> preseed.cfg
-  if [ -n "$DEBNETB_NETMASK" ]; then
-    echo "d-i netcfg/get_netmask string $DEBNETB_NETMASK" >> preseed.cfg
+  echo "d-i netcfg/get_ipaddress string $DEBI_IP" >> preseed.cfg
+  if [ -n "$DEBI_NETMASK" ]; then
+    echo "d-i netcfg/get_netmask string $DEBI_NETMASK" >> preseed.cfg
   fi
-  if [ -n "$DEBNETB_GATEWAY" ]; then
-    echo "d-i netcfg/get_gateway string $DEBNETB_GATEWAY" >> preseed.cfg
+  if [ -n "$DEBI_GATEWAY" ]; then
+    echo "d-i netcfg/get_gateway string $DEBI_GATEWAY" >> preseed.cfg
   fi
-  if [ -n "$DEBNETB_DNS" ]; then
-    echo "d-i netcfg/get_nameservers string $DEBNETB_DNS" >> preseed.cfg
+  if [ -n "$DEBI_DNS" ]; then
+    echo "d-i netcfg/get_nameservers string $DEBI_DNS" >> preseed.cfg
   fi
   echo "d-i netcfg/confirm_static boolean true" >> preseed.cfg
 fi
@@ -240,76 +226,76 @@ d-i netcfg/get_hostname string debian
 d-i netcfg/get_domain string
 EOF
 
-if [ -n "$DEBNETB_FQDN" ]; then
-  echo "d-i netcfg/hostname string $DEBNETB_FQDN" >> preseed.cfg
+if [ -n "$DEBI_HOSTNAME" ]; then
+  echo "d-i netcfg/hostname string $DEBI_HOSTNAME" >> preseed.cfg
 fi
 
 cat >> preseed.cfg << EOF
 d-i hw-detect/load_firmware boolean true
 EOF
 
-if [ "$DEBNETB_SSH" = true ]; then
+if [ "$DEBI_SSH" = true ]; then
   echo "d-i anna/choose_modules string network-console" >> preseed.cfg
   echo "d-i preseed/early_command string anna-install network-console" >> preseed.cfg
-  if [ -n "$DEBNETB_SSH_PASSWD" ]; then
-    echo "d-i network-console/password password $DEBNETB_SSH_PASSWD" >> preseed.cfg
-    echo "d-i network-console/password-again password $DEBNETB_SSH_PASSWD" >> preseed.cfg
+  if [ -n "$DEBI_SSH_PASSWORD" ]; then
+    echo "d-i network-console/password password $DEBI_SSH_PASSWORD" >> preseed.cfg
+    echo "d-i network-console/password-again password $DEBI_SSH_PASSWORD" >> preseed.cfg
   fi
-  if [ -n "$DEBNETB_SSH_PUBKEY" ]; then
-    echo "d-i network-console/authorized_keys_url string $DEBNETB_SSH_PUBKEY" >> preseed.cfg
+  if [ -n "$DEBI_SSH_KEYS" ]; then
+    echo "d-i network-console/authorized_keys_url string $DEBI_SSH_KEYS" >> preseed.cfg
   fi
   echo "d-i network-console/start select Continue" >> preseed.cfg
 fi
 
 cat >> preseed.cfg << EOF
 
-# 3. Mirror settings: PROTO, HOST, DIR, SUITE
+# Mirror settings
 
 d-i mirror/country string manual
-d-i mirror/protocol string {{-PROTO-}}
-d-i mirror/{{-PROTO-}}/hostname string {{-HOST-}}
-d-i mirror/{{-PROTO-}}/directory string {{-DIR-}}
-d-i mirror/{{-PROTO-}}/proxy string
+d-i mirror/protocol string {{-PROTOCOL-}}
+d-i mirror/{{-PROTOCOL-}}/hostname string {{-MIRROR-}}
+d-i mirror/{{-PROTOCOL-}}/directory string {{-DIRECTORY-}}
+d-i mirror/{{-PROTOCOL-}}/proxy string
 d-i mirror/suite string {{-SUITE-}}
 d-i mirror/udeb/suite string {{-SUITE-}}
 
-# 4. Clock and time zone setup: TIME_ZONE, NTP
+# Clock and time zone setup
 
 d-i clock-setup/utc boolean true
-d-i time/zone string {{-TIME_ZONE-}}
+d-i time/zone string {{-TIMEZONE-}}
 d-i clock-setup/ntp boolean true
-d-i clock-setup/ntp-server string {{-NTP-}}
+d-i clock-setup/ntp-server string {{-NTP_SERVER-}}
 EOF
 
-if [ "$DEBNETB_MANUALLY" != true ]; then
-cat >> preseed.cfg << EOF
+if [ "$DEBI_MANUAL" != true ]; then
+  cat >> preseed.cfg << EOF
 
-# 5. Account setup: ADMIN, PASSWD
+# User account setup
 
 d-i passwd/root-login boolean false
 d-i passwd/user-fullname string
-d-i passwd/username string {{-ADMIN-}}
-d-i passwd/user-password-crypted password {{-PASSWD-}}
+d-i passwd/username string {{-USERNAME-}}
+d-i passwd/user-password-crypted password {{-PASSWORD-}}
 
-# 6. Partitioning: FILESYS
+# Disk partitioning
 
 d-i partman-basicfilesystems/no_swap boolean false
-d-i partman/default_filesystem string {{-FILESYS-}}
-d-i partman-auto/method string {{-DISKCRYPTO-}}
+d-i partman/default_filesystem string {{-FILESYSTEM-}}
+d-i partman-auto/method string {{-DISK_ENCRYPTION-}}
 d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-md/device_remove_md boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
 EOF
 
-if [ "$DEBNETB_DISKCRYPTO" = "regular" ]; then
-cat >> preseed.cfg << EOF
+  if [ "$DEBI_DISK_ENCRYPTION" = "regular" ]; then
+    cat >> preseed.cfg << EOF
 d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$default_filesystem \$primary{ } \$bootable{ } method{ format } format{ } use_filesystem{ } \$default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 EOF
-fi
+  fi
 
-cat >> preseed.cfg << EOF
+  cat >> preseed.cfg << EOF
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
@@ -317,69 +303,68 @@ d-i partman/confirm_nooverwrite boolean true
 d-i partman/mount_style select uuid
 EOF
 
-cat >> preseed.cfg << EOF
+  cat >> preseed.cfg << EOF
 
-# 7. Base system installation
+# Base system installation
 
 d-i base-installer/install-recommends boolean false
 
-# 8. Apt setup: SECURITY, SUITE
+# Apt setup
 
 d-i apt-setup/services-select multiselect updates
-d-i apt-setup/local0/repository string {{-SECURITY-}} {{-SUITE-}}/updates main
+d-i apt-setup/local0/repository string {{-SECURITY_MIRROR-}} {{-SUITE-}}/updates main
 d-i apt-setup/local0/source boolean true
 
-# 9. Package selection: INCLUDE, UPGRADE
+# Package selection
 
 tasksel tasksel/first multiselect ssh-server
 EOF
 
-if [ -n "$DEBNETB_INCLUDE" ]; then
-  echo "d-i pkgsel/include string $DEBNETB_INCLUDE" >> preseed.cfg
-fi
+  if [ -n "$DEBI_INCLUDE" ]; then
+    echo "d-i pkgsel/include string $DEBI_INCLUDE" >> preseed.cfg
+  fi
 
-cat >> preseed.cfg << EOF
+  cat >> preseed.cfg << EOF
 d-i pkgsel/upgrade select {{-UPGRADE-}}
 popularity-contest popularity-contest/participate boolean false
 
-# 10. Boot loader installation
+# Boot loader installation
 
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
 
-# 11. Finishing up the installation
+# Finishing up the installation
 
 d-i finish-install/reboot_in_progress note
 EOF
 fi
 
-sed -i 's/{{-PROTO-}}/'"$DEBNETB_PROTO"'/g' preseed.cfg
-sed -i 's/{{-HOST-}}/'"$DEBNETB_HOST"'/g' preseed.cfg
-sed -i 's/{{-DIR-}}/'$(echo "$DEBNETB_DIR" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-SUITE-}}/'"$DEBNETB_SUITE"'/g' preseed.cfg
-sed -i 's/{{-ADMIN-}}/'"$DEBNETB_ADMIN"'/g' preseed.cfg
-sed -i 's/{{-PASSWD-}}/'$(echo "$DEBNETB_PASSWD" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-TIME_ZONE-}}/'$(echo "$DEBNETB_TIME_ZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-NTP-}}/'"$DEBNETB_NTP"'/g' preseed.cfg
-sed -i 's/{{-SECURITY-}}/'$(echo "$DEBNETB_SECURITY" | sed 's/\//\\\//g')'/g' preseed.cfg
-sed -i 's/{{-UPGRADE-}}/'"$DEBNETB_UPGRADE"'/g' preseed.cfg
-sed -i 's/{{-FILESYS-}}/'"$DEBNETB_FILESYS"'/g' preseed.cfg
-sed -i 's/{{-DISKCRYPTO-}}/'"$DEBNETB_DISKCRYPTO"'/g' preseed.cfg
+sed -i 's/{{-PROTOCOL-}}/'"$DEBI_PROTOCOL"'/g' preseed.cfg
+sed -i 's/{{-MIRROR-}}/'"$DEBI_MIRROR"'/g' preseed.cfg
+sed -i 's/{{-DIRECTORY-}}/'$(echo "$DEBI_DIRECTORY" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-SUITE-}}/'"$DEBI_SUITE"'/g' preseed.cfg
+sed -i 's/{{-USERNAME-}}/'"$DEBI_USERNAME"'/g' preseed.cfg
+sed -i 's/{{-PASSWORD-}}/'$(echo "$DEBI_PASSWORD" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-TIMEZONE-}}/'$(echo "$DEBI_TIMEZONE" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-NTP_SERVER-}}/'"$DEBI_NTP_SERVER"'/g' preseed.cfg
+sed -i 's/{{-SECURITY_MIRROR-}}/'$(echo "$DEBI_SECURITY_MIRROR" | sed 's/\//\\\//g')'/g' preseed.cfg
+sed -i 's/{{-UPGRADE-}}/'"$DEBI_UPGRADE"'/g' preseed.cfg
+sed -i 's/{{-FILESYSTEM-}}/'"$DEBI_FILESYS"'/g' preseed.cfg
+sed -i 's/{{-DISK_ENCRYPTION-}}/'"$DEBI_DISK_ENCRYPTION"'/g' preseed.cfg
 
-if [ "$DEBNETB_DRYRUN" != true ]; then
+if [ "$DEBI_DRYRUN" != true ]; then
+  wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+  gunzip initrd.gz
+  echo preseed.cfg | cpio -H newc -o -A -F initrd
+  gzip initrd
 
-wget "$DEBNETB_URL/linux" "$DEBNETB_URL/initrd.gz"
-gunzip initrd.gz
-echo preseed.cfg | cpio -H newc -o -A -F initrd
-gzip initrd
-
-cat >> "$DEBNETB_GRUBCFG" << EOF
+  cat >> "$DEBI_GRUB_CONFIG" << EOF
 menuentry 'New Install' --id debian-netboot-installer {
 insmod part_msdos
 insmod ext2
 set root='(hd0,msdos1)'
-linux $DEBNETB_OUTPUTBOOT/linux
-initrd $DEBNETB_OUTPUTBOOT/initrd.gz
+linux $DEBI_TARGET_PATH/linux
+initrd $DEBI_TARGET_PATH/initrd.gz
 }
 EOF
 
