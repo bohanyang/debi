@@ -90,7 +90,7 @@ while [ $# -gt 0 ]; do
       ;;
     --ssh-password)
       DEBI_SSH=true
-      DEBI_SSH_PASSWD=$2
+      DEBI_SSH_PASSWORD=$2
       shift
       ;;
     --ssh-keys)
