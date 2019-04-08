@@ -40,7 +40,7 @@ sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/ne
  - `--security-mirror http://security.debian.org/debian-security` Specify a URL for the security mirror or set to `true` to use the same mirror as the repository mirror instead of the default one
  - `--filesystem ext4` Filesystem for partition
  - `--disk-encryption` Enable full disk encryption. Since it can't be fully automated currently, you'll need physical console (VNC) access to go through the steps
- - `--ip 12.34.56.78` Configure network manually with an IP address **(the following** `-cidr`**,** `-gw` **and** `-dns` **options only work when an IP address is specified)**
+ - `--ip 12.34.56.78` Configure network manually with an IP address **(the following 3 network related options only work when an IP address is provided here)**
  - `--netmask 255.255.255.0` Netmask for manual network configuration
  - `--gateway 12.34.56.1` Gateway for manual network configuration
  - `--dns "1.1.1.1 1.0.0.1"` DNS for manual network configuration
