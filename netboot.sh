@@ -196,7 +196,7 @@ if [ "$DEBI_DRY_RUN" != true ]; then
   cd "$DEBI_WORKDIR"
 fi
 
-cat >> preseed.cfg << EOF
+cat > preseed.cfg << EOF
 # Localization
 
 d-i debian-installer/locale string en_US.UTF-8
