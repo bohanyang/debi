@@ -133,6 +133,7 @@ case "$DEBI_TEMPLATE" in
     DEBI_NTP_SERVER=${DEBI_NTP_SERVER:-cn.ntp.org.cn}
     DEBI_SECURITY_MIRROR=${DEBI_SECURITY_MIRROR:-true}
     DEBI_DNS=${DEBI_DNS:-156.154.70.5 156.154.71.5}
+    ;;
   cloud)
     DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
     DEBI_MIRROR=${DEBI_MIRROR:-cdn-aws.deb.debian.org}
