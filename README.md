@@ -46,7 +46,7 @@ sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/ne
  - `--dns "1.1.1.1 1.0.0.1"` DNS for manual network configuration
  - `--include "ca-certificates curl fail2ban openssl whois"` Include additional packages to install
  - `--manual` Manually configure user account and disk partition, etc. Network connection, the repository and security mirrors, time zone and NTP server are already auto-configured
- - `--ssh-password installerSecret` Enable SSH access to the installer with a password. You can login to `installer` user and continue installation manually or just check system logs.
+ - `--ssh-password installer_secret` Enable SSH access to the installer with a password. You can login to `installer` user and continue installation manually or just check system logs.
  - `--ssh-keys https://example.com/.ssh/authorized_keys` Enable SSH access to the installer with a URL of the file contains authorized public keys. (see above) You can't access with password if authorized public keys are provided here.
  - `--dry-run` Generate `preseed.cfg` and save to current directory but don't actually do anything
  - `--architecture amd64` Specify an architecture (useful under CentOS)
