@@ -34,17 +34,6 @@ command_exists() {
   return $code
 }
 
-user="$(id -un 2>/dev/null || true)"
-
-sudo=''
-if [ "$user" != 'root' ]; then
-  if command_exists sudo; then
-    sudo='sudo'
-  else
-    exit 1
-  fi
-fi
-
 while [ $# -gt 0 ]; do
   case $1 in
     --template)
@@ -218,6 +207,17 @@ DEBI_TARGET_PATH="$DEBI_BOOT_DIRECTORY$DEBI_TARGET"
 
 echo='cat'
 if [ "$DEBI_DRY_RUN" != true ]; then
+  user="$(id -un 2>/dev/null || true)"
+
+  sudo=''
+  if [ "$user" != 'root' ]; then
+    if command_exists sudo; then
+      sudo='sudo'
+    else
+      exit 1
+    fi
+  fi
+
   DEBI_WORKDIR="/boot/$DEBI_TARGET"
   DEBI_BASE_URL=$DEBI_PROTOCOL://$DEBI_MIRROR$DEBI_DIRECTORY/dists/$DEBI_SUITE/main/installer-$DEBI_ARCHITECTURE/current/images/netboot/debian-installer/$DEBI_ARCHITECTURE
   if command_exists update-grub; then
