@@ -21,9 +21,13 @@ set -e
 command_exists() {
   _PATH="$PATH"
   PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
-  command -v "$@" > /dev/null 2>&1
+  code=1
+  if command -v "$@" >/dev/null 2>&1; then
+    code=0
+  fi
   PATH="$_PATH"
   unset _PATH
+  return $code
 }
 
 user="$(id -un 2>/dev/null || true)"
