@@ -18,6 +18,10 @@
 
 set -e
 
+echo_stderr() {
+  echo "$@" 1>&2
+}
+
 command_exists() {
   _PATH="$PATH"
   PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
@@ -145,7 +149,7 @@ while [ $# -gt 0 ]; do
       DEBI_POWEROFF=true
       ;;
     *)
-      echo "Illegal option $1"
+      echo_stderr "Illegal option $1"
       exit 1
   esac
   shift
@@ -380,7 +384,15 @@ fi
 
 echo2='cat'
 if [ "$DEBI_DRY_RUN" != true ]; then
-  $sudo wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+  if command_exists wget; then
+    $sudo wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+  elif command_exists curl; then
+    $sudo curl -O "$DEBI_BASE_URL/linux" -O "$DEBI_BASE_URL/initrd.gz"
+  else
+    echo_stderr 'wget/curl not found'
+    exit 1
+  fi 
+  
   $sudo gunzip initrd.gz
   echo preseed.cfg | $sudo cpio -H newc -o -A -F initrd
   $sudo gzip initrd
