@@ -19,7 +19,11 @@
 set -e
 
 command_exists() {
-	$sudo command -v "$@" > /dev/null 2>&1
+  _PATH="$PATH"
+  PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
+  command -v "$@" > /dev/null 2>&1
+  PATH="$_PATH"
+  unset _PATH
 }
 
 user="$(id -un 2>/dev/null || true)"
