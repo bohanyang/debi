@@ -25,13 +25,13 @@ echo_stderr() {
 command_exists() {
   _PATH="$PATH"
   PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
-  code=1
-  if command -v "$@" >/dev/null 2>&1; then
-    code=0
-  fi
+  set +e
+  command -v "$@" >/dev/null 2>&1
+  command_exit_status=$?
+  set -e
   PATH="$_PATH"
   unset _PATH
-  return $code
+  return $command_exit_status
 }
 
 while [ $# -gt 0 ]; do
