@@ -196,16 +196,17 @@ if [ "$DEBI_MANUAL" != true ]; then
   fi
 fi
 
+DEBI_TARGET="debian-$DEBI_SUITE"
+if [ "$DEBI_BOOT_PARTITION" = true ]; then
+  DEBI_BOOT_DIRECTORY=/
+else
+  DEBI_BOOT_DIRECTORY=/boot/
+fi
+DEBI_TARGET_PATH="$DEBI_BOOT_DIRECTORY$DEBI_TARGET"
+
 echo='cat'
 if [ "$DEBI_DRY_RUN" != true ]; then
-  DEBI_TARGET="debian-$DEBI_SUITE"
-  if [ "$DEBI_BOOT_PARTITION" = true ]; then
-    DEBI_BOOT_DIRECTORY=/
-  else
-    DEBI_BOOT_DIRECTORY=/boot/
-  fi
   DEBI_WORKDIR="/boot/$DEBI_TARGET"
-  DEBI_TARGET_PATH="$DEBI_BOOT_DIRECTORY$DEBI_TARGET"
   DEBI_BASE_URL=$DEBI_PROTOCOL://$DEBI_MIRROR$DEBI_DIRECTORY/dists/$DEBI_SUITE/main/installer-$DEBI_ARCHITECTURE/current/images/netboot/debian-installer/$DEBI_ARCHITECTURE
   if command_exists update-grub; then
     $sudo update-grub
@@ -369,13 +370,16 @@ EOF
   fi
 fi
 
+echo2='cat'
 if [ "$DEBI_DRY_RUN" != true ]; then
   $sudo wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
   $sudo gunzip initrd.gz
   echo preseed.cfg | $sudo cpio -H newc -o -A -F initrd
   $sudo gzip initrd
+  echo2="$sudo tee -a $DEBI_GRUB_CONFIG"
+fi
 
-  $sudo tee -a "$DEBI_GRUB_CONFIG" << EOF
+$echo2 << EOF
 menuentry 'Debian Installer' --id debi {
 insmod part_msdos
 insmod ext2
@@ -384,5 +388,3 @@ linux $DEBI_TARGET_PATH/linux
 initrd $DEBI_TARGET_PATH/initrd.gz
 }
 EOF
-
-fi
