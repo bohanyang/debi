@@ -391,8 +391,8 @@ if [ "$DEBI_DRY_RUN" != true ]; then
   else
     echo_stderr 'wget/curl not found'
     exit 1
-  fi 
-  
+  fi
+
   $sudo gunzip initrd.gz
   echo preseed.cfg | $sudo cpio -H newc -o -A -F initrd
   $sudo gzip initrd
