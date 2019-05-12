@@ -18,6 +18,10 @@
 
 set -e
 
+command_exists() {
+	$sudo command -v "$@" > /dev/null 2>&1
+}
+
 user="$(id -un 2>/dev/null || true)"
 
 sudo=''
@@ -28,10 +32,6 @@ if [ "$user" != 'root' ]; then
     exit 1
   fi
 fi
-
-command_exists() {
-	$sudo command -v "$@" > /dev/null 2>&1
-}
 
 while [ $# -gt 0 ]; do
   case $1 in
