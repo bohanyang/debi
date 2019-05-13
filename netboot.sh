@@ -192,7 +192,8 @@ if [ "$DEBI_DRY_RUN" != true ]; then
 
     rm -rf "$DEBI_NEW_DIR"
     mkdir -p "$DEBI_NEW_DIR"
-    save_preseed="tee -a $DEBI_NEW_DIR/preseed.cfg"
+    cd "$DEBI_NEW_DIR"
+    save_preseed='tee -a preseed.cfg'
 fi
 
 $save_preseed << EOF
@@ -446,17 +447,17 @@ if [ "$DEBI_DRY_RUN" != true ]; then
     DEBI_BASE_URL="$DEBI_PROTOCOL://$DEBI_MIRROR$DEBI_DIRECTORY/dists/$DEBI_SUITE/main/installer-$DEBI_ARCH/current/images/netboot/debian-installer/$DEBI_ARCH"
 
     if command_exists wget; then
-        wget -P "$DEBI_NEW_DIR" "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+        wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
     elif command_exists curl; then
-        curl "$DEBI_BASE_URL/linux" -o "$DEBI_NEW_DIR/linux" "$DEBI_BASE_URL/initrd.gz" -o "$DEBI_NEW_DIR/initrd.gz"
+        curl -O "$DEBI_BASE_URL/linux" -O "$DEBI_BASE_URL/initrd.gz"
     else
         echo_stderr 'Error: wget/curl not found.'
         exit 1
     fi
 
-    gunzip "$DEBI_NEW_DIR/initrd.gz"
-    echo "$DEBI_NEW_DIR/preseed.cfg" | cpio -H newc -o -A -F "$DEBI_NEW_DIR/initrd"
-    gzip "$DEBI_NEW_DIR/initrd"
+    gunzip initrd.gz
+    echo preseed.cfg | cpio -H newc -o -A -F initrd
+    gzip initrd
 
     if command_exists update-grub; then
         DEBI_GRUBCFG=/boot/grub/grub.cfg
