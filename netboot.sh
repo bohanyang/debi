@@ -321,7 +321,7 @@ d-i passwd/user-password password $DEBI_PASSWORD
 d-i passwd/user-password-again password $DEBI_PASSWORD
 EOF
         else
-            echo "d-i passwd/user-password-crypted password $DEBI_PASSWORD"
+            echo "d-i passwd/user-password-crypted password $DEBI_PASSWORD" | $save_preseed
         fi
     fi
 fi
