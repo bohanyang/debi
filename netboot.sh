@@ -171,6 +171,7 @@ case "$DEBI_PRESET" in
         DEBI_MIRROR=${DEBI_MIRROR:-cdn-aws.deb.debian.org}
         DEBI_NTP=${DEBI_NTP:-time.google.com}
         DEBI_SECURITY=${DEBI_SECURITY:-true}
+        ;;
     *)
         echo_stderr "Error: No such preset $DEBI_PRESET"
         exit 1
