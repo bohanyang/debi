@@ -454,9 +454,9 @@ if [ "$DEBI_DRY_RUN" != true ]; then
         exit 1
     fi
 
-    gunzip initrd.gz
-    echo preseed.cfg | cpio -H newc -o -A -F initrd
-    gzip initrd
+    gunzip "$DEBI_NEW_DIR/initrd.gz"
+    echo "$DEBI_NEW_DIR/preseed.cfg" | cpio -H newc -o -A -F initrd
+    gzip "$DEBI_NEW_DIR/initrd"
 
     if command_exists update-grub; then
         DEBI_GRUBCFG=/boot/grub/grub.cfg
