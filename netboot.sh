@@ -178,6 +178,8 @@ case "$DEBI_PRESET" in
 esac
 
 DEBI_SUITE=${DEBI_SUITE:-stretch}
+DEBI_NEW="debian-$DEBI_SUITE"
+DEBI_NEW_DIR="/boot/$DEBI_NEW"
 
 save_preseed=cat
 if [ "$DEBI_DRY_RUN" != true ]; then
@@ -187,9 +189,6 @@ if [ "$DEBI_DRY_RUN" != true ]; then
         echo_stderr 'Error: Require root.'
         exit 1
     fi
-
-    DEBI_NEW="debian-$DEBI_SUITE"
-    DEBI_NEW_DIR="/boot/$DEBI_NEW"
 
     rm -rf "$DEBI_NEW_DIR"
     mkdir -p "$DEBI_NEW_DIR"
