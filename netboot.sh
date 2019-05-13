@@ -455,7 +455,7 @@ if [ "$DEBI_DRY_RUN" != true ]; then
     fi
 
     gunzip "$DEBI_NEW_DIR/initrd.gz"
-    echo "$DEBI_NEW_DIR/preseed.cfg" | cpio -H newc -o -A -F initrd
+    echo "$DEBI_NEW_DIR/preseed.cfg" | cpio -H newc -o -A -F "$DEBI_NEW_DIR/initrd"
     gzip "$DEBI_NEW_DIR/initrd"
 
     if command_exists update-grub; then
