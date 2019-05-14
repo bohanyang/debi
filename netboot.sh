@@ -144,9 +144,6 @@ while [ $# -gt 0 ]; do
         --boot-partition)
             DEBI_BOOT_PARTITION=true
             ;;
-        --gpt)
-            DEBI_PARTITION_TYPE=gpt
-            ;;
         --dry-run)
             DEBI_DRY_RUN=true
             ;;
@@ -482,13 +479,12 @@ else
 fi
 
 DEBI_NEW_DIR="$DEBI_BOOT_DIR$DEBI_NEW"
-DEBI_PARTITION_TYPE=${DEBI_PARTITION_TYPE:-msdos}
 
 $save_grubcfg << EOF
 menuentry 'Debian Installer' --id debi {
-insmod part_$DEBI_PARTITION_TYPE
+insmod part_msdos
+insmod part_gpt
 insmod ext2
-set root='(hd0,${DEBI_PARTITION_TYPE}1)'
 linux $DEBI_NEW_DIR/linux
 initrd $DEBI_NEW_DIR/initrd.gz
 }
