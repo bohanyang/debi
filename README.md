@@ -27,7 +27,7 @@ This script is used to re-install VPS to Debian 9 with the official installer, b
  - `--protocol http` [`http`, `https`, `ftp`]
  - `--mirror deb.debian.org`
  - `--directory /debian`
- - `--suite stretch`
+ - `--suite stable`
  - `--skip-user`
  - `--username debian`
  - `--password`

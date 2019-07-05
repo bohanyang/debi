@@ -176,7 +176,7 @@ if [ -n "$DEBI_PRESET" ]; then
     esac
 fi
 
-DEBI_SUITE=${DEBI_SUITE:-stretch}
+DEBI_SUITE=${DEBI_SUITE:-stable}
 DEBI_NEW="debian-$DEBI_SUITE"
 DEBI_NEW_DIR="/boot/$DEBI_NEW"
 
