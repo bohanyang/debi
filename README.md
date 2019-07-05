@@ -1,8 +1,10 @@
-# VPS Re-install Debian 9 Script
+# VPS Re-install Debian Script
+
+Now ready for Debian 10 (buster)!
 
 ## Introduction
 
-This script is used to re-install VPS to Debian 9 with the official installer, but semi-automatically.
+This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** with the official installer, but semi-automatically.
 
 ## How It Works
 
