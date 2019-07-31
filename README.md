@@ -22,7 +22,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--ip`
  - `--netmask`
  - `--gateway`
- - `--ns "1.1.1.1 1.0.0.1 8.8.8.8"`
+ - `--ns "8.8.8.8 8.8.4.4"`
  - `--hostname debian`
  - `--ssh-password`
  - `--ssh-keys`
@@ -34,7 +34,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--username debian`
  - `--password`
  - `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
- - `--ntp pool.ntp.org`
+ - `--ntp 0.debian.pool.ntp.org`
  - `--skip-part`
  - `--disk`
  - `--part`
@@ -51,9 +51,9 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ### `china`
 
- - `--ns "156.154.70.5 156.154.71.5 8.8.8.8"`
+ - `--ns "156.154.70.5 156.154.71.5"`
  - `--protocol https`
- - `--mirror chinanet.mirrors.ustc.edu.cn`
+ - `--mirror mirrors.aliyun.com`
  - `--security true`
  - `--timezone Asia/Shanghai`
  - `--ntp cn.ntp.org.cn`
@@ -63,4 +63,3 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--protocol https`
  - `--mirror cdn-aws.deb.debian.org`
  - `--security true`
- - `--ntp time.cloudflare.com`

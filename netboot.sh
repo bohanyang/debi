@@ -157,9 +157,9 @@ done
 if [ -n "$DEBI_PRESET" ]; then
     case "$DEBI_PRESET" in
         china)
-            DEBI_NS=${DEBI_NS:-156.154.70.5 156.154.71.5 8.8.8.8}
+            DEBI_NS=${DEBI_NS:-156.154.70.5 156.154.71.5}
             DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
-            DEBI_MIRROR=${DEBI_MIRROR:-chinanet.mirrors.ustc.edu.cn}
+            DEBI_MIRROR=${DEBI_MIRROR:-mirrors.aliyun.com}
             DEBI_TIMEZONE=${DEBI_TIMEZONE:-Asia/Shanghai}
             DEBI_NTP=${DEBI_NTP:-cn.ntp.org.cn}
             DEBI_SECURITY=${DEBI_SECURITY:-true}
@@ -167,7 +167,6 @@ if [ -n "$DEBI_PRESET" ]; then
         cloud)
             DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
             DEBI_MIRROR=${DEBI_MIRROR:-cdn-aws.deb.debian.org}
-            DEBI_NTP=${DEBI_NTP:-time.cloudflare.com}
             DEBI_SECURITY=${DEBI_SECURITY:-true}
             ;;
         *)
@@ -206,7 +205,7 @@ d-i keyboard-configuration/xkb-keymap select us
 d-i netcfg/choose_interface select auto
 EOF
 
-DEBI_NS=${DEBI_NS:-1.1.1.1 1.0.0.1 8.8.8.8}
+DEBI_NS=${DEBI_NS:-8.8.8.8 8.8.4.4}
 
 if [ -n "$DEBI_IP" ]; then
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
@@ -326,7 +325,7 @@ EOF
 fi
 
 DEBI_TIMEZONE=${DEBI_TIMEZONE:-UTC}
-DEBI_NTP=${DEBI_NTP:-pool.ntp.org}
+DEBI_NTP=${DEBI_NTP:-0.debian.pool.ntp.org}
 
 $save_preseed << EOF
 
