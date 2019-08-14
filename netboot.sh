@@ -425,6 +425,13 @@ popularity-contest popularity-contest/participate boolean false
 
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
+EOF
+
+if [ -n "$DEBI_KERNEL_PARAMS" ]; then
+    echo "d-i debian-installer/add-kernel-opts string$DEBI_KERNEL_PARAMS" | $save_preseed
+fi
+
+$save_preseed << EOF
 
 # Finishing up the installation
 
