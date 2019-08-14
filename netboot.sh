@@ -64,6 +64,8 @@ while [ $# -gt 0 ]; do
             ;;
         --ethn)
             DEBI_KERNEL_PARAMS=' net.ifnames=0 biosdevname=0'
+            shift
+            ;;
         --ssh-password)
             DEBI_SSH=true
             DEBI_SSH_PASSWORD=$2
