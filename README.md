@@ -24,6 +24,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--gateway`
  - `--ns "8.8.8.8 8.8.4.4"`
  - `--hostname debian`
+ - `--ethn` Disable Consistent Network Device Naming
  - `--ssh-password`
  - `--ssh-keys`
  - `--protocol http` [`http`, `https`, `ftp`]

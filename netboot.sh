@@ -62,6 +62,8 @@ while [ $# -gt 0 ]; do
             DEBI_HOSTNAME=$2
             shift
             ;;
+        --ethn)
+            DEBI_KERNEL_PARAMS=' net.ifnames=0 biosdevname=0'
         --ssh-password)
             DEBI_SSH=true
             DEBI_SSH_PASSWORD=$2
@@ -484,7 +486,7 @@ menuentry 'Debian Installer' --id debi {
 insmod part_msdos
 insmod part_gpt
 insmod ext2
-linux $DEBI_NEW_DIR/linux
+linux $DEBI_NEW_DIR/linux$DEBI_KERNEL_PARAMS
 initrd $DEBI_NEW_DIR/initrd.gz
 }
 EOF
