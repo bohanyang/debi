@@ -363,9 +363,9 @@ d-i partman-lvm/confirm_nooverwrite boolean true
 EOF
 
     if [ "$DEBI_PART" = "regular" ]; then
-        $save_preseed << EOF
+        $save_preseed <<"EOF"
 d-i partman/default_filesystem string $DEBI_FS
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$default_filesystem \$primary{ } \$bootable{ } method{ format } format{ } use_filesystem{ } \$default_filesystem{ } mountpoint{ / } .
+d-i partman-auto/expert_recipe string naive :: 0 1 -1 $default_filesystem $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } $default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 d-i partman-basicfilesystems/no_swap boolean false
 EOF
