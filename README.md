@@ -40,6 +40,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--disk`
  - `--part`
  - `--fs ext4`
+ - `--kernel` Specify another kernel image, e.g. `linux-image-cloud-amd64`
  - `--security http://security.debian.org/debian-security`
  - `--install`
  - `--upgrade full-upgrade` [`none`, `safe-upgrade`, `full-upgrade`]
