@@ -125,6 +125,10 @@ while [ $# -gt 0 ]; do
             DEBI_FS=$2
             shift
             ;;
+        --kernel)
+            DEBI_KERNEL=$2
+            shift
+            ;;
         --security)
             DEBI_SECURITY=$2
             shift
@@ -386,6 +390,10 @@ $save_preseed << EOF
 
 d-i base-installer/install-recommends boolean false
 EOF
+
+if [ -n "$DEBI_KERNEL" ]; then
+    echo "d-i base-installer/kernel/image string $DEBI_KERNEL" | $save_preseed
+fi
 
 if [ -z "$DEBI_SECURITY" ]; then
     DEBI_SECURITY=http://security.debian.org/debian-security
