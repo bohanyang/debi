@@ -466,8 +466,10 @@ if [ "$DEBI_DRY_RUN" != true ]; then
         wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
     elif command_exists curl; then
         curl -O "$DEBI_BASE_URL/linux" -O "$DEBI_BASE_URL/initrd.gz"
+    elif command_exists busybox; then
+        busybox wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
     else
-        echo_stderr 'Error: wget/curl not found.'
+        echo_stderr 'Error: wget/curl/busybox not found.'
         exit 1
     fi
 
