@@ -1,21 +1,5 @@
 #!/usr/bin/env sh
 
-# Copyright 2018-present Bohan Yang (Brent)
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# 
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# 
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 set -e
 
 echo_stderr() {
@@ -164,11 +148,11 @@ done
 if [ -n "$DEBI_PRESET" ]; then
     case "$DEBI_PRESET" in
         china)
-            DEBI_NS=${DEBI_NS:-156.154.70.5 156.154.71.5}
+            DEBI_NS=${DEBI_NS:-223.5.5.5 223.6.6.6}
             DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
             DEBI_MIRROR=${DEBI_MIRROR:-mirrors.aliyun.com}
             DEBI_TIMEZONE=${DEBI_TIMEZONE:-Asia/Shanghai}
-            DEBI_NTP=${DEBI_NTP:-cn.ntp.org.cn}
+            DEBI_NTP=${DEBI_NTP:-ntp.aliyun.com}
             DEBI_SECURITY=${DEBI_SECURITY:-true}
             ;;
         cloud)
