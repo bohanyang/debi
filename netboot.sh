@@ -440,7 +440,7 @@ if [ "$DEBI_POWEROFF" = true ]; then
     echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 fi
 
-save_grubcfg=cat
+save_grubcfg="cat"
 if [ "$DEBI_DRY_RUN" != true ]; then
     if [ -z "$DEBI_ARCH" ]; then
         if command_exists dpkg; then
