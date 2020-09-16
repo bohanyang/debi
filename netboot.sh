@@ -14,7 +14,7 @@ read_secret()
 {
     stty -echo
     trap 'stty echo' EXIT
-    read "$@"
+    read -r "$@"
     stty echo
     trap - EXIT
     echo
@@ -157,7 +157,7 @@ if [ -n "$DEBI_PRESET" ]; then
             ;;
         cloud)
             DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
-            DEBI_MIRROR=${DEBI_MIRROR:-cdn-aws.deb.debian.org}
+            DEBI_MIRROR=${DEBI_MIRROR:-deb.debian.org}
             DEBI_SECURITY=${DEBI_SECURITY:-true}
             ;;
         *)
@@ -170,7 +170,7 @@ DEBI_SUITE=${DEBI_SUITE:-stable}
 DEBI_NEW="debian-$DEBI_SUITE"
 DEBI_NEW_DIR="/boot/$DEBI_NEW"
 
-save_preseed=cat
+save_preseed="cat"
 if [ "$DEBI_DRY_RUN" != true ]; then
     user="$(id -un 2>/dev/null || true)"
 
@@ -264,9 +264,15 @@ if [ "$DEBI_SKIP_USER" != true ]; then
 
     if command_exists mkpasswd; then
         if [ -z "$DEBI_PASSWORD" ]; then
-            DEBI_PASSWORD="$(mkpasswd -m sha-512)"
+            DEBI_PASSWORD="$(mkpasswd -m sha512crypt)"
         else
-            DEBI_PASSWORD="$(mkpasswd -m sha-512 "$DEBI_PASSWORD")"
+            DEBI_PASSWORD="$(mkpasswd -m sha512crypt "$DEBI_PASSWORD")"
+        fi
+    elif command_exists busybox; then
+        if [ -z "$DEBI_PASSWORD" ]; then
+            DEBI_PASSWORD="$(busybox mkpasswd -m sha512)"
+        else
+            DEBI_PASSWORD="$(busybox mkpasswd -m sha512 "$DEBI_PASSWORD")"
         fi
     elif command_exists python3; then
         if [ -z "$DEBI_PASSWORD" ]; then

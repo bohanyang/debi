@@ -63,5 +63,5 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 ### `cloud`
 
  - `--protocol https`
- - `--mirror cdn-aws.deb.debian.org`
+ - `--mirror deb.debian.org`
  - `--security true`
