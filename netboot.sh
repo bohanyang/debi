@@ -350,6 +350,7 @@ EOF
             echo "d-i passwd/root-password-crypted password $password" | $save_preseed
         fi
     else
+        _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i passwd/root-login boolean false
 d-i passwd/make-user boolean true
