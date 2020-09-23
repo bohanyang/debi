@@ -329,7 +329,7 @@ if [ "$skip_account_setup" != true ]; then
 EOF
 
     if [ "$username" = root ]; then
-        _late_command "sed -ri 's/^#?PermitRootLogin .+/PermitRootLogin yes/' /etc/ssh/sshd_config"
+        _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i passwd/root-login boolean true
 d-i passwd/make-user boolean false
