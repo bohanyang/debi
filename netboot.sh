@@ -47,6 +47,7 @@ power_off=
 architecture=
 boot_partition=
 dry_run=
+bbr=
 cleartext_password=
 
 while [ $# -gt 0 ]; do
@@ -167,6 +168,9 @@ while [ $# -gt 0 ]; do
         --dry-run)
             dry_run=true
             ;;
+        --bbr)
+            bbr=true
+            ;;
         *)
             _err "Illegal option $1"
             exit 1
@@ -262,6 +266,7 @@ d-i preseed/early_command string anna-install network-console
 EOF
     if [ -n "$authorized_keys_url" ]; then
         _late_command "cd ~$username && mkdir -m 700 .ssh && busybox wget -qO .ssh/authorized_keys $authorized_keys_url"
+        _late_command 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
 d-i network-console/authorized_keys_url string $authorized_keys_url
@@ -476,6 +481,10 @@ $save_preseed << EOF
 
 d-i finish-install/reboot_in_progress note
 EOF
+
+if [ "$bbr" = true ]; then
+    _late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
+fi
 
 if [ -n "$late_command" ]; then
     echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
