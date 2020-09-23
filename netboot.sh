@@ -47,6 +47,7 @@ power_off=
 architecture=
 boot_partition=
 dry_run=
+cleartext_password=
 
 while [ $# -gt 0 ]; do
     case $1 in
