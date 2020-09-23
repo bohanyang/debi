@@ -1,187 +1,214 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -e
+set -eu
 
-echo_stderr() {
-    echo "$@" 1>&2
+_err() {
+    printf 'Error: %s.' "$1" 1>&2
 }
 
 command_exists() {
-    command -v "$@" >/dev/null 2>&1
+    command -v "$1" >/dev/null 2>&1
 }
 
-read_secret()
-{
-    stty -echo
-    trap 'stty echo' EXIT
-    read -r "$@"
-    stty echo
-    trap - EXIT
-    echo
+_late_command() {
+    [ -z "$late_command" ] && late_command='true'
+    late_command="$late_command; $1"
 }
+
+late_command=
+preset=
+ip=
+netmask=
+gateway=
+dns=
+hostname=
+kernel_params=
+installer_ssh=
+installer_password=
+authorized_keys_url=
+mirror_protocol=
+mirror_host=
+mirror_directory=
+suite=
+skip_account_setup=
+username=
+password=
+timezone=
+ntp=
+skip_partitioning=
+disk=
+partitioning_method=
+filesystem=
+kernel=
+security_repository=
+install=
+upgrade=
+power_off=
+architecture=
+boot_partition=
+dry_run=
 
 while [ $# -gt 0 ]; do
     case $1 in
         --preset)
-            DEBI_PRESET=$2
+            preset=$2
             shift
             ;;
         --ip)
-            DEBI_IP=$2
+            ip=$2
             shift
             ;;
         --netmask)
-            DEBI_NETMASK=$2
+            netmask=$2
             shift
             ;;
         --gateway)
-            DEBI_GATEWAY=$2
+            gateway=$2
             shift
             ;;
-        --ns)
-            DEBI_NS=$2
+        --dns)
+            dns=$2
             shift
             ;;
         --hostname)
-            DEBI_HOSTNAME=$2
+            hostname=$2
             shift
             ;;
-        --ethn)
-            DEBI_KERNEL_PARAMS=' net.ifnames=0 biosdevname=0'
+        --eth)
+            kernel_params=' net.ifnames=0 biosdevname=0'
             ;;
-        --ssh-password)
-            DEBI_SSH=true
-            DEBI_SSH_PASSWORD=$2
+        --installer-password)
+            installer_ssh=true
+            installer_password=$2
             shift
             ;;
-        --ssh-keys)
-            DEBI_SSH=true
-            DEBI_SSH_KEYS=$2
+        --authorized-keys-url)
+            installer_ssh=true
+            authorized_keys_url=$2
             shift
             ;;
-        --protocol)
-            DEBI_PROTOCOL=$2
+        --mirror-protocol)
+            mirror_protocol=$2
             shift
             ;;
-        --mirror)
-            DEBI_MIRROR=$2
+        --mirror-host)
+            mirror_host=$2
             shift
             ;;
-        --directory)
-            DEBI_DIRECTORY=${2%/}
+        --mirror-directory)
+            mirror_directory=${2%/}
             shift
             ;;
         --suite)
-            DEBI_SUITE=$2
+            suite=$2
             shift
             ;;
-        --skip-user)
-            DEBI_SKIP_USER=true
+        --skip-account-setup)
+            skip_account_setup=true
             ;;
         --username)
-            DEBI_USERNAME=$2
+            username=$2
             shift
             ;;
         --password)
-            DEBI_PASSWORD=$2
+            password=$2
             shift
             ;;
         --timezone)
-            DEBI_TIMEZONE=$2
+            timezone=$2
             shift
             ;;
         --ntp)
-            DEBI_NTP=$2
+            ntp=$2
             shift
             ;;
-        --skip-part)
-            DEBI_SKIP_PART=true
+        --skip-partitioning)
+            skip_partitioning=true
             ;;
         --disk)
-            DEBI_DISK=$2
+            disk=$2
             shift
             ;;
-        --part)
-            DEBI_PART=$2
+        --partitioning-method)
+            partitioning_method=$2
             shift
             ;;
-        --fs)
-            DEBI_FS=$2
+        --filesystem)
+            filesystem=$2
             shift
             ;;
         --kernel)
-            DEBI_KERNEL=$2
+            kernel=$2
             shift
             ;;
-        --security)
-            DEBI_SECURITY=$2
+        --security-repository)
+            security_repository=$2
             shift
             ;;
         --install)
-            DEBI_INSTALL=$2
+            install=$2
             shift
             ;;
         --upgrade)
-            DEBI_UPGRADE=$2
+            upgrade=$2
             shift
             ;;
-        --poweroff)
-            DEBI_POWEROFF=true
+        --power-off)
+            power_off=true
             ;;
-        --arch)
-            DEBI_ARCH=$2
+        --architecture)
+            architecture=$2
             shift
             ;;
         --boot-partition)
-            DEBI_BOOT_PARTITION=true
+            boot_partition=true
             ;;
         --dry-run)
-            DEBI_DRY_RUN=true
+            dry_run=true
             ;;
         *)
-            echo_stderr "Error: Illegal option $1"
+            _err "Illegal option $1"
             exit 1
     esac
     shift
 done
 
-if [ -n "$DEBI_PRESET" ]; then
-    case "$DEBI_PRESET" in
+if [ -n "$preset" ]; then
+    case "$preset" in
         china)
-            DEBI_NS=${DEBI_NS:-223.5.5.5 223.6.6.6}
-            DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
-            DEBI_MIRROR=${DEBI_MIRROR:-mirrors.aliyun.com}
-            DEBI_TIMEZONE=${DEBI_TIMEZONE:-Asia/Shanghai}
-            DEBI_NTP=${DEBI_NTP:-ntp.aliyun.com}
-            DEBI_SECURITY=${DEBI_SECURITY:-true}
+            dns=${dns:-223.5.5.5 223.6.6.6}
+            mirror_protocol=${mirror_protocol:-https}
+            mirror_host=${mirror_host:-mirrors.aliyun.com}
+            ntp=${ntp:-ntp.aliyun.com}
+            security_repository=${security_repository:-true}
             ;;
         cloud)
-            DEBI_PROTOCOL=${DEBI_PROTOCOL:-https}
-            DEBI_MIRROR=${DEBI_MIRROR:-deb.debian.org}
-            DEBI_SECURITY=${DEBI_SECURITY:-true}
+            mirror_protocol=${mirror_protocol:-https}
+            mirror_host=${mirror_host:-deb.debian.org}
+            security_repository=${security_repository:-true}
             ;;
         *)
-            echo_stderr "Error: No such preset $DEBI_PRESET"
+            _err "No such preset $preset"
             exit 1
     esac
 fi
 
-DEBI_SUITE=${DEBI_SUITE:-stable}
-DEBI_NEW="debian-$DEBI_SUITE"
-DEBI_NEW_DIR="/boot/$DEBI_NEW"
+suite=${suite:-stable}
+installer="debian-$suite"
+installer_directory="/boot/$installer"
 
 save_preseed="cat"
-if [ "$DEBI_DRY_RUN" != true ]; then
+if [ "$dry_run" != true ]; then
     user="$(id -un 2>/dev/null || true)"
 
     if [ "$user" != root ]; then
-        echo_stderr 'Error: Require root.'
+        _err 'root privilege is required'
         exit 1
     fi
 
-    rm -rf "$DEBI_NEW_DIR"
-    mkdir -p "$DEBI_NEW_DIR"
-    cd "$DEBI_NEW_DIR"
+    rm -rf "$installer_directory"
+    mkdir -p "$installer_directory"
+    cd "$installer_directory"
     save_preseed='tee -a preseed.cfg'
 fi
 
@@ -196,19 +223,19 @@ d-i keyboard-configuration/xkb-keymap select us
 d-i netcfg/choose_interface select auto
 EOF
 
-DEBI_NS=${DEBI_NS:-8.8.8.8 8.8.4.4}
+dns=${dns:-8.8.8.8 8.8.4.4}
 
-if [ -n "$DEBI_IP" ]; then
+if [ -n "$ip" ]; then
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
-    echo "d-i netcfg/get_ipaddress string $DEBI_IP" | $save_preseed
-    if [ -n "$DEBI_NETMASK" ]; then
-        echo "d-i netcfg/get_netmask string $DEBI_NETMASK" | $save_preseed
+    echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
+    if [ -n "$netmask" ]; then
+        echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
     fi
-    if [ -n "$DEBI_GATEWAY" ]; then
-        echo "d-i netcfg/get_gateway string $DEBI_GATEWAY" | $save_preseed
+    if [ -n "$gateway" ]; then
+        echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
     fi
-    if [ -n "$DEBI_NS" ]; then
-        echo "d-i netcfg/get_nameservers string $DEBI_NS" | $save_preseed
+    if [ -n "$dns" ]; then
+        echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     fi
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 fi
@@ -218,13 +245,13 @@ d-i netcfg/get_hostname string debian
 d-i netcfg/get_domain string
 EOF
 
-if [ -n "$DEBI_HOSTNAME" ]; then
-    echo "d-i netcfg/hostname string $DEBI_HOSTNAME" | $save_preseed
+if [ -n "$hostname" ]; then
+    echo "d-i netcfg/hostname string $hostname" | $save_preseed
 fi
 
 echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
-if [ "$DEBI_SSH" = true ]; then
+if [ "$installer_ssh" = true ]; then
     $save_preseed << EOF
 
 # Network console
@@ -232,64 +259,65 @@ if [ "$DEBI_SSH" = true ]; then
 d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
 EOF
-    if [ -n "$DEBI_SSH_PASSWORD" ]; then
-        $save_preseed << EOF
-d-i network-console/password-disabled boolean false
-d-i network-console/password password $DEBI_SSH_PASSWORD
-d-i network-console/password-again password $DEBI_SSH_PASSWORD
-EOF
-    elif [ -n "$DEBI_SSH_KEYS" ]; then
+    if [ -n "$authorized_keys_url" ]; then
+        _late_command "cd ~$username && mkdir -m 700 .ssh && wget -qO .ssh/authorized_keys $authorized_keys_url"
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
-d-i network-console/authorized_keys_url string $DEBI_SSH_KEYS
+d-i network-console/authorized_keys_url string $authorized_keys_url
+EOF
+    elif [ -n "$installer_password" ]; then
+        $save_preseed << EOF
+d-i network-console/password-disabled boolean false
+d-i network-console/password password $installer_password
+d-i network-console/password-again password $installer_password
 EOF
     fi
     echo 'd-i network-console/start select Continue' | $save_preseed
 fi
 
-DEBI_PROTOCOL=${DEBI_PROTOCOL:-http}
-DEBI_MIRROR=${DEBI_MIRROR:-deb.debian.org}
-DEBI_DIRECTORY=${DEBI_DIRECTORY:-/debian}
+mirror_protocol=${mirror_protocol:-http}
+mirror_host=${mirror_host:-deb.debian.org}
+mirror_directory=${mirror_directory:-/debian}
 
 $save_preseed << EOF
 
 # Mirror settings
 
 d-i mirror/country string manual
-d-i mirror/protocol string $DEBI_PROTOCOL
-d-i mirror/$DEBI_PROTOCOL/hostname string $DEBI_MIRROR
-d-i mirror/$DEBI_PROTOCOL/directory string $DEBI_DIRECTORY
-d-i mirror/$DEBI_PROTOCOL/proxy string
-d-i mirror/suite string $DEBI_SUITE
-d-i mirror/udeb/suite string $DEBI_SUITE
+d-i mirror/mirror_protocol string $mirror_protocol
+d-i mirror/$mirror_protocol/hostname string $mirror_host
+d-i mirror/$mirror_protocol/directory string $mirror_directory
+d-i mirror/$mirror_protocol/proxy string
+d-i mirror/suite string $suite
+d-i mirror/udeb/suite string $suite
 EOF
 
-if [ "$DEBI_SKIP_USER" != true ]; then
-    DEBI_USERNAME=${DEBI_USERNAME:-debian}
+if [ "$skip_account_setup" != true ]; then
+    username=${username:-debian}
 
     if command_exists mkpasswd; then
-        if [ -z "$DEBI_PASSWORD" ]; then
-            DEBI_PASSWORD="$(mkpasswd -m sha512crypt)"
+        if [ -z "$password" ]; then
+            password="$(mkpasswd -m sha512crypt)"
         else
-            DEBI_PASSWORD="$(mkpasswd -m sha512crypt "$DEBI_PASSWORD")"
+            password="$(mkpasswd -m sha512crypt "$password")"
         fi
     elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
-        if [ -z "$DEBI_PASSWORD" ]; then
-            DEBI_PASSWORD="$(busybox mkpasswd -m sha512)"
+        if [ -z "$password" ]; then
+            password="$(busybox mkpasswd -m sha512)"
         else
-            DEBI_PASSWORD="$(busybox mkpasswd -m sha512 "$DEBI_PASSWORD")"
+            password="$(busybox mkpasswd -m sha512 "$password")"
         fi
     elif command_exists python3; then
-        if [ -z "$DEBI_PASSWORD" ]; then
-            DEBI_PASSWORD="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
+        if [ -z "$password" ]; then
+            password="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
         else
-            DEBI_PASSWORD="$(python3 -c "import crypt; print(crypt.crypt(\"$DEBI_PASSWORD\", crypt.mksalt(crypt.METHOD_SHA512)))")"
+            password="$(python3 -c "import crypt; print(crypt.crypt(\"$password\", crypt.mksalt(crypt.METHOD_SHA512)))")"
         fi
     else
-        DEBI_CLEARTEXT=true
-        if [ -z "$DEBI_PASSWORD" ]; then
+        cleartext_password=true
+        if [ -z "$password" ]; then
             printf 'Password: '
-            read_secret DEBI_PASSWORD
+            read -rs password
         fi
     fi
 
@@ -299,53 +327,54 @@ if [ "$DEBI_SKIP_USER" != true ]; then
 
 EOF
 
-    if [ "$DEBI_USERNAME" = root ]; then
+    if [ "$username" = root ]; then
+        _late_command "sed -ri 's/^#?PermitRootLogin .+/PermitRootLogin yes/' /etc/ssh/sshd_config"
         $save_preseed << EOF
 d-i passwd/root-login boolean true
 d-i passwd/make-user boolean false
 EOF
-        if [ "$DEBI_CLEARTEXT" = true ]; then
+        if [ "$cleartext_password" = true ]; then
             $save_preseed << EOF
-d-i passwd/root-password password $DEBI_PASSWORD
-d-i passwd/root-password-again password $DEBI_PASSWORD
+d-i passwd/root-password password $password
+d-i passwd/root-password-again password $password
 EOF
         else
-            echo "d-i passwd/root-password-crypted password $DEBI_PASSWORD" | $save_preseed
+            echo "d-i passwd/root-password-crypted password $password" | $save_preseed
         fi
     else
         $save_preseed << EOF
 d-i passwd/root-login boolean false
 d-i passwd/make-user boolean true
 d-i passwd/user-fullname string
-d-i passwd/username string $DEBI_USERNAME
+d-i passwd/username string $username
 EOF
-        if [ "$DEBI_CLEARTEXT" = true ]; then
+        if [ "$cleartext_password" = true ]; then
             $save_preseed << EOF
-d-i passwd/user-password password $DEBI_PASSWORD
-d-i passwd/user-password-again password $DEBI_PASSWORD
+d-i passwd/user-password password $password
+d-i passwd/user-password-again password $password
 EOF
         else
-            echo "d-i passwd/user-password-crypted password $DEBI_PASSWORD" | $save_preseed
+            echo "d-i passwd/user-password-crypted password $password" | $save_preseed
         fi
     fi
 fi
 
-DEBI_TIMEZONE=${DEBI_TIMEZONE:-UTC}
-DEBI_NTP=${DEBI_NTP:-0.debian.pool.ntp.org}
+timezone=${timezone:-UTC}
+ntp=${ntp:-0.debian.pool.ntp.org}
 
 $save_preseed << EOF
 
 # Clock and time zone setup
 
 d-i clock-setup/utc boolean true
-d-i time/zone string $DEBI_TIMEZONE
+d-i time/zone string $timezone
 d-i clock-setup/ntp boolean true
-d-i clock-setup/ntp-server string $DEBI_NTP
+d-i clock-setup/ntp-server string $ntp
 EOF
 
-if [ "$DEBI_SKIP_PART" != true ]; then
-    DEBI_FS=${DEBI_FS:-ext4}
-    DEBI_PART=${DEBI_PART:-regular}
+if [ "$skip_partitioning" != true ]; then
+    filesystem=${filesystem:-ext4}
+    partitioning_method=${partitioning_method:-regular}
 
     $save_preseed << EOF
 
@@ -353,21 +382,21 @@ if [ "$DEBI_SKIP_PART" != true ]; then
 
 EOF
 
-    if [ -n "$DEBI_DISK" ]; then
-        echo "d-i partman-auto/disk string $DEBI_DISK" | $save_preseed
+    if [ -n "$disk" ]; then
+        echo "d-i partman-auto/disk string $disk" | $save_preseed
     fi
 
     $save_preseed << EOF
-d-i partman-auto/method string $DEBI_PART
+d-i partman-auto/method string $partitioning_method
 d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-md/device_remove_md boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
 EOF
 
-    if [ "$DEBI_PART" = "regular" ]; then
+    if [ "$partitioning_method" = "regular" ]; then
         $save_preseed << EOF
-d-i partman/default_filesystem string $DEBI_FS
+d-i partman/default_filesystem string $filesystem
 d-i partman-auto/expert_recipe string naive :: 0 1 -1 \$default_filesystem \$primary{ } \$bootable{ } method{ format } format{ } use_filesystem{ } \$default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 d-i partman-basicfilesystems/no_swap boolean false
@@ -390,15 +419,15 @@ $save_preseed << EOF
 d-i base-installer/install-recommends boolean false
 EOF
 
-if [ -n "$DEBI_KERNEL" ]; then
-    echo "d-i base-installer/kernel/image string $DEBI_KERNEL" | $save_preseed
+if [ -n "$kernel" ]; then
+    echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
 fi
 
-if [ -z "$DEBI_SECURITY" ]; then
-    DEBI_SECURITY=http://security.debian.org/debian-security
+if [ -z "$security_repository" ]; then
+    security_repository=http://security.debian.org/debian-security
 else
-    if [ "$DEBI_SECURITY" = true ]; then
-        DEBI_SECURITY=$DEBI_PROTOCOL://$DEBI_MIRROR${DEBI_DIRECTORY%/*}/debian-security
+    if [ "$security_repository" = true ]; then
+        security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
     fi
 fi
 
@@ -407,11 +436,11 @@ $save_preseed << EOF
 # Apt setup
 
 d-i apt-setup/services-select multiselect updates, backports
-d-i apt-setup/local0/repository string $DEBI_SECURITY $DEBI_SUITE/updates main
+d-i apt-setup/local0/repository string $security_repository $suite/updates main
 d-i apt-setup/local0/source boolean true
 EOF
 
-DEBI_UPGRADE=${DEBI_UPGRADE:-full-upgrade}
+upgrade=${upgrade:-full-upgrade}
 
 $save_preseed << EOF
 
@@ -420,12 +449,12 @@ $save_preseed << EOF
 tasksel tasksel/first multiselect ssh-server
 EOF
 
-if [ -n "$DEBI_INSTALL" ]; then
-    echo "d-i pkgsel/include string $DEBI_INSTALL" | $save_preseed
+if [ -n "$install" ]; then
+    echo "d-i pkgsel/include string $install" | $save_preseed
 fi
 
 $save_preseed << EOF
-d-i pkgsel/upgrade select $DEBI_UPGRADE
+d-i pkgsel/upgrade select $upgrade
 popularity-contest popularity-contest/participate boolean false
 
 # Boot loader installation
@@ -434,15 +463,8 @@ d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
 EOF
 
-if [ -n "$DEBI_KERNEL_PARAMS" ]; then
-    echo "d-i debian-installer/add-kernel-opts string$DEBI_KERNEL_PARAMS" | $save_preseed
-fi
-
-if [ "$DEBI_USERNAME" = root ]; then
-    $save_preseed << 'EOF'
-d-i preseed/late_command string \
-    in-target sed -ri 's/^#?PermitRootLogin .+/PermitRootLogin yes/' /etc/ssh/sshd_config
-EOF
+if [ -n "$kernel_params" ]; then
+    echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
 fi
 
 $save_preseed << EOF
@@ -452,30 +474,34 @@ $save_preseed << EOF
 d-i finish-install/reboot_in_progress note
 EOF
 
-if [ "$DEBI_POWEROFF" = true ]; then
+if [ -n "$late_command" ]; then
+    echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
+fi
+
+if [ "$power_off" = true ]; then
     echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 fi
 
-save_grubcfg="cat"
-if [ "$DEBI_DRY_RUN" != true ]; then
-    if [ -z "$DEBI_ARCH" ]; then
+save_grub_cfg="cat"
+if [ "$dry_run" != true ]; then
+    if [ -z "$architecture" ]; then
         if command_exists dpkg; then
-            DEBI_ARCH="$(dpkg --print-architecture)"
+            architecture="$(dpkg --print-architecture)"
         else
-            DEBI_ARCH=amd64
+            architecture=amd64
         fi
     fi
 
-    DEBI_BASE_URL="$DEBI_PROTOCOL://$DEBI_MIRROR$DEBI_DIRECTORY/dists/$DEBI_SUITE/main/installer-$DEBI_ARCH/current/images/netboot/debian-installer/$DEBI_ARCH"
+    base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
 
     if command_exists wget; then
-        wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+        wget "$base_url/linux" "$base_url/initrd.gz"
     elif command_exists curl; then
-        curl -O "$DEBI_BASE_URL/linux" -O "$DEBI_BASE_URL/initrd.gz"
+        curl -O "$base_url/linux" -O "$base_url/initrd.gz"
     elif command_exists busybox; then
-        busybox wget "$DEBI_BASE_URL/linux" "$DEBI_BASE_URL/initrd.gz"
+        busybox wget "$base_url/linux" "$base_url/initrd.gz"
     else
-        echo_stderr 'Error: wget/curl/busybox not found.'
+        _err 'wget/curl/busybox is required to download files'
         exit 1
     fi
 
@@ -484,33 +510,33 @@ if [ "$DEBI_DRY_RUN" != true ]; then
     gzip initrd
 
     if command_exists update-grub; then
-        DEBI_GRUBCFG=/boot/grub/grub.cfg
+        grub_cfg=/boot/grub/grub.cfg
         update-grub
     elif command_exists grub2-mkconfig; then
-        DEBI_GRUBCFG=/boot/grub2/grub.cfg
-        grub2-mkconfig -o "$DEBI_GRUBCFG"
+        grub_cfg=/boot/grub2/grub.cfg
+        grub2-mkconfig -o "$grub_cfg"
     else
-        echo_stderr 'Error: Command update-grub/grub2-mkconfig not found.'
+        _err 'update-grub/grub2-mkconfig command not found'
         exit 1
     fi
 
-    save_grubcfg="tee -a $DEBI_GRUBCFG"
+    save_grub_cfg="tee -a $grub_cfg"
 fi
 
-if [ "$DEBI_BOOT_PARTITION" = true ]; then
-    DEBI_BOOT_DIR=/
+if [ "$boot_partition" = true ]; then
+    boot_directory=/
 else
-    DEBI_BOOT_DIR=/boot/
+    boot_directory=/boot/
 fi
 
-DEBI_NEW_DIR="$DEBI_BOOT_DIR$DEBI_NEW"
+installer_directory="$boot_directory$installer"
 
-$save_grubcfg << EOF
+$save_grub_cfg << EOF
 menuentry 'Debian Installer' --id debi {
 insmod part_msdos
 insmod part_gpt
 insmod ext2
-linux $DEBI_NEW_DIR/linux$DEBI_KERNEL_PARAMS
-initrd $DEBI_NEW_DIR/initrd.gz
+linux $installer_directory/linux$kernel_params
+initrd $installer_directory/initrd.gz
 }
 EOF
