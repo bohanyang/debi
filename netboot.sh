@@ -261,7 +261,7 @@ d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
 EOF
     if [ -n "$authorized_keys_url" ]; then
-        _late_command "cd ~$username && mkdir -m 700 .ssh && wget -qO .ssh/authorized_keys $authorized_keys_url"
+        _late_command "cd ~$username && mkdir -m 700 .ssh && busybox wget -qO .ssh/authorized_keys $authorized_keys_url"
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
 d-i network-console/authorized_keys_url string $authorized_keys_url
