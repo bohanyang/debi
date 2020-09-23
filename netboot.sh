@@ -233,11 +233,16 @@ d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
 EOF
     if [ -n "$DEBI_SSH_PASSWORD" ]; then
-        echo "d-i network-console/password password $DEBI_SSH_PASSWORD" | $save_preseed
-        echo "d-i network-console/password-again password $DEBI_SSH_PASSWORD" | $save_preseed
-    fi
-    if [ -n "$DEBI_SSH_KEYS" ]; then
-        echo "d-i network-console/authorized_keys_url string $DEBI_SSH_KEYS" | $save_preseed
+        $save_preseed << EOF
+d-i network-console/password-disabled boolean false
+d-i network-console/password password $DEBI_SSH_PASSWORD
+d-i network-console/password-again password $DEBI_SSH_PASSWORD
+EOF
+    elif [ -n "$DEBI_SSH_KEYS" ]; then
+        $save_preseed << EOF
+d-i network-console/password-disabled boolean true
+d-i network-console/authorized_keys_url string $DEBI_SSH_KEYS
+EOF
     fi
     echo 'd-i network-console/start select Continue' | $save_preseed
 fi
