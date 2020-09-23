@@ -295,7 +295,10 @@ if [ "$DEBI_SKIP_USER" != true ]; then
 EOF
 
     if [ "$DEBI_USERNAME" = root ]; then
-        echo 'd-i passwd/make-user boolean false' | $save_preseed
+        $save_preseed << EOF
+d-i passwd/root-login boolean true
+d-i passwd/make-user boolean false
+EOF
         if [ "$DEBI_CLEARTEXT" = true ]; then
             $save_preseed << EOF
 d-i passwd/root-password password $DEBI_PASSWORD
@@ -307,6 +310,7 @@ EOF
     else
         $save_preseed << EOF
 d-i passwd/root-login boolean false
+d-i passwd/make-user boolean true
 d-i passwd/user-fullname string
 d-i passwd/username string $DEBI_USERNAME
 EOF
