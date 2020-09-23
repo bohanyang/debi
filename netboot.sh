@@ -268,7 +268,7 @@ if [ "$DEBI_SKIP_USER" != true ]; then
         else
             DEBI_PASSWORD="$(mkpasswd -m sha512crypt "$DEBI_PASSWORD")"
         fi
-    elif command_exists busybox; then
+    elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
         if [ -z "$DEBI_PASSWORD" ]; then
             DEBI_PASSWORD="$(busybox mkpasswd -m sha512)"
         else
