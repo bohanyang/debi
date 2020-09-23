@@ -285,7 +285,7 @@ $save_preseed << EOF
 # Mirror settings
 
 d-i mirror/country string manual
-d-i mirror/mirror_protocol string $mirror_protocol
+d-i mirror/protocol string $mirror_protocol
 d-i mirror/$mirror_protocol/hostname string $mirror_host
 d-i mirror/$mirror_protocol/directory string $mirror_directory
 d-i mirror/$mirror_protocol/proxy string
