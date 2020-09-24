@@ -265,7 +265,6 @@ d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
 EOF
     if [ -n "$authorized_keys_url" ]; then
-        _late_command "cd ~$username && mkdir -m 700 .ssh && busybox wget -qO .ssh/authorized_keys $authorized_keys_url"
         _late_command 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
@@ -336,6 +335,8 @@ EOF
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
             _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
+        else
+            _late_command "mkdir -pm 700 /root/.ssh && busybox wget -qO /root/.ssh/authorized_keys \"$authorized_keys_url\""
         fi
         $save_preseed << EOF
 d-i passwd/root-login boolean true
@@ -351,6 +352,9 @@ EOF
         fi
     else
         _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
+        if [ -n "$authorized_keys_url" ]; then
+            _late_command "sudo -u $username mkdir -pm 700 /home/$username/.ssh && sudo -u $username busybox wget -qO /home/$username/.ssh/authorized_keys \"$authorized_keys_url\""
+        fi
         $save_preseed << EOF
 d-i passwd/root-login boolean false
 d-i passwd/make-user boolean true
