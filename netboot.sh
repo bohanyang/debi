@@ -3,7 +3,7 @@
 set -eu
 
 _err() {
-    printf 'Error: %s.' "$1" 1>&2
+    printf 'Error: %s.\n' "$1" 1>&2
 }
 
 command_exists() {
