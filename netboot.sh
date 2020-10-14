@@ -302,34 +302,26 @@ if [ "$skip_account_setup" != true ]; then
 
     if command_exists mkpasswd; then
         if [ -z "$password" ]; then
-            printf 'Password: ' 1>&2
             password="$(mkpasswd -m sha512crypt)"
-            echo 1>&2
         else
             password="$(mkpasswd -m sha512crypt "$password")"
         fi
     elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
         if [ -z "$password" ]; then
-            printf 'Password: ' 1>&2
             password="$(busybox mkpasswd -m sha512)"
-            echo 1>&2
         else
             password="$(busybox mkpasswd -m sha512 "$password")"
         fi
     elif command_exists python3; then
         if [ -z "$password" ]; then
-            printf 'Password: ' 1>&2
             password="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
-            echo 1>&2
         else
             password="$(python3 -c "import crypt; print(crypt.crypt(\"$password\", crypt.mksalt(crypt.METHOD_SHA512)))")"
         fi
     else
         cleartext_password=true
         if [ -z "$password" ]; then
-            printf 'Password: ' 1>&2
             read -rs password
-            echo 1>&2
         fi
     fi
 
