@@ -30,7 +30,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--mirror-protocol http` [`http`, `https`, `ftp`]
  - `--mirror-host deb.debian.org`
  - `--mirror-directory /debian`
- - `--suite stable`
+ - `--suite buster`
  - `--skip-account-setup`
  - `--username debian`
  - `--password`
