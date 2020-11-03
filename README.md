@@ -53,7 +53,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ### `china`
 
- - `--ns "223.5.5.5 223.6.6.6"`
+ - `--dns "223.5.5.5 223.6.6.6"`
  - `--protocol https`
  - `--mirror mirrors.aliyun.com`
  - `--security true`
