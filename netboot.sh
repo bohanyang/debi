@@ -308,9 +308,7 @@ if [ "$skip_account_setup" != true ]; then
         fi
     elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
         if [ -z "$password" ]; then
-            printf '\n%s' 'Password: ' 1>&2
-            read -rs password
-            echo 1>&2
+            read -rs -p 'Password: ' password
         fi
         password="$(busybox mkpasswd -m sha512 "$password")"
     elif command_exists python3; then
@@ -322,9 +320,7 @@ if [ "$skip_account_setup" != true ]; then
     else
         cleartext_password=true
         if [ -z "$password" ]; then
-            printf '\n%s' 'Password: ' 1>&2
-            read -rs password
-            echo 1>&2
+            read -rs -p 'Password: ' password
         fi
     fi
 
