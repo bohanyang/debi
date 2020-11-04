@@ -171,6 +171,9 @@ while [ $# -gt 0 ]; do
         --bbr)
             bbr=true
             ;;
+        --gpt)
+            gpt=true
+            ;;
         *)
             _err "Illegal option $1"
             exit 1
@@ -392,35 +395,35 @@ if [ "$skip_partitioning" != true ]; then
 # Partitioning
 
 EOF
-
     if [ -n "$disk" ]; then
         echo "d-i partman-auto/disk string $disk" | $save_preseed
     fi
 
-    $save_preseed << EOF
-d-i partman-auto/method string $partitioning_method
-d-i partman-lvm/device_remove_lvm boolean true
-d-i partman-md/device_remove_md boolean true
-d-i partman-lvm/confirm boolean true
-d-i partman/confirm_nooverwrite boolean true
-EOF
+    echo "d-i partman-auto/method string $partitioning_method" | $save_preseed
 
     if [ "$partitioning_method" = "regular" ]; then
-        echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
-        $save_preseed << 'EOF'
+        if [ "$gpt" = true ]; then
+            $save_preseed << 'EOF'
+d-i partman-partitioning/default_label string gpt
+d-i partman-partitioning/choose_label select gpt
+EOF
+        else
+            echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
+            $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string naive :: 0 1 -1 $default_filesystem $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } $default_filesystem{ } mountpoint{ / } .
 d-i partman-auto/choose_recipe select naive
 d-i partman-basicfilesystems/no_swap boolean false
 EOF
+        fi
     fi
 
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 d-i partman-partitioning/confirm_new_label boolean true
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
-d-i partman/mount_style select uuid
+d-i partman/mount_style select traditional
 EOF
 fi
 
