@@ -49,6 +49,7 @@ boot_partition=
 dry_run=
 bbr=
 cleartext_password=
+gpt=
 
 while [ $# -gt 0 ]; do
     case $1 in
