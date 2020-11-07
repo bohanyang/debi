@@ -14,7 +14,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ## Usage
 
-    sudo sh -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
+    sudo bash -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
 
 ## Available Options
 
@@ -40,6 +40,8 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--disk`
  - `--partitioning-method`
  - `--filesystem ext4`
+ - `--no-install-recommends`
+ - `--targeted-initramfs`
  - `--kernel` Specify another package for kernel image, e.g. `linux-image-cloud-amd64`
  - `--security-repository http://security.debian.org/debian-security`
  - `--install`

@@ -50,6 +50,8 @@ dry_run=
 bbr=
 cleartext_password=
 gpt=
+initramfs=generic
+install_recommends=true
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -174,6 +176,12 @@ while [ $# -gt 0 ]; do
             ;;
         --gpt)
             gpt=true
+            ;;
+        --targeted-initramfs)
+            initramfs=targeted
+            ;;
+        --no-install-recommends)
+            install_recommends=false
             ;;
         *)
             _err "Illegal option $1"
@@ -432,7 +440,8 @@ $save_preseed << EOF
 
 # Base system installation
 
-d-i base-installer/install-recommends boolean false
+d-i base-installer/install-recommends boolean $install_recommends
+d-i base-installer/initramfs-tools/driver-policy select $initramfs
 EOF
 
 if [ -n "$kernel" ]; then
@@ -553,10 +562,10 @@ installer_directory="$boot_directory$installer"
 
 $save_grub_cfg << EOF
 menuentry 'Debian Installer' --id debi {
-insmod part_msdos
-insmod part_gpt
-insmod ext2
-linux $installer_directory/linux$kernel_params
-initrd $installer_directory/initrd.gz
+    insmod part_msdos
+    insmod part_gpt
+    insmod ext2
+    linux $installer_directory/linux$kernel_params
+    initrd $installer_directory/initrd.gz
 }
 EOF
