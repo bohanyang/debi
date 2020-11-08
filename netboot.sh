@@ -411,7 +411,6 @@ EOF
         if [ "$gpt" = true ]; then
             $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
-#d-i partman-partitioning/choose_label select gpt
 EOF
         fi
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
@@ -447,11 +446,8 @@ EOF
     fi
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
-#d-i partman-partitioning/confirm_new_label boolean true
-#d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
-#d-i partman/confirm_nooverwrite boolean true
 EOF
 fi
 
