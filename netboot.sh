@@ -50,7 +50,6 @@ dry_run=
 bbr=
 cleartext_password=
 gpt=
-initramfs=generic
 install_recommends=true
 efi=false
 
@@ -177,9 +176,6 @@ while [ $# -gt 0 ]; do
             ;;
         --gpt)
             gpt=true
-            ;;
-        --targeted-initramfs)
-            initramfs=targeted
             ;;
         --no-install-recommends)
             install_recommends=false
@@ -454,7 +450,7 @@ d-i partman-basicfilesystems/no_swap boolean false
 #d-i partman-partitioning/confirm_new_label boolean true
 #d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
-#d-i partman/confirm boolean true
+d-i partman/confirm boolean true
 #d-i partman/confirm_nooverwrite boolean true
 EOF
 fi
@@ -463,9 +459,11 @@ $save_preseed << EOF
 
 # Base system installation
 
-d-i base-installer/install-recommends boolean $install_recommends
-d-i base-installer/initramfs-tools/driver-policy select $initramfs
 EOF
+
+if [ "$install_recommends" = false ]; then
+    echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
+fi
 
 if [ -n "$kernel" ]; then
     echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
