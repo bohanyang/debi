@@ -18,33 +18,38 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ## Available Options
 
- - `--preset` [`china`, `cloud`]
+ - `--preset` (`china`/`cloud`)
  - `--ip`
  - `--netmask`
  - `--gateway`
- - `--dns "8.8.8.8 8.8.4.4"`
+ - `--dns '8.8.8.8 8.8.4.4'`
  - `--hostname debian`
- - `--eth` Disable Consistent Network Device Naming
  - `--installer-password`
  - `--authorized-keys-url`
- - `--mirror-protocol http` [`http`, `https`, `ftp`]
+ - `--suite buster`
+ - `--mirror-protocol http` (`http`/`https`/`ftp`)
  - `--mirror-host deb.debian.org`
  - `--mirror-directory /debian`
- - `--suite buster`
+ - `--security-repository http://security.debian.org/debian-security`
  - `--skip-account-setup`
  - `--username debian`
  - `--password`
  - `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  - `--ntp 0.debian.pool.ntp.org`
  - `--skip-partitioning`
+ - `--partitioning-method regular`
  - `--disk`
- - `--partitioning-method`
+ - `--gpt`
+ - `--efi`
  - `--filesystem ext4`
+ - `--kernel` Choose an package for the kernel image
+ - `--cloud-kernel` Choose `linux-image-cloud-amd64` as the kernel image
  - `--no-install-recommends`
- - `--kernel` Specify another package for kernel image, e.g. `linux-image-cloud-amd64`
- - `--security-repository http://security.debian.org/debian-security`
  - `--install`
- - `--upgrade full-upgrade` [`none`, `safe-upgrade`, `full-upgrade`]
+ - `--safe-upgrade`
+ - `--full-upgrade`
+ - `--eth` Disable *Consistent Network Device Naming* to get `eth0`, `eth1`, etc. back
+ - `--bbr`
  - `--power-off`
  - `--architecture`
  - `--boot-partition`
@@ -54,7 +59,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ### `china`
 
- - `--dns "223.5.5.5 223.6.6.6"`
+ - `--dns '223.5.5.5 223.6.6.6'`
  - `--protocol https`
  - `--mirror mirrors.aliyun.com`
  - `--security true`
@@ -62,6 +67,8 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
 
 ### `cloud`
 
+ - `--dns '1.1.1.1 1.0.0.1'`
  - `--protocol https`
  - `--mirror deb.debian.org`
  - `--security true`
+ - `--ntp 0.debian.pool.ntp.org`

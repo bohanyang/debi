@@ -1,62 +1,82 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -eu
 
 _err() {
     printf 'Error: %s.\n' "$1" 1>&2
+    exit 1
 }
 
-command_exists() {
+_command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+late_command=
 _late_command() {
     [ -z "$late_command" ] && late_command='true'
     late_command="$late_command; $1"
 }
 
-late_command=
-preset=
+_prompt_password() {
+    [ -z "$password" ] && read -rs -p 'Password: ' password
+}
+
 ip=
 netmask=
 gateway=
-dns=
+dns='8.8.8.8 8.8.4.4'
 hostname=
-kernel_params=
-installer_ssh=
+installer_ssh=false
 installer_password=
 authorized_keys_url=
-mirror_protocol=
-mirror_host=
-mirror_directory=
-suite=
-skip_account_setup=
-username=
+suite=buster
+mirror_protocol=http
+mirror_host=deb.debian.org
+mirror_directory=/debian
+security_repository=http://security.debian.org/debian-security
+skip_account_setup=false
+username=debian
 password=
-timezone=
-ntp=
-skip_partitioning=
-disk=
+cleartext_password=false
+timezone=UTC
+ntp=0.debian.pool.ntp.org
+skip_partitioning=false
 partitioning_method=regular
+disk=
+gpt=false
+efi=false
 filesystem=ext4
 kernel=
-security_repository=
+install_recommends=true
 install=
 upgrade=
-power_off=
+kernel_params=
+bbr=false
+power_off=false
 architecture=
-boot_partition=
-dry_run=
-bbr=
-cleartext_password=
-gpt=
-install_recommends=true
-efi=false
+boot_directory=/boot/
+dry_run=false
 
 while [ $# -gt 0 ]; do
     case $1 in
         --preset)
-            preset=$2
+            case "$2" in
+                china)
+                    dns='223.5.5.5 223.6.6.6'
+                    mirror_protocol=https
+                    mirror_host=mirrors.aliyun.com
+                    ntp=ntp.aliyun.com
+                    security_repository=true
+                    ;;
+                cloud)
+                    dns='1.1.1.1 1.0.0.1'
+                    mirror_protocol=https
+                    mirror_host=deb.debian.org
+                    security_repository=true
+                    ;;
+                *)
+                    _err "No such preset $2"
+            esac
             shift
             ;;
         --ip)
@@ -79,9 +99,6 @@ while [ $# -gt 0 ]; do
             hostname=$2
             shift
             ;;
-        --eth)
-            kernel_params=' net.ifnames=0 biosdevname=0'
-            ;;
         --installer-password)
             installer_ssh=true
             installer_password=$2
@@ -90,6 +107,10 @@ while [ $# -gt 0 ]; do
         --authorized-keys-url)
             installer_ssh=true
             authorized_keys_url=$2
+            shift
+            ;;
+        --suite)
+            suite=$2
             shift
             ;;
         --mirror-protocol)
@@ -104,8 +125,8 @@ while [ $# -gt 0 ]; do
             mirror_directory=${2%/}
             shift
             ;;
-        --suite)
-            suite=$2
+        --security-repository)
+            security_repository=$2
             shift
             ;;
         --skip-account-setup)
@@ -130,13 +151,19 @@ while [ $# -gt 0 ]; do
         --skip-partitioning)
             skip_partitioning=true
             ;;
+        --partitioning-method)
+            partitioning_method=$2
+            shift
+            ;;
         --disk)
             disk=$2
             shift
             ;;
-        --partitioning-method)
-            partitioning_method=$2
-            shift
+        --gpt)
+            gpt=true
+            ;;
+        --efi)
+            efi=true
             ;;
         --filesystem)
             filesystem=$2
@@ -146,17 +173,29 @@ while [ $# -gt 0 ]; do
             kernel=$2
             shift
             ;;
-        --security-repository)
-            security_repository=$2
-            shift
+        --cloud-kernel)
+            kernel=linux-image-cloud-amd64
+            ;;
+        --no-install-recommends)
+            install_recommends=false
             ;;
         --install)
             install=$2
             shift
             ;;
-        --upgrade)
-            upgrade=$2
+        --safe-upgrade)
+            upgrade=safe-upgrade
             shift
+            ;;
+        --full-upgrade)
+            upgrade=full-upgrade
+            shift
+            ;;
+        --eth)
+            kernel_params=' net.ifnames=0 biosdevname=0'
+            ;;
+        --bbr)
+            bbr=true
             ;;
         --power-off)
             power_off=true
@@ -166,62 +205,25 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --boot-partition)
-            boot_partition=true
+            boot_directory=/
             ;;
         --dry-run)
             dry_run=true
             ;;
-        --bbr)
-            bbr=true
-            ;;
-        --gpt)
-            gpt=true
-            ;;
-        --no-install-recommends)
-            install_recommends=false
-            ;;
-        --efi)
-            efi=true
-            ;;
         *)
             _err "Illegal option $1"
-            exit 1
     esac
     shift
 done
 
-if [ -n "$preset" ]; then
-    case "$preset" in
-        china)
-            dns=${dns:-223.5.5.5 223.6.6.6}
-            mirror_protocol=${mirror_protocol:-https}
-            mirror_host=${mirror_host:-mirrors.aliyun.com}
-            ntp=${ntp:-ntp.aliyun.com}
-            security_repository=${security_repository:-true}
-            ;;
-        cloud)
-            mirror_protocol=${mirror_protocol:-https}
-            mirror_host=${mirror_host:-deb.debian.org}
-            security_repository=${security_repository:-true}
-            ;;
-        *)
-            _err "No such preset $preset"
-            exit 1
-    esac
-fi
-
-suite=${suite:-buster}
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
-save_preseed="cat"
+save_preseed='cat'
 if [ "$dry_run" != true ]; then
     user="$(id -un 2>/dev/null || true)"
 
-    if [ "$user" != root ]; then
-        _err 'root privilege is required'
-        exit 1
-    fi
+    [ "$user" != root ] && _err 'root privilege is required'
 
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory"
@@ -229,7 +231,7 @@ if [ "$dry_run" != true ]; then
     save_preseed='tee -a preseed.cfg'
 fi
 
-$save_preseed << EOF
+$save_preseed << 'EOF'
 # Localization
 
 d-i debian-installer/locale string en_US.UTF-8
@@ -240,24 +242,16 @@ d-i keyboard-configuration/xkb-keymap select us
 d-i netcfg/choose_interface select auto
 EOF
 
-dns=${dns:-8.8.8.8 8.8.4.4}
-
 if [ -n "$ip" ]; then
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
     echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
-    if [ -n "$netmask" ]; then
-        echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
-    fi
-    if [ -n "$gateway" ]; then
-        echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
-    fi
-    if [ -n "$dns" ]; then
-        echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
-    fi
+    [ -n "$netmask" ] && echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
+    [ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
+    [ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 fi
 
-$save_preseed << EOF
+$save_preseed << 'EOF'
 d-i netcfg/get_hostname string debian
 d-i netcfg/get_domain string
 EOF
@@ -269,13 +263,14 @@ fi
 echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
 if [ "$installer_ssh" = true ]; then
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 
 # Network console
 
 d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
 EOF
+
     if [ -n "$authorized_keys_url" ]; then
         _late_command 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
@@ -289,12 +284,9 @@ d-i network-console/password password $installer_password
 d-i network-console/password-again password $installer_password
 EOF
     fi
+
     echo 'd-i network-console/start select Continue' | $save_preseed
 fi
-
-mirror_protocol=${mirror_protocol:-http}
-mirror_host=${mirror_host:-deb.debian.org}
-mirror_directory=${mirror_directory:-/debian}
 
 $save_preseed << EOF
 
@@ -310,20 +302,16 @@ d-i mirror/udeb/suite string $suite
 EOF
 
 if [ "$skip_account_setup" != true ]; then
-    username=${username:-debian}
-
-    if command_exists mkpasswd; then
+    if _command_exists mkpasswd; then
         if [ -z "$password" ]; then
             password="$(mkpasswd -m sha-512)"
         else
             password="$(mkpasswd -m sha-512 "$password")"
         fi
-    elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
-        if [ -z "$password" ]; then
-            read -rs -p 'Password: ' password
-        fi
+    elif _command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
+        _prompt_password
         password="$(busybox mkpasswd -m sha512 "$password")"
-    elif command_exists python3; then
+    elif _command_exists python3; then
         if [ -z "$password" ]; then
             password="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
         else
@@ -331,12 +319,10 @@ if [ "$skip_account_setup" != true ]; then
         fi
     else
         cleartext_password=true
-        if [ -z "$password" ]; then
-            read -rs -p 'Password: ' password
-        fi
+        _prompt_password
     fi
 
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 
 # Account setup
 
@@ -348,10 +334,12 @@ EOF
         else
             _late_command "mkdir -pm 700 /root/.ssh && busybox wget -qO /root/.ssh/authorized_keys \"$authorized_keys_url\""
         fi
-        $save_preseed << EOF
+
+        $save_preseed << 'EOF'
 d-i passwd/root-login boolean true
 d-i passwd/make-user boolean false
 EOF
+
         if [ "$cleartext_password" = true ]; then
             $save_preseed << EOF
 d-i passwd/root-password password $password
@@ -362,15 +350,18 @@ EOF
         fi
     else
         _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
+
         if [ -n "$authorized_keys_url" ]; then
             _late_command "sudo -u $username mkdir -pm 700 /home/$username/.ssh && sudo -u $username busybox wget -qO /home/$username/.ssh/authorized_keys \"$authorized_keys_url\""
         fi
+
         $save_preseed << EOF
 d-i passwd/root-login boolean false
 d-i passwd/make-user boolean true
 d-i passwd/user-fullname string
 d-i passwd/username string $username
 EOF
+
         if [ "$cleartext_password" = true ]; then
             $save_preseed << EOF
 d-i passwd/user-password password $password
@@ -381,9 +372,6 @@ EOF
         fi
     fi
 fi
-
-timezone=${timezone:-UTC}
-ntp=${ntp:-0.debian.pool.ntp.org}
 
 $save_preseed << EOF
 
@@ -401,6 +389,7 @@ if [ "$skip_partitioning" != true ]; then
 # Partitioning
 
 EOF
+
     if [ -n "$disk" ]; then
         echo "d-i partman-auto/disk string $disk" | $save_preseed
     fi
@@ -408,21 +397,12 @@ EOF
     echo "d-i partman-auto/method string $partitioning_method" | $save_preseed
 
     if [ "$partitioning_method" = regular ]; then
-        if [ "$gpt" = true ]; then
-            $save_preseed << 'EOF'
+        [ "$gpt" = true ] && $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
 EOF
-        fi
+
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
-        $save_preseed << 'EOF'
-d-i partman-auto/expert_recipe string \
-    naive :: \
-        1 1 1 free \
-            $iflabel{ gpt } \
-            $reusemethod{ } \
-            method{ biosgrub } \
-        . \
-EOF
+
         if [ "$efi" = true ]; then
             $save_preseed << 'EOF'
         538 538 1075 free \
@@ -432,7 +412,18 @@ EOF
             format{ } \
         . \
 EOF
+        else
+            $save_preseed << 'EOF'
+d-i partman-auto/expert_recipe string \
+    naive :: \
+        1 1 1 free \
+            $iflabel{ gpt } \
+            $reusemethod{ } \
+            method{ biosgrub } \
+        . \
+EOF
         fi
+
         $save_preseed << 'EOF'
         2149 2150 -1 $default_filesystem \
             method{ format } \
@@ -444,34 +435,25 @@ EOF
 EOF
         echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
     fi
+
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 EOF
+
 fi
 
-$save_preseed << EOF
+$save_preseed << 'EOF'
 
 # Base system installation
 
 EOF
 
-if [ "$install_recommends" = false ]; then
-    echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
-fi
+[ "$install_recommends" = false ] && echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
+[ -n "$kernel" ] && echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
 
-if [ -n "$kernel" ]; then
-    echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
-fi
-
-if [ -z "$security_repository" ]; then
-    security_repository=http://security.debian.org/debian-security
-else
-    if [ "$security_repository" = true ]; then
-        security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
-    fi
-fi
+[ "$security_repository" = true ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
 
 $save_preseed << EOF
 
@@ -482,97 +464,70 @@ d-i apt-setup/local0/repository string $security_repository $suite/updates main
 d-i apt-setup/local0/source boolean true
 EOF
 
-upgrade=${upgrade:-full-upgrade}
-
-$save_preseed << EOF
+$save_preseed << 'EOF'
 
 # Package selection
 
 tasksel tasksel/first multiselect ssh-server
 EOF
 
-if [ -n "$install" ]; then
-    echo "d-i pkgsel/include string $install" | $save_preseed
-fi
+[ -n "$install" ] && echo "d-i pkgsel/include string $install" | $save_preseed
+[ -n "$upgrade" ] && echo "d-i pkgsel/upgrade select $upgrade" | $save_preseed
 
-$save_preseed << EOF
-d-i pkgsel/upgrade select $upgrade
+$save_preseed << 'EOF'
 popularity-contest popularity-contest/participate boolean false
 
 # Boot loader installation
 
-d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
 EOF
 
-if [ -n "$kernel_params" ]; then
-    echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
-fi
+[ -n "$kernel_params" ] && echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
 
-$save_preseed << EOF
+$save_preseed << 'EOF'
 
 # Finishing up the installation
 
 d-i finish-install/reboot_in_progress note
 EOF
 
-if [ "$bbr" = true ]; then
-    _late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
-fi
+[ "$bbr" = true ] && _late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-if [ -n "$late_command" ]; then
-    echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
-fi
+[ -n "$late_command" ] && echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
 
-if [ "$power_off" = true ]; then
-    echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
-fi
+[ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
-save_grub_cfg="cat"
+save_grub_cfg='cat'
 if [ "$dry_run" != true ]; then
-    if [ -z "$architecture" ]; then
-        if command_exists dpkg; then
-            architecture="$(dpkg --print-architecture)"
-        else
-            architecture=amd64
-        fi
-    fi
+    [ -z "$architecture" ] && architecture=amd64 && _command_exists dpkg && architecture="$(dpkg --print-architecture)"
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
 
-    if command_exists wget; then
+    if _command_exists wget; then
         wget "$base_url/linux" "$base_url/initrd.gz"
-    elif command_exists curl; then
+    elif _command_exists curl; then
         curl -O "$base_url/linux" -O "$base_url/initrd.gz"
-    elif command_exists busybox; then
+    elif _command_exists busybox; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
     else
         _err 'wget/curl/busybox is required to download files'
-        exit 1
     fi
 
     gunzip initrd.gz
     echo preseed.cfg | cpio -H newc -o -A -F initrd
     gzip initrd
 
-    if command_exists update-grub; then
+    if _command_exists update-grub; then
         grub_cfg=/boot/grub/grub.cfg
         update-grub
-    elif command_exists grub2-mkconfig; then
+    elif _command_exists grub2-mkconfig; then
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
         _err 'update-grub/grub2-mkconfig command not found'
-        exit 1
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
-fi
-
-if [ "$boot_partition" = true ]; then
-    boot_directory=/
-else
-    boot_directory=/boot/
 fi
 
 installer_directory="$boot_directory$installer"
