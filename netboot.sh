@@ -37,8 +37,8 @@ timezone=
 ntp=
 skip_partitioning=
 disk=
-partitioning_method=
-filesystem=
+partitioning_method=regular
+filesystem=ext4
 kernel=
 security_repository=
 install=
@@ -52,6 +52,7 @@ cleartext_password=
 gpt=
 initramfs=generic
 install_recommends=true
+efi=false
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -182,6 +183,9 @@ while [ $# -gt 0 ]; do
             ;;
         --no-install-recommends)
             install_recommends=false
+            ;;
+        --efi)
+            efi=true
             ;;
         *)
             _err "Illegal option $1"
@@ -389,17 +393,14 @@ $save_preseed << EOF
 
 # Clock and time zone setup
 
-d-i clock-setup/utc boolean true
 d-i time/zone string $timezone
+d-i clock-setup/utc boolean true
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string $ntp
 EOF
 
 if [ "$skip_partitioning" != true ]; then
-    filesystem=${filesystem:-ext4}
-    partitioning_method=${partitioning_method:-regular}
-
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 
 # Partitioning
 
@@ -410,29 +411,57 @@ EOF
 
     echo "d-i partman-auto/method string $partitioning_method" | $save_preseed
 
-    if [ "$partitioning_method" = "regular" ]; then
+    if [ "$partitioning_method" = regular ]; then
         if [ "$gpt" = true ]; then
             $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
 d-i partman-partitioning/choose_label select gpt
 EOF
-        else
-            echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
-            $save_preseed << 'EOF'
-d-i partman-auto/expert_recipe string naive :: 0 1 -1 $default_filesystem $primary{ } $bootable{ } method{ format } format{ } use_filesystem{ } $default_filesystem{ } mountpoint{ / } .
-d-i partman-auto/choose_recipe select naive
-d-i partman-basicfilesystems/no_swap boolean false
+        fi
+        echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
+        $save_preseed << 'EOF'
+d-i partman-auto/expert_recipe string \
+    naive :: \
+        1 1 1 free \
+	        $iflabel{ gpt } \
+	        $reusemethod{ } \
+	        method{ biosgrub } \
+        . \
+        1536 1536 -1 $default_filesystem \
+            method{ format } \
+            format{ } \
+            use_filesystem{ } \
+            $default_filesystem{ } \
+            mountpoint{ / } \
+        . \
+    naivefi :: \
+        512 512 512 free \
+            $iflabel{ gpt } \
+            $reusemethod{ } \
+            method{ efi } \
+            format{ } \
+        . \
+        1536 1536 -1 $default_filesystem \
+            method{ format } \
+            format{ } \
+            use_filesystem{ } \
+            $default_filesystem{ } \
+            mountpoint{ / } \
+        .
 EOF
+        if [ "$efi" = true ]; then
+            echo "d-i partman-auto/choose_recipe select naivefi" | $save_preseed
+        else
+            echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
         fi
     fi
-
     $save_preseed << 'EOF'
+d-i partman-basicfilesystems/no_swap boolean false
 d-i partman-partitioning/confirm_new_label boolean true
 d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
-d-i partman/mount_style select traditional
 EOF
 fi
 
