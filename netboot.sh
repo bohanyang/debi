@@ -389,7 +389,6 @@ if [ "$skip_partitioning" != true ]; then
 # Partitioning
 
 EOF
-
     if [ -n "$disk" ]; then
         echo "d-i partman-auto/disk string $disk" | $save_preseed
     fi
@@ -397,23 +396,14 @@ EOF
     echo "d-i partman-auto/method string $partitioning_method" | $save_preseed
 
     if [ "$partitioning_method" = regular ]; then
+
         [ "$gpt" = true ] && $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
 EOF
 
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
 
-        if [ "$efi" = true ]; then
-            $save_preseed << 'EOF'
-        538 538 1075 free \
-            $iflabel{ gpt } \
-            $reusemethod{ } \
-            method{ efi } \
-            format{ } \
-        . \
-EOF
-        else
-            $save_preseed << 'EOF'
+        $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
     naive :: \
         1 1 1 free \
@@ -422,8 +412,14 @@ d-i partman-auto/expert_recipe string \
             method{ biosgrub } \
         . \
 EOF
-        fi
-
+        [ "$efi" = true ] && $save_preseed << 'EOF'
+        538 538 1075 free \
+            $iflabel{ gpt } \
+            $reusemethod{ } \
+            method{ efi } \
+            format{ } \
+        . \
+EOF
         $save_preseed << 'EOF'
         2149 2150 -1 $default_filesystem \
             method{ format } \
