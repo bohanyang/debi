@@ -415,7 +415,7 @@ EOF
         if [ "$gpt" = true ]; then
             $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
-d-i partman-partitioning/choose_label select gpt
+#d-i partman-partitioning/choose_label select gpt
 EOF
         fi
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
@@ -427,20 +427,18 @@ d-i partman-auto/expert_recipe string \
 	        $reusemethod{ } \
 	        method{ biosgrub } \
         . \
-        1536 1536 -1 $default_filesystem \
-            method{ format } \
-            format{ } \
-            use_filesystem{ } \
-            $default_filesystem{ } \
-            mountpoint{ / } \
-        . \
-    naivefi :: \
+EOF
+        if [ "$efi" = true ]; then
+            $save_preseed << 'EOF'
         512 512 512 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
             method{ efi } \
             format{ } \
         . \
+EOF
+        fi
+        $save_preseed << 'EOF'
         1536 1536 -1 $default_filesystem \
             method{ format } \
             format{ } \
@@ -449,19 +447,15 @@ d-i partman-auto/expert_recipe string \
             mountpoint{ / } \
         .
 EOF
-        if [ "$efi" = true ]; then
-            echo "d-i partman-auto/choose_recipe select naivefi" | $save_preseed
-        else
-            echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
-        fi
+        echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
     fi
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
-d-i partman-partitioning/confirm_new_label boolean true
-d-i partman-partitioning/confirm_write_new_label boolean true
+#d-i partman-partitioning/confirm_new_label boolean true
+#d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
-d-i partman/confirm boolean true
-d-i partman/confirm_nooverwrite boolean true
+#d-i partman/confirm boolean true
+#d-i partman/confirm_nooverwrite boolean true
 EOF
 fi
 
