@@ -12,7 +12,7 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
 
 ## Usage
 
-    sudo bash -c "$(curl -fsSL https://github.com/bohanyang/debian-network-reinstall/raw/master/netinst.sh)" -- <OPTIONS>
+    sudo bash -c "$(curl -fsSL https://github.com/bohanyang/debi/raw/master/debi.sh)" -- <OPTIONS>
 
 ## Available Options
 
