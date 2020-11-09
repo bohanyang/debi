@@ -1,20 +1,18 @@
-# VPS Re-install Debian Script
-
-Now ready for Debian 10 (buster)!
+# Debian Network Reinstall Script
 
 ## Introduction
 
-This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** with the official installer, but semi-automatically.
+This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V virtual machine to Debian 10 Buster.
 
 ## How It Works
 
 1. Generate a preseed file to automate installation
-2. Download Debian Installer to the boot directory
-3. Alter GRUB2 configuration to boot the installer
+2. Download the 'Debian-Installer' to the `/boot` directory
+3. Append a menu entry of the installer to the GRUB2 configuration file
 
 ## Usage
 
-    sudo bash -c "$(wget -qO- https://github.com/brentybh/debian-netboot/raw/master/netboot.sh)" -- <OPTIONS>
+    sudo bash -c "$(curl -fsSL https://github.com/bohanyang/debian-network-reinstall/raw/master/netinst.sh)" -- <OPTIONS>
 
 ## Available Options
 
