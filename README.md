@@ -41,7 +41,7 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--disk`
  - `--force-gpt` Create a *GUID Partition Table* **(Default)**
  - `--no-force-gpt`
- - `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent
+ - `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
  - `--efi` Create an *EFI system partition*. Default if `/sys/firmware/efi` exists
  - `--filesystem ext4`
  - `--kernel` Choose an package for the kernel image
