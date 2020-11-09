@@ -187,11 +187,9 @@ while [ $# -gt 0 ]; do
             ;;
         --safe-upgrade)
             upgrade=safe-upgrade
-            shift
             ;;
         --full-upgrade)
             upgrade=full-upgrade
-            shift
             ;;
         --eth)
             kernel_params=' net.ifnames=0 biosdevname=0'
