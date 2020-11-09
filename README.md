@@ -60,15 +60,15 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
 ### `china`
 
  - `--dns '223.5.5.5 223.6.6.6'`
- - `--protocol https`
- - `--mirror mirrors.aliyun.com`
- - `--security true`
+ - `--mirror-protocol https`
+ - `--mirror-host mirrors.aliyun.com`
+ - `--security-repository mirror`
  - `--ntp ntp.aliyun.com`
 
 ### `cloud`
 
  - `--dns '1.1.1.1 1.0.0.1'`
- - `--protocol https`
- - `--mirror deb.debian.org`
- - `--security true`
+ - `--mirror-protocol https`
+ - `--mirror-host deb.debian.org`
+ - `--security-repository mirror`
  - `--ntp 0.debian.pool.ntp.org`
