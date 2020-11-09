@@ -18,7 +18,9 @@ _late_command() {
 }
 
 _prompt_password() {
-    [ -z "$password" ] && read -rs -p 'Password: ' password
+    if [ -z "$password" ]; then
+        read -rs -p 'Password: ' password
+    fi
 }
 
 ip=
