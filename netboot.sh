@@ -45,7 +45,7 @@ ntp=0.debian.pool.ntp.org
 skip_partitioning=false
 partitioning_method=regular
 disk=
-gpt=true
+force_gpt=true
 efi=
 filesystem=ext4
 kernel=
@@ -161,11 +161,11 @@ while [ $# -gt 0 ]; do
             disk=$2
             shift
             ;;
-        --mbr)
-            gpt=false
+        --force-gpt)
+            force_gpt=true
             ;;
-        --gpt)
-            gpt=true
+        --no-force-gpt)
+            force_gpt=false
             ;;
         --bios)
             efi=false
@@ -403,7 +403,7 @@ EOF
 
     if [ "$partitioning_method" = regular ]; then
 
-        [ "$gpt" = true ] && $save_preseed << 'EOF'
+        [ "$force_gpt" = true ] && $save_preseed << 'EOF'
 d-i partman-partitioning/default_label string gpt
 EOF
 
