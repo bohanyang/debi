@@ -28,7 +28,7 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--mirror-protocol http` (`http`/`https`/`ftp`)
  - `--mirror-host deb.debian.org`
  - `--mirror-directory /debian`
- - `--security-repository http://security.debian.org/debian-security`
+ - `--security-repository http://security.debian.org/debian-security` Magic value: `'mirror' = <mirror-protocol>://<mirror-host>/<mirror-directory>/../debian-security`
  - `--skip-account-setup`
  - `--username debian`
  - `--password`

@@ -68,13 +68,13 @@ while [ $# -gt 0 ]; do
                     mirror_protocol=https
                     mirror_host=mirrors.aliyun.com
                     ntp=ntp.aliyun.com
-                    security_repository=true
+                    security_repository=mirror
                     ;;
                 cloud)
                     dns='1.1.1.1 1.0.0.1'
                     mirror_protocol=https
                     mirror_host=deb.debian.org
-                    security_repository=true
+                    security_repository=mirror
                     ;;
                 *)
                     _err "No such preset $2"
@@ -463,7 +463,7 @@ EOF
 [ "$install_recommends" = false ] && echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
 [ -n "$kernel" ] && echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
 
-[ "$security_repository" = true ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
+[ "$security_repository" = mirror ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
 
 $save_preseed << EOF
 
