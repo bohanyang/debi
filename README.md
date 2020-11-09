@@ -39,7 +39,9 @@ This script is used to re-install VPS to **Debian 9 (stretch) or 10 (buster)** w
  - `--skip-partitioning`
  - `--partitioning-method regular`
  - `--disk`
+ - `--mbr`
  - `--gpt`
+ - `--bios`
  - `--efi`
  - `--filesystem ext4`
  - `--kernel` Choose an package for the kernel image

@@ -45,8 +45,8 @@ ntp=0.debian.pool.ntp.org
 skip_partitioning=false
 partitioning_method=regular
 disk=
-gpt=false
-efi=false
+gpt=true
+efi=
 filesystem=ext4
 kernel=
 install_recommends=true
@@ -161,8 +161,14 @@ while [ $# -gt 0 ]; do
             disk=$2
             shift
             ;;
+        --mbr)
+            gpt=false
+            ;;
         --gpt)
             gpt=true
+            ;;
+        --bios)
+            efi=false
             ;;
         --efi)
             efi=true
@@ -402,6 +408,8 @@ d-i partman-partitioning/default_label string gpt
 EOF
 
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
+
+        [ -z "$efi" ] && efi=false && [ -d /sys/firmware/efi ] && efi=true
 
         $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
