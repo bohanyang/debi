@@ -17,6 +17,10 @@ _late_command() {
     late_command="$late_command; $1"
 }
 
+_backup() {
+    _late_command "[ ! -e \"$1$2\" ] && cp \"$1\" \"$1$2\""
+}
+
 _prompt_password() {
     if [ -z "$password" ]; then
         read -rs -p 'Password: ' password
@@ -278,6 +282,7 @@ d-i preseed/early_command string anna-install network-console
 EOF
 
     if [ -n "$authorized_keys_url" ]; then
+        _backup /etc/ssh/sshd_config .backup
         _late_command 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
@@ -321,7 +326,7 @@ if [ "$skip_account_setup" != true ]; then
         if [ -z "$password" ]; then
             password="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
         else
-            password="$(python3 -c "import crypt; print(crypt.crypt(\"$password\", crypt.mksalt(crypt.METHOD_SHA512)))")"
+            password="$(python3 -c "import crypt; print(crypt.crypt('$password', crypt.mksalt(crypt.METHOD_SHA512)))")"
         fi
     else
         cleartext_password=true
@@ -336,9 +341,10 @@ EOF
 
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
+            _backup /etc/ssh/sshd_config .backup
             _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         else
-            _late_command "mkdir -pm 700 /root/.ssh && busybox wget -qO /root/.ssh/authorized_keys \"$authorized_keys_url\""
+            _late_command "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" | tee -a ~root/.ssh/authorized_keys"
         fi
 
         $save_preseed << 'EOF'
@@ -355,10 +361,11 @@ EOF
             echo "d-i passwd/root-password-crypted password $password" | $save_preseed
         fi
     else
+        _backup /etc/ssh/sshd_config .backup
         _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
 
         if [ -n "$authorized_keys_url" ]; then
-            _late_command "sudo -u $username mkdir -pm 700 /home/$username/.ssh && sudo -u $username busybox wget -qO /home/$username/.ssh/authorized_keys \"$authorized_keys_url\""
+            _late_command "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
         fi
 
         $save_preseed << EOF
@@ -503,7 +510,7 @@ EOF
 
 [ "$bbr" = true ] && _late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$late_command" ] && echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
+[ -n "$late_command" ] && echo "d-i preseed/late_command string in-target bash -c '$late_command'" | $save_preseed
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
