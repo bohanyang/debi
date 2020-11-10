@@ -416,7 +416,10 @@ EOF
 
         echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
 
-        [ -z "$efi" ] && efi=false && [ -d /sys/firmware/efi ] && efi=true
+        if [ -z "$efi" ]; then
+            efi=false
+            [ -d /sys/firmware/efi ] && efi=true
+       fi
 
         $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
@@ -516,7 +519,10 @@ EOF
 
 save_grub_cfg='cat'
 if [ "$dry_run" != true ]; then
-    [ -z "$architecture" ] && architecture=amd64 && _command_exists dpkg && architecture="$(dpkg --print-architecture)"
+    if [ -z "$architecture" ]; then
+        architecture=amd64
+        _command_exists dpkg && architecture="$(dpkg --print-architecture)"
+    fi
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
 
