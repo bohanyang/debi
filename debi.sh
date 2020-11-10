@@ -344,7 +344,7 @@ EOF
             backup /etc/ssh/sshd_config
             run_later 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         else
-            run_later "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" | tee -a ~root/.ssh/authorized_keys"
+            run_later "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" >> ~root/.ssh/authorized_keys"
         fi
 
         $save_preseed << 'EOF'
