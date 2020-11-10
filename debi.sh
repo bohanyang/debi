@@ -2,26 +2,26 @@
 
 set -eu
 
-_err() {
+err() {
     printf 'Error: %s.\n' "$1" 1>&2
     exit 1
 }
 
-_command_exists() {
+command_exists() {
     command -v "$1" > /dev/null 2>&1
 }
 
 late_command=
-_late_command() {
+run_later() {
     [ -z "$late_command" ] && late_command='true'
     late_command="$late_command; $1"
 }
 
-_backup() {
-    _late_command "[ ! -e \"$1$2\" ] && cp \"$1\" \"$1$2\""
+backup() {
+    run_later "[ ! -e \"$1.backup\" ] && cp \"$1\" \"$1.backup\""
 }
 
-_prompt_password() {
+prompt_password() {
     if [ -z "$password" ]; then
         read -rs -p 'Password: ' password
     fi
@@ -81,7 +81,7 @@ while [ $# -gt 0 ]; do
                     security_repository=mirror
                     ;;
                 *)
-                    _err "No such preset $2"
+                    err "No such preset $2"
             esac
             shift
             ;;
@@ -221,7 +221,7 @@ while [ $# -gt 0 ]; do
             dry_run=true
             ;;
         *)
-            _err "Illegal option $1"
+            err "Illegal option $1"
     esac
     shift
 done
@@ -233,7 +233,7 @@ save_preseed='cat'
 if [ "$dry_run" != true ]; then
     user="$(id -un 2>/dev/null || true)"
 
-    [ "$user" != root ] && _err 'root privilege is required'
+    [ "$user" != root ] && err 'root privilege is required'
 
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory"
@@ -282,8 +282,8 @@ d-i preseed/early_command string anna-install network-console
 EOF
 
     if [ -n "$authorized_keys_url" ]; then
-        _backup /etc/ssh/sshd_config .backup
-        _late_command 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
+        backup /etc/ssh/sshd_config
+        run_later 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
 d-i network-console/authorized_keys_url string $authorized_keys_url
@@ -313,16 +313,16 @@ d-i mirror/udeb/suite string $suite
 EOF
 
 if [ "$skip_account_setup" != true ]; then
-    if _command_exists mkpasswd; then
+    if command_exists mkpasswd; then
         if [ -z "$password" ]; then
             password="$(mkpasswd -m sha-512)"
         else
             password="$(mkpasswd -m sha-512 "$password")"
         fi
-    elif _command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
-        _prompt_password
+    elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
+        prompt_password
         password="$(busybox mkpasswd -m sha512 "$password")"
-    elif _command_exists python3; then
+    elif command_exists python3; then
         if [ -z "$password" ]; then
             password="$(python3 -c 'import crypt, getpass; print(crypt.crypt(getpass.getpass(), crypt.mksalt(crypt.METHOD_SHA512)))')"
         else
@@ -330,7 +330,7 @@ if [ "$skip_account_setup" != true ]; then
         fi
     else
         cleartext_password=true
-        _prompt_password
+        prompt_password
     fi
 
     $save_preseed << 'EOF'
@@ -341,10 +341,10 @@ EOF
 
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
-            _backup /etc/ssh/sshd_config .backup
-            _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
+            backup /etc/ssh/sshd_config
+            run_later 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         else
-            _late_command "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" | tee -a ~root/.ssh/authorized_keys"
+            run_later "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" | tee -a ~root/.ssh/authorized_keys"
         fi
 
         $save_preseed << 'EOF'
@@ -361,11 +361,11 @@ EOF
             echo "d-i passwd/root-password-crypted password $password" | $save_preseed
         fi
     else
-        _backup /etc/ssh/sshd_config .backup
-        _late_command 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
+        backup /etc/ssh/sshd_config
+        run_later 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
 
         if [ -n "$authorized_keys_url" ]; then
-            _late_command "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
+            run_later "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
         fi
 
         $save_preseed << EOF
@@ -511,7 +511,7 @@ $save_preseed << 'EOF'
 d-i finish-install/reboot_in_progress note
 EOF
 
-[ "$bbr" = true ] && _late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
+[ "$bbr" = true ] && run_later '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
 [ -n "$late_command" ] && echo "d-i preseed/late_command string in-target bash -c '$late_command'" | $save_preseed
 
@@ -521,33 +521,33 @@ save_grub_cfg='cat'
 if [ "$dry_run" != true ]; then
     if [ -z "$architecture" ]; then
         architecture=amd64
-        _command_exists dpkg && architecture="$(dpkg --print-architecture)"
+        command_exists dpkg && architecture="$(dpkg --print-architecture)"
     fi
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
 
-    if _command_exists wget; then
+    if command_exists wget; then
         wget "$base_url/linux" "$base_url/initrd.gz"
-    elif _command_exists curl; then
+    elif command_exists curl; then
         curl -O "$base_url/linux" -O "$base_url/initrd.gz"
-    elif _command_exists busybox; then
+    elif command_exists busybox; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
     else
-        _err 'wget/curl/busybox is required to download files'
+        err 'wget/curl/busybox is required to download files'
     fi
 
     gunzip initrd.gz
     echo preseed.cfg | cpio -H newc -o -A -F initrd
     gzip initrd
 
-    if _command_exists update-grub; then
+    if command_exists update-grub; then
         grub_cfg=/boot/grub/grub.cfg
         update-grub
-    elif _command_exists grub2-mkconfig; then
+    elif command_exists grub2-mkconfig; then
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
-        _err 'update-grub/grub2-mkconfig command not found'
+        err 'update-grub/grub2-mkconfig command not found'
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
