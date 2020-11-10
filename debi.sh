@@ -8,7 +8,7 @@ _err() {
 }
 
 _command_exists() {
-    command -v "$1" >/dev/null 2>&1
+    command -v "$1" > /dev/null 2>&1
 }
 
 late_command=
