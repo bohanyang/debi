@@ -283,7 +283,7 @@ EOF
 
     if [ -n "$authorized_keys_url" ]; then
         backup /etc/ssh/sshd_config
-        run_later 'sed -ri "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
+        run_later 'sed -Ei "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
 d-i network-console/authorized_keys_url string $authorized_keys_url
@@ -342,7 +342,7 @@ EOF
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
             backup /etc/ssh/sshd_config
-            run_later 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
+            run_later 'sed -Ei "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         else
             run_later "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" >> ~root/.ssh/authorized_keys"
         fi
@@ -362,7 +362,7 @@ EOF
         fi
     else
         backup /etc/ssh/sshd_config
-        run_later 'sed -ri "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
+        run_later 'sed -Ei "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
 
         if [ -n "$authorized_keys_url" ]; then
             run_later "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
