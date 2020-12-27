@@ -240,9 +240,9 @@ if [ "$dry_run" != true ]; then
     [ "$user" != root ] && err 'root privilege is required'
 
     rm -rf "$installer_directory"
-    mkdir -p "$installer_directory"
+    mkdir -p "$installer_directory/initrd"
     cd "$installer_directory"
-    save_preseed='tee -a preseed.cfg'
+    save_preseed='tee -a initrd/preseed.cfg'
 fi
 
 $save_preseed << 'EOF'
@@ -529,7 +529,7 @@ if [ "$dry_run" != true ]; then
     fi
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
-    firmware_url="https://mirrors.xtom.com/debian-cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
+    firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
     if command_exists wget; then
         wget "$base_url/linux" "$base_url/initrd.gz"
@@ -537,14 +537,13 @@ if [ "$dry_run" != true ]; then
     elif command_exists curl; then
         curl -f -L -O "$base_url/linux" -O "$base_url/initrd.gz"
         [ "$firmware" = true ] && curl -f -L -O "$firmware_url"
-    elif command_exists busybox; then
+    elif command_exists busybox && busybox wget --help >/dev/null 2>&1; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
         [ "$firmware" = true ] && busybox wget "$firmware_url"
     else
-        err 'wget/curl/busybox is required to download files'
+        err '"wget" or "curl" or "busybox wget" is required to download files'
     fi
 
-    mkdir initrd
     cd initrd
 
     gzip -d -c ../initrd.gz | cpio -i -d --no-absolute-filenames
