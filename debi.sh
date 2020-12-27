@@ -62,6 +62,7 @@ power_off=false
 architecture=
 boot_directory=/boot/
 firmware=false
+force_efi_extra_removable=false
 dry_run=false
 
 while [ $# -gt 0 ]; do
@@ -220,6 +221,9 @@ while [ $# -gt 0 ]; do
             ;;
         --firmware)
             firmware=true
+            ;;
+        --force-efi-extra-removable)
+            force_efi_extra_removable=true
             ;;
         --dry-run)
             dry_run=true
@@ -506,6 +510,7 @@ popularity-contest popularity-contest/participate boolean false
 d-i grub-installer/bootdev string default
 EOF
 
+[ "$force_efi_extra_removable" = true ] && echo "d-i grub-installer/force-efi-extra-removable boolean true" | $save_preseed
 [ -n "$kernel_params" ] && echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
 
 $save_preseed << 'EOF'

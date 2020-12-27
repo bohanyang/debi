@@ -53,6 +53,8 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--power-off`
  - `--architecture`
  - `--boot-partition`
+ - `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation). Seems to be useful on Oracle Cloud
+ - `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). Useful on Oracle Cloud
  - `--dry-run`
 
 ## Presets
