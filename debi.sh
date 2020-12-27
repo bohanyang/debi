@@ -544,12 +544,11 @@ if [ "$dry_run" != true ]; then
         err 'wget/curl/busybox is required to download files'
     fi
 
-    rm -rf initrd
     mkdir initrd
     cd initrd
 
     gzip -d -c ../initrd.gz | cpio -i -d --no-absolute-filenames
-    [ "$firmware" = true ] && gzip -d -c ../firmware.cpio.gz | cpio -i -d --no-absolute-filenames && rm ../firmware.cpio.gz
+    [ "$firmware" = true ] && gzip -d -c ../firmware.cpio.gz | cpio -i -d --no-absolute-filenames
     find . | cpio -o -H newc | gzip -9 > ../initrd.gz
 
     cd ..
