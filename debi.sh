@@ -220,6 +220,7 @@ while [ $# -gt 0 ]; do
             ;;
         --firmware)
             firmware=true
+            ;;
         --dry-run)
             dry_run=true
             ;;
