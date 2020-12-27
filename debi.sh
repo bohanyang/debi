@@ -61,6 +61,7 @@ bbr=false
 power_off=false
 architecture=
 boot_directory=/boot/
+firmware=false
 dry_run=false
 
 while [ $# -gt 0 ]; do
@@ -217,6 +218,8 @@ while [ $# -gt 0 ]; do
         --boot-partition)
             boot_directory=/
             ;;
+        --firmware)
+            firmware=true
         --dry-run)
             dry_run=true
             ;;
@@ -525,20 +528,30 @@ if [ "$dry_run" != true ]; then
     fi
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
+    firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
     if command_exists wget; then
         wget "$base_url/linux" "$base_url/initrd.gz"
+        [ "$firmware" = true ] && wget "$firmware_url"
     elif command_exists curl; then
-        curl -O "$base_url/linux" -O "$base_url/initrd.gz"
+        curl -f -L -O "$base_url/linux" -O "$base_url/initrd.gz"
+        [ "$firmware" = true ] && curl -f -L -O "$firmware_url"
     elif command_exists busybox; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
+        [ "$firmware" = true ] && busybox wget "$firmware_url"
     else
         err 'wget/curl/busybox is required to download files'
     fi
 
-    gunzip initrd.gz
-    echo preseed.cfg | cpio -H newc -o -A -F initrd
-    gzip initrd
+    rm -rf initrd
+    mkdir initrd
+    cd initrd
+
+    gzip -d -c ../initrd.gz | cpio -i -d --no-absolute-filenames
+    [ "$firmware" = true ] && gzip -d -c ../firmware.cpio.gz | cpio -i -d --no-absolute-filenames && rm ../firmware.cpio.gz
+    find . | cpio -o -H newc | gzip -9 > ../initrd.gz
+
+    cd ..
 
     if command_exists update-grub; then
         grub_cfg=/boot/grub/grub.cfg
