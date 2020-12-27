@@ -529,7 +529,7 @@ if [ "$dry_run" != true ]; then
     fi
 
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
-    firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
+    firmware_url="https://mirrors.xtom.com/debian-cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
     if command_exists wget; then
         wget "$base_url/linux" "$base_url/initrd.gz"
