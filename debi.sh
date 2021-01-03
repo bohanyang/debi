@@ -54,7 +54,7 @@ efi=
 filesystem=ext4
 kernel=
 install_recommends=true
-install=
+install='ca-certificates libpam-systemd'
 upgrade=
 kernel_params=
 bbr=false
@@ -196,6 +196,9 @@ while [ $# -gt 0 ]; do
         --install)
             install=$2
             shift
+            ;;
+        --no-upgrade)
+            upgrade=none
             ;;
         --safe-upgrade)
             upgrade=safe-upgrade

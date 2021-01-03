@@ -16,27 +16,27 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
 
 ## Available Options
 
- - `--preset` (`china`/`cloud`)
- - `--ip`
- - `--netmask`
- - `--gateway`
- - `--dns '8.8.8.8 8.8.4.4'`
+ - `--preset <string>` Shortcut for applying [preset options](#presets)
+ - `--ip <string>` Static public/private IP, e.g. `10.0.0.2`
+ - `--netmask <string>` e.g. `255.255.255.0` /  `ffff:ffff:ffff:ffff::`
+ - `--gateway <string>` e.g. `10.0.0.1`
+ - `--dns '8.8.8.8 8.8.4.4'` Ignored if `--ip` is not specified. Quoted string where IP addresses are seperated by spaces
  - `--hostname debian`
- - `--installer-password`
- - `--authorized-keys-url`
+ - `--installer-password <string>` Enable installer network console to monitor installation status. e.g. `ssh installer@10.0.0.2`
+ - `--authorized-keys-url <string>` Setup SSH public key authentication for the new user and enable installer network console. e.g. `https://github.com/bohanyang.keys`
  - `--suite buster`
- - `--mirror-protocol http` (`http`/`https`/`ftp`)
+ - `--mirror-protocol http` or `https` or `ftp`
  - `--mirror-host deb.debian.org`
  - `--mirror-directory /debian`
  - `--security-repository http://security.debian.org/debian-security` Magic value: `'mirror' = <mirror-protocol>://<mirror-host>/<mirror-directory>/../debian-security`
  - `--skip-account-setup`
- - `--username debian`
- - `--password`
+ - `--username debian` New user with `sudo` privilege or `root`
+ - `--password <string>` New user password to set. **Will be prompted if not specified here**
  - `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  - `--ntp 0.debian.pool.ntp.org`
  - `--skip-partitioning`
  - `--partitioning-method regular`
- - `--disk`
+ - `--disk <string>` Manually select a boot disk when more than one disk is available. e.g. `/dev/sda`
  - `--force-gpt` Create a *GUID Partition Table* **(Default)**
  - `--no-force-gpt`
  - `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
@@ -45,17 +45,18 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--kernel` Choose an package for the kernel image
  - `--cloud-kernel` Choose `linux-image-cloud-amd64` as the kernel image
  - `--no-install-recommends`
- - `--install`
- - `--safe-upgrade`
- - `--full-upgrade`
+ - `--install 'ca-certificates libpam-systemd'` Additional packages to install. Quoted string where package names are seperated by spaces. **Package names specified here will override the default list, rather than append to it**
+ - `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
+ - `--full-upgrade` `apt dist-upgrade`
+ - `--no-upgrade` 
  - `--eth` Disable *Consistent Network Device Naming* to get `eth0`, `eth1`, etc. back
- - `--bbr`
- - `--power-off`
- - `--architecture`
- - `--boot-partition`
- - `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation). Seems to be useful on Oracle Cloud
- - `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). Useful on Oracle Cloud
- - `--dry-run`
+ - `--bbr` Enable TCP BBR congestion control
+ - `--power-off` Power off after installation rather than reboot
+ - `--architecture` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
+ - `--boot-partition` Should be used if `/boot` directory is mounted from a dedicated partition like a LVM setup
+ - `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation)
+ - `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). **Useful on Oracle Cloud**
+ - `--dry-run` Print generated preseed and GRUB entry without downloading the installer and actually saving them
 
 ## Presets
 
