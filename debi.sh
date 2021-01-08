@@ -23,8 +23,8 @@ backup() {
 
 prompt_password() {
     if [ -z "$password" ]; then
-        read -rs -p 'Password: ' password;
-   fi
+        read -rs -p 'Password: ' password
+    fi
 }
 
 ip=
