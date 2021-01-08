@@ -32,6 +32,7 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--skip-account-setup`
  - `--username debian` New user with `sudo` privilege or `root`
  - `--password <string>` New user password to set. **Will be prompted if not specified here**
+ - `--sudo-no-password` Make the user run "sudo" commands without entering the password
  - `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  - `--ntp 0.debian.pool.ntp.org`
  - `--skip-partitioning`
@@ -42,7 +43,7 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
  - `--efi` Create an *EFI system partition*. Default if `/sys/firmware/efi` exists
  - `--filesystem ext4`
- - `--kernel` Choose an package for the kernel image
+ - `--kernel <string>` Choose an package for the kernel image
  - `--cloud-kernel` Choose `linux-image-cloud-amd64` as the kernel image
  - `--no-install-recommends`
  - `--install 'ca-certificates libpam-systemd'` Additional packages to install. Quoted string where package names are seperated by spaces. **Package names specified here will override the default list, rather than append to it**
@@ -52,7 +53,7 @@ This script is used to reinstall the Linux OS of a KVM-based VPS or a Hyper-V vi
  - `--eth` Disable *Consistent Network Device Naming* to get `eth0`, `eth1`, etc. back
  - `--bbr` Enable TCP BBR congestion control
  - `--power-off` Power off after installation rather than reboot
- - `--architecture` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
+ - `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
  - `--boot-partition` Should be used if `/boot` directory is mounted from a dedicated partition like a LVM setup
  - `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation)
  - `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). **Useful on Oracle Cloud**
