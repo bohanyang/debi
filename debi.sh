@@ -534,7 +534,7 @@ EOF
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
-save_grub_cfg='cat'
+save_grub_cfg='cat 1>&2'
 if [ "$dry_run" != true ]; then
     if [ -z "$architecture" ]; then
         architecture=amd64
@@ -564,6 +564,13 @@ if [ "$dry_run" != true ]; then
     find . | cpio -o -H newc | gzip -9 > ../initrd.gz
 
     cd ..
+
+    mkdir -p /etc/default/grub.d
+    tee /etc/default/grub.d/zz-debi.cfg 1>&2 << 'EOF'
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=5
+GRUB_TIMEOUT_STYLE=menu
+EOF
 
     if command_exists update-grub; then
         grub_cfg=/boot/grub/grub.cfg
