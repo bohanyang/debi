@@ -256,6 +256,8 @@ fi
 $save_preseed << 'EOF'
 # Localization
 
+d-i debian-installer/language string en
+d-i debian-installer/country string US
 d-i debian-installer/locale string en_US.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 
@@ -576,6 +578,8 @@ EOF
         grub_cfg=/boot/grub/grub.cfg
         update-grub
     elif command_exists grub2-mkconfig; then
+        tmp="$(mktemp)"
+        grep -vF /etc/default/grub
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
@@ -589,7 +593,7 @@ installer_directory="$boot_directory$installer"
 
 mem="$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })"
 mem="$(expr "$mem" / 1024)"
-[ "$mem" -lt 483 ] && kernel_params="$kernel_params lowmem/low=\"\""
+[ "$mem" -lt 483 ] && kernel_params="$kernel_params lowmem/low="
 
 $save_grub_cfg 1>&2 << EOF
 menuentry 'Debian Installer' --id debi {
