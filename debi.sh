@@ -534,7 +534,7 @@ EOF
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
-save_grub_cfg='cat 1>&2'
+save_grub_cfg='cat'
 if [ "$dry_run" != true ]; then
     if [ -z "$architecture" ]; then
         architecture=amd64
@@ -587,7 +587,7 @@ fi
 
 installer_directory="$boot_directory$installer"
 
-$save_grub_cfg << EOF
+$save_grub_cfg 1>&2 << EOF
 menuentry 'Debian Installer' --id debi {
     insmod part_msdos
     insmod part_gpt
