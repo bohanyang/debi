@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 err() {
-    printf 'Error: %s.\n' "$1" 1>&2
+    echo "Error: $1." 1>&2
     exit 1
 }
 
@@ -18,13 +18,13 @@ run_later() {
 }
 
 backup() {
-    run_later "[ ! -e \"$1.backup\" ] && cp \"$1\" \"$1.backup\""
+    run_later "if [ ! -e \"$1.backup\" ]; then cp \"$1\" \"$1.backup\"; fi"
 }
 
 prompt_password() {
     if [ -z "$password" ]; then
-        read -rs -p 'Password: ' password
-    fi
+        read -rs -p 'Password: ' password;
+   fi
 }
 
 ip=
@@ -43,6 +43,7 @@ security_repository=http://security.debian.org/debian-security
 skip_account_setup=false
 username=debian
 password=
+sudo_no_password=false
 cleartext_password=false
 timezone=UTC
 ntp=0.debian.pool.ntp.org
@@ -148,6 +149,9 @@ while [ $# -gt 0 ]; do
             password=$2
             shift
             ;;
+        --sudo-no-password)
+            sudo_no_password=true
+            ;;
         --timezone)
             timezone=$2
             shift
@@ -242,10 +246,7 @@ installer_directory="/boot/$installer"
 
 save_preseed='cat'
 if [ "$dry_run" != true ]; then
-    user="$(id -un 2>/dev/null || true)"
-
-    [ "$user" != root ] && err 'root privilege is required'
-
+    [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory/initrd"
     cd "$installer_directory"
@@ -294,7 +295,7 @@ EOF
 
     if [ -n "$authorized_keys_url" ]; then
         backup /etc/ssh/sshd_config
-        run_later 'sed -Ei "s/^#?PasswordAuthentication.*/PasswordAuthentication no/" /etc/ssh/sshd_config'
+        run_later 'sed -Ei "s/^#?PasswordAuthentication .+/PasswordAuthentication no/" /etc/ssh/sshd_config'
         $save_preseed << EOF
 d-i network-console/password-disabled boolean true
 d-i network-console/authorized_keys_url string $authorized_keys_url
@@ -353,7 +354,7 @@ EOF
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
             backup /etc/ssh/sshd_config
-            run_later 'sed -Ei "s/^#?PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config'
+            run_later 'sed -Ei "s/^#?PermitRootLogin .+/PermitRootLogin yes/" /etc/ssh/sshd_config'
         else
             run_later "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" >> ~root/.ssh/authorized_keys"
         fi
@@ -373,10 +374,14 @@ EOF
         fi
     else
         backup /etc/ssh/sshd_config
-        run_later 'sed -Ei "s/^#?PermitRootLogin.*/PermitRootLogin no/" /etc/ssh/sshd_config'
+        run_later 'sed -Ei "s/^#?PermitRootLogin .+/PermitRootLogin no/" /etc/ssh/sshd_config'
 
         if [ -n "$authorized_keys_url" ]; then
             run_later "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
+        fi
+
+        if [ "$sudo_no_password" = true ]; then
+            run_later "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
         fi
 
         $save_preseed << EOF
@@ -549,7 +554,7 @@ if [ "$dry_run" != true ]; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
         [ "$firmware" = true ] && busybox wget "$firmware_url"
     else
-        err '"wget" or "curl" or "busybox wget" is required to download files'
+        err 'Could not find "wget" or "curl" or "busybox wget" command to download files'
     fi
 
     cd initrd
@@ -567,7 +572,7 @@ if [ "$dry_run" != true ]; then
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
-        err 'update-grub/grub2-mkconfig command not found'
+        err 'Could not find "update-grub" or "grub2-mkconfig" command'
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
