@@ -579,7 +579,10 @@ EOF
         update-grub
     elif command_exists grub2-mkconfig; then
         tmp="$(mktemp)"
-        grep -vF /etc/default/grub
+        grep -vF zz_debi /etc/default/grub > "$tmp"
+        cat "$tmp" > /etc/default/grub
+        rm "$tmp"
+        echo 'zz_debi=/etc/default/grub.d/zz-debi.cfg; if [ -f "$zz_debi" ]; then . "$zz_debi"; fi' >> /etc/default/grub
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
