@@ -567,7 +567,7 @@ if [ "$dry_run" != true ]; then
 
     mkdir -p /etc/default/grub.d
     tee /etc/default/grub.d/zz-debi.cfg 1>&2 << 'EOF'
-GRUB_DEFAULT=0
+GRUB_DEFAULT=debi
 GRUB_TIMEOUT=5
 GRUB_TIMEOUT_STYLE=menu
 EOF
