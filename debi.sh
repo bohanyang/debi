@@ -587,6 +587,10 @@ fi
 
 installer_directory="$boot_directory$installer"
 
+mem="$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })"
+mem="$(expr "$mem" / 1024)"
+[ "$mem" -lt 483 ] && kernel_params="$kernel_params lowmem/low=\"\""
+
 $save_grub_cfg 1>&2 << EOF
 menuentry 'Debian Installer' --id debi {
     insmod part_msdos
