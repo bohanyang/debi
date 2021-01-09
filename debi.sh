@@ -43,7 +43,7 @@ security_repository=http://security.debian.org/debian-security
 skip_account_setup=false
 username=debian
 password=
-sudo_no_password=false
+sudo_password=false
 cleartext_password=false
 timezone=UTC
 ntp=0.debian.pool.ntp.org
@@ -148,8 +148,8 @@ while [ $# -gt 0 ]; do
             password=$2
             shift
             ;;
-        --sudo-no-password)
-            sudo_no_password=true
+        --sudo-password)
+            sudo_password=true
             ;;
         --timezone)
             timezone=$2
@@ -165,9 +165,6 @@ while [ $# -gt 0 ]; do
         --disk)
             disk=$2
             shift
-            ;;
-        --force-gpt)
-            force_gpt=true
             ;;
         --no-force-gpt)
             force_gpt=false
@@ -377,7 +374,7 @@ EOF
             run_later "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
         fi
 
-        if [ "$sudo_no_password" = true ]; then
+        if [ "$sudo_password" = false ]; then
             run_later "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
         fi
 

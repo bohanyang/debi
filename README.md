@@ -48,13 +48,12 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
  * `--skip-account-setup`
  * `--username debian` New user with `sudo` privilege or `root`
  * `--password <string>` New user password to set. **Will be prompted if not specified here**
- * `--sudo-no-password` Make the user run "sudo" commands without entering the password
+ * `--sudo-password` Verify the user's password when running "sudo" commands
  * `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  * `--ntp 0.debian.pool.ntp.org`
  * `--skip-partitioning`
- * `--disk <string>` Manually select a boot disk when more than one disk is available. e.g. `/dev/sda`
- * `--force-gpt` Create a *GUID Partition Table* **(Default)**
- * `--no-force-gpt`
+ * `--disk <string>` Manually select a disk for installation. **Please remember to specify this when more than one disk is available!** e.g. `/dev/sda`
+ * `--no-force-gpt` By default, GPT rather than MBR partition table will be created. This option disables it.
  * `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
  * `--efi` Create an *EFI system partition*. Default if `/sys/firmware/efi` exists
  * `--filesystem ext4`
