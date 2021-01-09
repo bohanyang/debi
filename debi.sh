@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-# Discard stdin. Needed when running from an one-liner which includes a newline
-read -r -N 999999 -t 0.001
-
 err() {
     echo "Error: $1." 1>&2
     exit 1

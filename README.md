@@ -28,7 +28,7 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
 ## Usage
 
-    curl -fL https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh | sudo bash -s -- <OPTIONS>
+    curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && sudo bash debi.sh <OPTIONS>
 
 ## Available Options
 
