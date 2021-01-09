@@ -64,6 +64,7 @@ architecture=
 boot_directory=/boot/
 firmware=false
 force_efi_extra_removable=false
+grub_timeout=5
 dry_run=false
 
 while [ $# -gt 0 ]; do
@@ -227,6 +228,10 @@ while [ $# -gt 0 ]; do
             ;;
         --force-efi-extra-removable)
             force_efi_extra_removable=true
+            ;;
+        --grub-timeout)
+            grub_timeout=$2
+            shift
             ;;
         --dry-run)
             dry_run=true
@@ -557,9 +562,9 @@ if [ "$dry_run" != true ]; then
     cd ..
 
     mkdir -p /etc/default/grub.d
-    tee /etc/default/grub.d/zz-debi.cfg 1>&2 << 'EOF'
+    tee /etc/default/grub.d/zz-debi.cfg 1>&2 << EOF
 GRUB_DEFAULT=debi
-GRUB_TIMEOUT=5
+GRUB_TIMEOUT=$grub_timeout
 GRUB_TIMEOUT_STYLE=menu
 EOF
 
