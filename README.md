@@ -17,8 +17,8 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 ### Original OS
 
  * Debian 8/9/10
- * Ubuntu 16.04/18.04/20.04
- * CentOS 7
+ * Ubuntu 14.04/16.04/18.04/20.04
+ * CentOS 7/8
 
 ## How It Works
 
@@ -52,7 +52,6 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
  * `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  * `--ntp 0.debian.pool.ntp.org`
  * `--skip-partitioning`
- * `--partitioning-method regular`
  * `--disk <string>` Manually select a boot disk when more than one disk is available. e.g. `/dev/sda`
  * `--force-gpt` Create a *GUID Partition Table* **(Default)**
  * `--no-force-gpt`

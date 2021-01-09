@@ -48,7 +48,6 @@ cleartext_password=false
 timezone=UTC
 ntp=0.debian.pool.ntp.org
 skip_partitioning=false
-partitioning_method=regular
 disk=
 force_gpt=true
 efi=
@@ -162,10 +161,6 @@ while [ $# -gt 0 ]; do
             ;;
         --skip-partitioning)
             skip_partitioning=true
-            ;;
-        --partitioning-method)
-            partitioning_method=$2
-            shift
             ;;
         --disk)
             disk=$2
@@ -419,32 +414,25 @@ if [ "$skip_partitioning" != true ]; then
 
 # Partitioning
 
+d-i partman-auto/method string regular
 EOF
-    if [ -n "$disk" ]; then
-        echo "d-i partman-auto/disk string $disk" | $save_preseed
+    [ -n "$disk" ] && echo "d-i partman-auto/disk string $disk" | $save_preseed
+
+    [ "$force_gpt" = true ] && echo 'd-i partman-partitioning/default_label string gpt' | $save_preseed
+
+    echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
+
+    if [ -z "$efi" ]; then
+        efi=false
+        [ -d /sys/firmware/efi ] && efi=true
     fi
 
-    echo "d-i partman-auto/method string $partitioning_method" | $save_preseed
-
-    if [ "$partitioning_method" = regular ]; then
-
-        [ "$force_gpt" = true ] && $save_preseed << 'EOF'
-d-i partman-partitioning/default_label string gpt
-EOF
-
-        echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
-
-        if [ -z "$efi" ]; then
-            efi=false
-            [ -d /sys/firmware/efi ] && efi=true
-       fi
-
-        $save_preseed << 'EOF'
+    $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
     naive :: \
 EOF
-        if [ "$efi" = true ]; then
-            $save_preseed << 'EOF'
+    if [ "$efi" = true ]; then
+        $save_preseed << 'EOF'
         538 538 1075 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
@@ -452,17 +440,17 @@ EOF
             format{ } \
         . \
 EOF
-        else
-            $save_preseed << 'EOF'
+    else
+        $save_preseed << 'EOF'
         1 1 1 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
             method{ biosgrub } \
         . \
 EOF
-        fi
+    fi
 
-        $save_preseed << 'EOF'
+    $save_preseed << 'EOF'
         2149 2150 -1 $default_filesystem \
             method{ format } \
             format{ } \
@@ -471,8 +459,7 @@ EOF
             mountpoint{ / } \
         .
 EOF
-        echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
-    fi
+    echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
 
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
@@ -582,6 +569,7 @@ EOF
         grep -vF zz_debi /etc/default/grub > "$tmp"
         cat "$tmp" > /etc/default/grub
         rm "$tmp"
+        # shellcheck disable=SC2016
         echo 'zz_debi=/etc/default/grub.d/zz-debi.cfg; if [ -f "$zz_debi" ]; then . "$zz_debi"; fi' >> /etc/default/grub
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
@@ -594,9 +582,9 @@ fi
 
 installer_directory="$boot_directory$installer"
 
+# shellcheck disable=SC2034
 mem="$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })"
-mem="$(expr "$mem" / 1024)"
-[ "$mem" -lt 483 ] && kernel_params="$kernel_params lowmem/low="
+[ $((mem / 1024)) -lt 483 ] && kernel_params="$kernel_params lowmem/low="
 
 $save_grub_cfg 1>&2 << EOF
 menuentry 'Debian Installer' --id debi {
