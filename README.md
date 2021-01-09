@@ -66,6 +66,7 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
  * `--no-upgrade` 
  * `--eth` Disable *Consistent Network Device Naming* to get `eth0`, `eth1`, etc. back
  * `--bbr` Enable TCP BBR congestion control
+ * `--hold` Don't reboot or power off after installation
  * `--power-off` Power off after installation rather than reboot
  * `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
  * `--boot-partition` Should be used if `/boot` directory is mounted from a dedicated partition like a LVM setup

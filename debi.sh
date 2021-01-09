@@ -58,6 +58,7 @@ install='ca-certificates libpam-systemd'
 upgrade=
 kernel_params=
 bbr=false
+hold=false
 power_off=false
 architecture=
 boot_directory=/boot/
@@ -207,6 +208,9 @@ while [ $# -gt 0 ]; do
             ;;
         --bbr)
             bbr=true
+            ;;
+        --hold)
+            hold=true
             ;;
         --power-off)
             power_off=true
@@ -511,8 +515,9 @@ $save_preseed << 'EOF'
 
 # Finishing up the installation
 
-d-i finish-install/reboot_in_progress note
 EOF
+
+[ "$hold" != true ] && echo 'd-i finish-install/reboot_in_progress note' | $save_preseed
 
 [ "$bbr" = true ] && run_later '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
