@@ -125,6 +125,9 @@ while [ $# -gt 0 ]; do
             mirror_protocol=$2
             shift
             ;;
+        --https)
+            mirror_protocol=https
+            ;;
         --mirror-host)
             mirror_host=$2
             shift
