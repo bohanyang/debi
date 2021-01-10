@@ -261,13 +261,9 @@ installer="debian-$suite"
 installer_directory="/boot/$installer"
 
 if [ "$skip_account_setup" = false ]; then
-    while [ -z "$password" ]; do
-        prompt_password
-    done
+    prompt_password
 elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
-    while [ -z "$password" ]; do
-        prompt_password "Choose a password for the installer user of the SSH network console: "
-    done
+    prompt_password "Choose a password for the installer user of the SSH network console: "
 fi
 
 save_preseed='cat'
