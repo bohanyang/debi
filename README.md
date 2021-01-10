@@ -30,6 +30,10 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
     curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && sudo sh debi.sh <OPTIONS>
 
+Run the script and then reboot. To revert all changes, run
+
+    sudo rm -rf debi.sh /etc/default/grub.d/zz-debi.cfg /boot/debian-* && { sudo update-grub || grub2-mkconfig -o /boot/grub2/grub.cfg; }
+
 ## Available Options
 
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
