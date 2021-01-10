@@ -250,6 +250,10 @@ done
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
+while [ -z "$password" ]; do
+    prompt_password
+done
+
 save_preseed='cat'
 if [ "$dry_run" != true ]; then
     [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
@@ -276,25 +280,32 @@ if [ -n "$ip" ]; then
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
     echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
     [ -n "$netmask" ] && echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
-    [ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
-    [ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 fi
 
-$save_preseed << 'EOF'
-d-i netcfg/get_hostname string debian
-d-i netcfg/get_domain string
-EOF
+[ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
+[ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
 
 if [ -n "$hostname" ]; then
     echo "d-i netcfg/hostname string $hostname" | $save_preseed
+    hostname=debian
+    domain=
+else
+    hostname=$(cat /proc/sys/kernel/hostname)
+    domain=$(cat /proc/sys/kernel/domainname)
+    if [ "$domain" = '(none)' ]; then
+        domain=
+    else
+        domain=" $domain"
+    fi
 fi
 
-echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
+$save_preseed << EOF
+d-i netcfg/get_hostname string $hostname
+d-i netcfg/get_domain string$domain
+EOF
 
-while [ -z "$password" ]; do
-    prompt_password
-done
+echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
 if [ "$network_console" = true ]; then
     $save_preseed << EOF

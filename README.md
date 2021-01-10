@@ -32,11 +32,11 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
 ## Available Options
 
- * `--ip <string>` Static public/private IP, e.g. `10.0.0.2`
- * `--netmask <string>` e.g. `255.255.255.0` /  `ffff:ffff:ffff:ffff::`. Ignored if `--ip` is not specified
- * `--gateway <string>` e.g. `10.0.0.1`. Ignored if `--ip` is not specified
- * `--dns '8.8.8.8 8.8.4.4'` Quoted string where IP addresses are seperated by spaces. Ignored if `--ip` is not specified
- * `--hostname debian`
+ * `--ip <string>` Disable the auto network config (DHCP) and set a static public/private IP address, e.g. `10.0.0.2`
+ * `--netmask <string>` Subnet mask of the static public/private IP address, e.g. (IPv4) `255.255.255.0` (IPv6) `ffff:ffff:ffff:ffff::`
+ * `--gateway <string>` e.g. `10.0.0.1`
+ * `--dns '8.8.8.8 8.8.4.4'`
+ * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
  * `--suite buster`
  * `--mirror-protocol http` or `https` or `ftp`
@@ -60,7 +60,7 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
  * `--kernel <string>` Choose an package for the kernel image
  * `--cloud-kernel` Choose `linux-image-cloud-amd64` as the kernel image
  * `--no-install-recommends`
- * `--install 'ca-certificates libpam-systemd'` Additional packages to install. Quoted string where package names are seperated by spaces. Package names specified here will override the default list, rather than append to it
+ * `--install 'ca-certificates libpam-systemd'`
  * `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
  * `--full-upgrade` `apt dist-upgrade`
  * `--no-upgrade` 
