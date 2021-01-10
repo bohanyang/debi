@@ -303,10 +303,16 @@ if [ "$network_console" = true ]; then
 
 d-i anna/choose_modules string network-console
 d-i preseed/early_command string anna-install network-console
+EOF
+    if [ -n "$authorized_keys_url" ]; then
+        echo "d-i network-console/authorized_keys_url string $authorized_keys_url" | $save_preseed
+    else
+        $save_preseed << EOF
 d-i network-console/password password $password
 d-i network-console/password-again password $password
 EOF
-    [ -n "$authorized_keys_url" ] && echo "d-i network-console/authorized_keys_url string $authorized_keys_url" | $save_preseed
+    fi
+
     echo 'd-i network-console/start select Continue' | $save_preseed
 fi
 
