@@ -14,7 +14,7 @@ command_exists() {
 
 in_target=
 late_command() {
-    local cmd
+    local cmd=
     for arg in "$@"; do
         cmd="$cmd $arg"
     done
