@@ -36,7 +36,7 @@ Run the script and then **reboot**.
 
 To **revert** all changes, run
 
-    sudo rm -rf debi.sh /etc/default/grub.d/zz-debi.cfg /boot/debian-* && { sudo update-grub || grub2-mkconfig -o /boot/grub2/grub.cfg; }
+    sudo rm -rf debi.sh /etc/default/grub.d/zz-debi.cfg /boot/debian-* && { sudo update-grub || sudo grub2-mkconfig -o /boot/grub2/grub.cfg; }
 
 ## Available Options
 
