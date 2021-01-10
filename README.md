@@ -26,11 +26,15 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 2. Download the 'Debian-Installer' to the `/boot` directory
 3. Append a menu entry of the installer to the GRUB2 configuration file
 
-## Usage
+## Basic Usage
+
+Run the script and then **reboot**.
 
     curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && sudo sh debi.sh <OPTIONS>
 
-Run the script and then reboot. To revert all changes, run
+---
+
+To **revert** all changes, run
 
     sudo rm -rf debi.sh /etc/default/grub.d/zz-debi.cfg /boot/debian-* && { sudo update-grub || grub2-mkconfig -o /boot/grub2/grub.cfg; }
 
