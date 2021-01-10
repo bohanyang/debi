@@ -520,7 +520,7 @@ EOF
 
 [ "$bbr" = true ] && late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$in_target" ] && echo "d-i preseed/late_command string in-target dash -c '$in_target'" | $save_preseed
+[ -n "$in_target" ] && echo "d-i preseed/late_command string in-target sh -c '$in_target'" | $save_preseed
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
