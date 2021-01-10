@@ -44,10 +44,12 @@ prompt_password() {
         prompt="Choose a password for user $username: "
     fi
     stty -echo
-    echo -n "$prompt" > /dev/tty
-    read -r password < /dev/tty
+    while [ -z "$password" ]; do
+        echo -n "$prompt" > /dev/tty
+        read -r password < /dev/tty
+        echo > /dev/tty
+    done
     stty echo
-    echo > /dev/tty
 }
 
 ip=
