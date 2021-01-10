@@ -32,7 +32,7 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
 ## Available Options
 
- * `--ip <string>` Disable the auto network config (DHCP) and set a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
+ * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
  * `--netmask <string>` e.g. `255.255.255.0`, `ffff:ffff:ffff:ffff::`
  * `--gateway <string>` e.g. `10.0.0.1`
  * `--dns '8.8.8.8 8.8.4.4'`
