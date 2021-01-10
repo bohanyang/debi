@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck shell=dash
 
-set -euo pipefail
+set -eu
 
 err() {
     echo "Error: $1." 1>&2
