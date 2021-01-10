@@ -35,8 +35,16 @@ sshd_conf() {
 }
 
 prompt_password() {
+    local prompt=
+    if [ $# -gt 0 ]; then
+        prompt=$1
+    elif [ "$username" = root ]; then
+        prompt="Choose a password for the root user: "
+    else
+        prompt="Choose a password for user $username: "
+    fi
     stty -echo
-    echo -n "Choose a password for the new user $username: " > /dev/tty
+    echo -n "$prompt" > /dev/tty
     read -r password < /dev/tty
     stty echo
     echo > /dev/tty
@@ -250,9 +258,15 @@ done
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
-while [ -z "$password" ]; do
-    prompt_password
-done
+if [ "$skip_account_setup" = false ]; then
+    while [ -z "$password" ]; do
+        prompt_password
+    done
+elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
+    while [ -z "$password" ]; do
+        prompt_password "Choose a password for the installer user of the SSH network console: "
+    done
+fi
 
 save_preseed='cat'
 if [ "$dry_run" != true ]; then
