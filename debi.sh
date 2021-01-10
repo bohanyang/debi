@@ -280,11 +280,10 @@ if [ -n "$ip" ]; then
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
     echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
     [ -n "$netmask" ] && echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
+    [ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
+    [ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 fi
-
-[ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
-[ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
 
 if [ -n "$hostname" ]; then
     echo "d-i netcfg/hostname string $hostname" | $save_preseed
