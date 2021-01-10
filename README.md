@@ -44,14 +44,14 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
  * `--mirror-host deb.debian.org`
  * `--mirror-directory /debian`
  * `--security-repository http://security.debian.org/debian-security` Magic value: `'mirror' = <mirror-protocol>://<mirror-host>/<mirror-directory>/../debian-security`
- * `--skip-account-setup`
- * `--username debian` New user with `sudo` privilege or `root`
+ * `--no-account-setup, --no-user`
+ * `--username, --user debian` New user with `sudo` privilege or `root`
  * `--password <string>` Password of the new user. **You'll be prompted if you choose to not specify it here**
  * `--authorized-keys-url <string>` URL to your authorized keys for SSH authentication. e.g. `https://github.com/torvalds.keys`
  * `--sudo-with-password` Require password when the user invokes `sudo` command
  * `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  * `--ntp 0.debian.pool.ntp.org`
- * `--skip-partitioning`
+ * `--no-disk-partitioning, --no-part`
  * `--disk <string>` Manually select a disk for installation. **Please remember to specify this when more than one disk is available!** e.g. `/dev/sda`
  * `--no-force-gpt` By default, GPT rather than MBR partition table will be created. This option disables it.
  * `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)

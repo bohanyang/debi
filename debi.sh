@@ -63,14 +63,14 @@ mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
 security_repository=http://security.debian.org/debian-security
-skip_account_setup=false
+account_setup=true
 username=debian
 password=
 authorized_keys_url=
 sudo_with_password=false
 timezone=UTC
 ntp=0.debian.pool.ntp.org
-skip_partitioning=false
+disk_partitioning=true
 disk=
 force_gpt=true
 efi=
@@ -150,8 +150,8 @@ while [ $# -gt 0 ]; do
             security_repository=$2
             shift
             ;;
-        --skip-account-setup)
-            skip_account_setup=true
+        --no-user|--no-account-setup)
+            account_setup=false
             ;;
         --user|--username)
             username=$2
@@ -176,8 +176,8 @@ while [ $# -gt 0 ]; do
             ntp=$2
             shift
             ;;
-        --skip-partitioning)
-            skip_partitioning=true
+        --no-part|--no-disk-partitioning)
+            disk_partitioning=false
             ;;
         --disk)
             disk=$2
@@ -260,14 +260,14 @@ done
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
-if [ "$skip_account_setup" = false ]; then
+if [ "$account_setup" = true ]; then
     prompt_password
 elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
     prompt_password "Choose a password for the installer user of the SSH network console: "
 fi
 
 save_preseed='cat'
-if [ "$dry_run" != true ]; then
+if [ "$dry_run" = false ]; then
     [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory/initrd"
@@ -351,7 +351,7 @@ d-i mirror/suite string $suite
 d-i mirror/udeb/suite string $suite
 EOF
 
-if [ "$skip_account_setup" != true ]; then
+if [ "$account_setup" = true ]; then
     password_hash=
     if command_exists mkpasswd; then
         password_hash=$(mkpasswd -m sha-512 "$password")
@@ -431,7 +431,7 @@ d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string $ntp
 EOF
 
-if [ "$skip_partitioning" != true ]; then
+if [ "$disk_partitioning" = true ]; then
     $save_preseed << 'EOF'
 
 # Partitioning
@@ -538,7 +538,7 @@ $save_preseed << 'EOF'
 
 EOF
 
-[ "$hold" != true ] && echo 'd-i finish-install/reboot_in_progress note' | $save_preseed
+[ "$hold" = false ] && echo 'd-i finish-install/reboot_in_progress note' | $save_preseed
 
 [ "$bbr" = true ] && late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
@@ -547,7 +547,7 @@ EOF
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
 save_grub_cfg='cat'
-if [ "$dry_run" != true ]; then
+if [ "$dry_run" = false ]; then
     if [ -z "$architecture" ]; then
         architecture=amd64
         command_exists dpkg && architecture=$(dpkg --print-architecture)
