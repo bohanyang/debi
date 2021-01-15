@@ -12,26 +12,26 @@ command_exists() {
     command -v "$1" > /dev/null 2>&1
 }
 
-in_target=
-late_command() {
-    local cmd=
-    for arg in "$@"; do
-        cmd="$cmd $arg"
+late_command=
+in_target() {
+    local command=
+    for argument in "$@"; do
+        command="$command $argument"
     done
-    if [ -n "$cmd" ]; then
-        [ -z "$in_target" ] && in_target='true'
-        in_target="$in_target;$cmd"
+    if [ -n "$command" ]; then
+        [ -z "$late_command" ] && late_command='true'
+        late_command="$late_command;$command"
     fi
 }
 
 in_target_backup() {
-    late_command "if [ ! -e \"$1.backup\" ]; then cp \"$1\" \"$1.backup\"; fi"
+    in_target "if [ ! -e \"$1.backup\" ]; then cp \"$1\" \"$1.backup\"; fi"
 }
 
-sshd_conf() {
-    [ -z ${backed_sshd+1} ] && in_target_backup /etc/ssh/sshd_config
-    backed_sshd=
-    late_command sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
+configure_sshd() {
+    [ -z ${sshd_conf_bak+1} ] && in_target_backup /etc/ssh/sshd_config
+    sshd_conf_bak=
+    in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
 
 prompt_password() {
@@ -352,15 +352,13 @@ d-i mirror/udeb/suite string $suite
 EOF
 
 if [ "$account_setup" = true ]; then
-    password_hash=
     if command_exists mkpasswd; then
-        password_hash=$(mkpasswd -m sha-512 "$password")
+        password_hash=$(mkpasswd -m sha-256 "$password")
     elif command_exists busybox && busybox mkpasswd --help > /dev/null 2>&1; then
-        password_hash=$(busybox mkpasswd -m sha512 "$password")
-    elif command_exists python3; then
-        password_hash=$(python3 -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))' "$password")
-    elif command_exists python; then
-        password_hash=$(python -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))' "$password" 2> /dev/null) || password_hash=
+        password_hash=$(busybox mkpasswd -m sha256 "$password")
+    else
+        for python in python3 python python2; do python=$(command -v "$python") && break; done
+        password_hash=$("$python" -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA256)))' "$password" 2> /dev/null) || password_hash=
     fi
 
     $save_preseed << 'EOF'
@@ -369,14 +367,14 @@ if [ "$account_setup" = true ]; then
 
 EOF
     if [ -n "$authorized_keys_url" ]; then
-        sshd_conf PasswordAuthentication no
+        configure_sshd PasswordAuthentication no
     fi
 
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
-            sshd_conf PermitRootLogin yes
+            configure_sshd PermitRootLogin yes
         else
-            late_command "mkdir -m 0700 -p ~root/.ssh && busybox wget -O - \"$authorized_keys_url\" >> ~root/.ssh/authorized_keys"
+            in_target "mkdir -m 0700 -p ~root/.ssh && busybox wget -O- \"$authorized_keys_url\" >> ~root/.ssh/authorized_keys"
         fi
 
         $save_preseed << 'EOF'
@@ -393,14 +391,14 @@ EOF
             echo "d-i passwd/root-password-crypted password $password_hash" | $save_preseed
         fi
     else
-        sshd_conf PermitRootLogin no
+        configure_sshd PermitRootLogin no
 
         if [ -n "$authorized_keys_url" ]; then
-            late_command "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
+            in_target "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
         fi
 
         if [ "$sudo_with_password" = false ]; then
-            late_command "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
+            in_target "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
         fi
 
         $save_preseed << EOF
@@ -540,9 +538,9 @@ EOF
 
 [ "$hold" = false ] && echo 'd-i finish-install/reboot_in_progress note' | $save_preseed
 
-[ "$bbr" = true ] && late_command '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
+[ "$bbr" = true ] && in_target '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$in_target" ] && echo "d-i preseed/late_command string in-target sh -c '$in_target'" | $save_preseed
+[ -n "$late_command" ] && echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
