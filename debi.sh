@@ -220,7 +220,7 @@ while [ $# -gt 0 ]; do
             upgrade=full-upgrade
             ;;
         --eth)
-            kernel_params=' net.ifnames=0 biosdevname=0'
+            kernel_params="$kernel_params net.ifnames=0 biosdevname=0"
             ;;
         --bbr)
             bbr=true
@@ -270,9 +270,9 @@ save_preseed='cat'
 if [ "$dry_run" = false ]; then
     [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
     rm -rf "$installer_directory"
-    mkdir -p "$installer_directory/initrd"
+    mkdir -p "$installer_directory"
     cd "$installer_directory"
-    save_preseed='tee -a initrd/preseed.cfg'
+    save_preseed='tee -a preseed.cfg'
 fi
 
 $save_preseed << 'EOF'
@@ -355,7 +355,7 @@ if [ "$account_setup" = true ]; then
     password_hash=
     if command_exists mkpasswd; then
         password_hash=$(mkpasswd -m sha-512 "$password")
-    elif command_exists busybox && busybox mkpasswd --help >/dev/null 2>&1; then
+    elif command_exists busybox && busybox mkpasswd --help > /dev/null 2>&1; then
         password_hash=$(busybox mkpasswd -m sha512 "$password")
     elif command_exists python3; then
         password_hash=$(python3 -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))' "$password")
@@ -560,22 +560,19 @@ if [ "$dry_run" = false ]; then
         wget "$base_url/linux" "$base_url/initrd.gz"
         [ "$firmware" = true ] && wget "$firmware_url"
     elif command_exists curl; then
-        curl -f -L -O "$base_url/linux" -O "$base_url/initrd.gz"
-        [ "$firmware" = true ] && curl -f -L -O "$firmware_url"
-    elif command_exists busybox && busybox wget --help >/dev/null 2>&1; then
+        curl -fLO "$base_url/linux" -O "$base_url/initrd.gz"
+        [ "$firmware" = true ] && curl -fLO "$firmware_url"
+    elif command_exists busybox && busybox wget --help > /dev/null 2>&1; then
         busybox wget "$base_url/linux" "$base_url/initrd.gz"
         [ "$firmware" = true ] && busybox wget "$firmware_url"
     else
         err 'Could not find "wget" or "curl" or "busybox wget" command to download files'
     fi
 
-    cd initrd
-
-    gzip -d -c ../initrd.gz | cpio -i -d --no-absolute-filenames
-    [ "$firmware" = true ] && gzip -d -c ../firmware.cpio.gz | cpio -i -d --no-absolute-filenames
-    find . | cpio -o -H newc | gzip -9 > ../initrd.gz
-
-    cd ..
+    gzip -d initrd.gz
+    # cpio reads a list of file names from the standard input
+    echo preseed.cfg | cpio -o -H newc -A -F initrd
+    gzip -9 initrd
 
     mkdir -p /etc/default/grub.d
     tee /etc/default/grub.d/zz-debi.cfg 1>&2 << EOF
@@ -609,12 +606,15 @@ installer_directory="$boot_directory$installer"
 mem=$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })
 [ $((mem / 1024)) -lt 483 ] && kernel_params="$kernel_params lowmem/low="
 
+initrd="$installer_directory/initrd.gz"
+[ "$firmware" = true ] && initrd="$initrd $installer_directory/firmware.cpio.gz"
+
 $save_grub_cfg 1>&2 << EOF
 menuentry 'Debian Installer' --id debi {
     insmod part_msdos
     insmod part_gpt
     insmod ext2
     linux $installer_directory/linux$kernel_params
-    initrd $installer_directory/initrd.gz
+    initrd $initrd
 }
 EOF
