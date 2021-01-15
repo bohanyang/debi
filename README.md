@@ -10,9 +10,9 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
  * SolusVM/OpenStack/DigitalOcean/Vultr/Linode/Proxmox/QEMU KVM (BIOS boot)
  * Oracle Cloud Infrastructure (with `--force-efi-extra-removable`; UEFI boot)
- * Google Cloud Compute Engine (manually set the VPC internal `--ip`, `--netmask`, `--gateway`; UEFI boot)
+ * Google Cloud Compute Engine (with manually configured VPC internal IP and gateway; UEFI boot)
  * AWS EC2 & Lightsail (BIOS boot)
- * Hyper-V **but not Azure!** (Generation 1 BIOS boot & Generation 2 UEFI boot)
+ * Hyper-V & Azure (Generation 1 BIOS boot & Generation 2 UEFI boot)
 
 ### Original OS
 
