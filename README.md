@@ -77,7 +77,7 @@ To **revert** all changes, run
  * `--hold` Don't reboot or power off after installation
  * `--power-off` Power off after installation rather than reboot
  * `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
- * `--boot-partition` Should be used if `/boot` directory is mounted from a dedicated partition like a LVM setup
+ * `--boot-directory <string>`
  * `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation)
  * `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). **Useful on Oracle Cloud**
  * `--grub-timeout 5` How many seconds the GRUB menu shows before entering the installer

@@ -84,7 +84,7 @@ bbr=false
 hold=false
 power_off=false
 architecture=
-boot_directory=/boot/
+boot_directory=
 firmware=false
 force_efi_extra_removable=false
 grub_timeout=5
@@ -235,8 +235,9 @@ while [ $# -gt 0 ]; do
             architecture=$2
             shift
             ;;
-        --boot-partition)
-            boot_directory=/
+        --boot-directory)
+            boot_directory=$2
+            shift
             ;;
         --firmware)
             firmware=true
@@ -596,6 +597,14 @@ EOF
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
+fi
+
+if [ -z "$boot_directory" ]; then
+    if grep -q '\s/boot\s' /proc/mounts; then
+        boot_directory=/
+    else
+        boot_directory=/boot/
+    fi
 fi
 
 installer_directory="$boot_directory$installer"
