@@ -440,7 +440,7 @@ EOF
         echo "d-i partman-auto/disk string $disk" | $save_preseed
     else
         # shellcheck disable=SC2016
-        echo 'd-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n1 )"'
+        echo 'd-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n 1)"'
     fi
 
     [ "$force_gpt" = true ] && echo 'd-i partman-partitioning/default_label string gpt' | $save_preseed
