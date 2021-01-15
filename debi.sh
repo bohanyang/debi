@@ -353,14 +353,13 @@ d-i mirror/udeb/suite string $suite
 EOF
 
 if [ "$account_setup" = true ]; then
-    if command_exists mkpasswd; then
-        password_hash=$(mkpasswd -m sha-256 "$password")
-    elif command_exists busybox && busybox mkpasswd --help > /dev/null 2>&1; then
-        password_hash=$(busybox mkpasswd -m sha256 "$password")
-    else
-        for python in python3 python python2; do python=$(command -v "$python") && break; done
-        password_hash=$("$python" -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA256)))' "$password" 2> /dev/null) || password_hash=
-    fi
+    password_hash=$(mkpasswd -m sha-256 "$password" 2> /dev/null) ||
+    password_hash=$(openssl passwd -5 "$password" 2> /dev/null) ||
+    password_hash=$(busybox mkpasswd -m sha256 "$password" 2> /dev/null) || {
+        for python in python3 python python2; do
+            password_hash=$("$python" -c 'import crypt, sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA256)))' "$password" 2> /dev/null) && break
+        done
+    }
 
     $save_preseed << 'EOF'
 
