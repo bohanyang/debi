@@ -30,6 +30,8 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
 Run the script and then **reboot**.
 
+By default, an admin user `debian` with sudo privilege will be created during the installation. Use `--user root` if you prefer.
+
     curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && sudo sh debi.sh <OPTIONS>
 
 ---
@@ -52,14 +54,14 @@ To **revert** all changes, run
  * `--mirror-host deb.debian.org`
  * `--mirror-directory /debian`
  * `--security-repository http://security.debian.org/debian-security` Magic value: `'mirror' = <mirror-protocol>://<mirror-host>/<mirror-directory>/../debian-security`
- * `--no-account-setup, --no-user`
+ * `--no-account-setup, --no-user` **(Manual installation)** Proceed account setup manually in VNC or remote console.
  * `--username, --user debian` New user with `sudo` privilege or `root`
  * `--password <string>` Password of the new user. **You'll be prompted if you choose to not specify it here**
  * `--authorized-keys-url <string>` URL to your authorized keys for SSH authentication. e.g. `https://github.com/torvalds.keys`
  * `--sudo-with-password` Require password when the user invokes `sudo` command
  * `--timezone UTC` https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  * `--ntp 0.debian.pool.ntp.org`
- * `--no-disk-partitioning, --no-part`
+ * `--no-disk-partitioning, --no-part` **(Manual installation)** Proceed disk partitioning manually in VNC or remote console
  * `--disk <string>` Manually select a disk for installation. **Please remember to specify this when more than one disk is available!** e.g. `/dev/sda`
  * `--no-force-gpt` By default, GPT rather than MBR partition table will be created. This option disables it.
  * `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
