@@ -74,7 +74,7 @@ To **revert** all changes, run
  * `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
  * `--full-upgrade` `apt dist-upgrade`
  * `--no-upgrade` 
- * `--eth` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
+ * `--ethx` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
  * `--bbr` Enable TCP BBR congestion control
  * `--hold` Don't reboot or power off after installation
  * `--power-off` Power off after installation rather than reboot

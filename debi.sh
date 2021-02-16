@@ -221,7 +221,7 @@ while [ $# -gt 0 ]; do
         --full-upgrade)
             upgrade=full-upgrade
             ;;
-        --eth)
+        --ethx)
             kernel_params="$kernel_params net.ifnames=0 biosdevname=0"
             ;;
         --bbr)
