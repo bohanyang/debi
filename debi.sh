@@ -296,6 +296,7 @@ if [ -n "$ip" ]; then
     echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
     [ -n "$netmask" ] && echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
     [ -n "$gateway" ] && echo "d-i netcfg/get_gateway string $gateway" | $save_preseed
+    [ -z "${ip%%*:*}" ] && [ -n "${dns%%*:*}" ] && dns='2001:4860:4860::8888 2001:4860:4860::8844'
     [ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 fi
@@ -460,7 +461,7 @@ d-i partman-auto/expert_recipe string \
 EOF
     if [ "$efi" = true ]; then
         $save_preseed << 'EOF'
-        538 538 1075 free \
+        106 106 106 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
             method{ efi } \
@@ -478,7 +479,7 @@ EOF
     fi
 
     $save_preseed << 'EOF'
-        2149 2150 -1 $default_filesystem \
+        1000 1001 -1 $default_filesystem \
             method{ format } \
             format{ } \
             use_filesystem{ } \
