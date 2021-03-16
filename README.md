@@ -16,9 +16,9 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 
 ### Original OS
 
- * Debian 8/9/10
- * Ubuntu 14.04/16.04/18.04/20.04
- * CentOS 7/8
+ * Debian 8 or later
+ * Ubuntu 14.04 or later
+ * CentOS 7 or later
 
 ## How It Works
 
@@ -26,17 +26,34 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 2. Download the 'Debian-Installer' to the `/boot` directory
 3. Append a menu entry of the installer to the GRUB2 configuration file
 
-## Basic Usage
+## Usage
 
-Run the script and then **reboot**.
+### 1. Download
+
+Download the script with curl:
+
+    curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh
+
+or wget:
+
+    wget -O debi.sh https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh
+
+### 2. Run
+
+Run the script under root or using sudo:
+
+    sudo chmod a+rx debi.sh
+    sudo ./debi.sh
 
 By default, an admin user `debian` with sudo privilege will be created during the installation. Use `--user root` if you prefer.
 
-    curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && sudo sh debi.sh <OPTIONS>
+### 3. Reboot
 
----
+If everything looks good, reboot the machine:
 
-To **revert** all changes, run
+    sudo shutdown -r now
+
+Otherwise, you can run this command to revert all changes made by the script:
 
     sudo rm -rf debi.sh /etc/default/grub.d/zz-debi.cfg /boot/debian-* && { sudo update-grub || sudo grub2-mkconfig -o /boot/grub2/grub.cfg; }
 
@@ -45,7 +62,7 @@ To **revert** all changes, run
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
  * `--netmask <string>` e.g. `255.255.255.0`, `ffff:ffff:ffff:ffff::`
  * `--gateway <string>` e.g. `10.0.0.1`
- * `--dns '8.8.8.8 8.8.4.4'`
+ * `--dns '8.8.8.8 8.8.4.4'` (Default IPv6 DNS: `2001:4860:4860::8888 2001:4860:4860::8844`)
  * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
  * `--suite buster`
