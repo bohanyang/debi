@@ -493,6 +493,7 @@ EOF
 d-i partman-basicfilesystems/no_swap boolean false
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
 EOF
 
 fi
