@@ -29,8 +29,8 @@ in_target_backup() {
 }
 
 configure_sshd() {
-    [ -z ${sshd_conf_bak+1} ] && in_target_backup /etc/ssh/sshd_config
-    sshd_conf_bak=
+    [ -z ${backup_sshd_config+1} ] && in_target_backup /etc/ssh/sshd_config
+    backup_sshd_config=
     in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
 
@@ -52,6 +52,18 @@ prompt_password() {
     done
     stty echo
     trap - EXIT
+}
+
+download() {
+    if command_exists wget; then
+        wget -O "$2" "$1"
+    elif command_exists curl; then
+        curl -fL "$1" -o "$2"
+    elif command_exists busybox && busybox wget --help > /dev/null 2>&1; then
+        busybox wget -O "$2" "$1"
+    else
+        err 'Cannot find "wget", "curl" or "busybox wget" to download files'
+    fi
 }
 
 ip=
@@ -255,10 +267,14 @@ while [ $# -gt 0 ]; do
             dry_run=true
             ;;
         *)
-            err "Illegal option $1"
+            err "No such option: \"$1\""
     esac
     shift
 done
+
+if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
+    err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
+fi
 
 installer="debian-$suite"
 installer_directory="/boot/$installer"
@@ -562,18 +578,9 @@ if [ "$dry_run" = false ]; then
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
     firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
-    if command_exists wget; then
-        wget "$base_url/linux" "$base_url/initrd.gz"
-        [ "$firmware" = true ] && wget "$firmware_url"
-    elif command_exists curl; then
-        curl -fLO "$base_url/linux" -O "$base_url/initrd.gz"
-        [ "$firmware" = true ] && curl -fLO "$firmware_url"
-    elif command_exists busybox && busybox wget --help > /dev/null 2>&1; then
-        busybox wget "$base_url/linux" "$base_url/initrd.gz"
-        [ "$firmware" = true ] && busybox wget "$firmware_url"
-    else
-        err 'Could not find "wget" or "curl" or "busybox wget" command to download files'
-    fi
+    download "$base_url/linux" linux
+    download "$base_url/initrd.gz" initrd.gz
+    [ "$firmware" = true ] && download "$firmware_url" firmware.cpio.gz
 
     gzip -d initrd.gz
     # cpio reads a list of file names from the standard input
