@@ -100,7 +100,7 @@ power_off=false
 architecture=
 boot_directory=
 firmware=false
-force_efi_extra_removable=false
+force_efi_extra_removable=true
 grub_timeout=5
 dry_run=false
 
@@ -256,8 +256,8 @@ while [ $# -gt 0 ]; do
         --firmware)
             firmware=true
             ;;
-        --force-efi-extra-removable)
-            force_efi_extra_removable=true
+        --no-force-efi-extra-removable)
+            force_efi_extra_removable=false
             ;;
         --grub-timeout)
             grub_timeout=$2

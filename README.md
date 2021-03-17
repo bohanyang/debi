@@ -9,8 +9,8 @@ This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
 ### Virtualization Platform
 
  * SolusVM/OpenStack/DigitalOcean/Vultr/Linode/Proxmox/QEMU KVM (BIOS boot)
- * Oracle Cloud Infrastructure (with `--force-efi-extra-removable`; UEFI boot)
- * Google Cloud Compute Engine (with manually configured VPC internal IP and gateway; UEFI boot)
+ * Oracle Cloud Infrastructure (UEFI boot)
+ * Google Cloud Compute Engine (**Must configure VPC internal IP and gateway manually**, UEFI boot, Secure Boot supported)
  * AWS EC2 & Lightsail (BIOS boot)
  * Hyper-V & Azure (Generation 1 BIOS boot & Generation 2 UEFI boot)
 
@@ -98,7 +98,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
  * `--boot-directory <string>`
  * `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation)
- * `--force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path). **Useful on Oracle Cloud**
+ * `--no-force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path)
  * `--grub-timeout 5` How many seconds the GRUB menu shows before entering the installer
  * `--dry-run` Print generated preseed and GRUB entry without downloading the installer and actually saving them
 
