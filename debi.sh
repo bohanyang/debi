@@ -495,7 +495,7 @@ EOF
     fi
 
     $save_preseed << 'EOF'
-        1000 1001 -1 $default_filesystem \
+        1074 1075 -1 $default_filesystem \
             method{ format } \
             format{ } \
             use_filesystem{ } \
