@@ -29,8 +29,8 @@ in_target_backup() {
 }
 
 configure_sshd() {
-    [ -z ${backup_sshd_config+1} ] && in_target_backup /etc/ssh/sshd_config
-    backup_sshd_config=
+    [ -z ${sshd_config_backup+no} ] && in_target_backup /etc/ssh/sshd_config
+    sshd_config_backup=ok
     in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
 
