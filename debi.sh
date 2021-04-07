@@ -32,9 +32,9 @@ in_target_backup() {
 }
 
 configure_sshd() {
-    # !isset($backup_sshd_config)
-    [ -z ${backup_sshd_config+1s} ] && in_target_backup /etc/ssh/sshd_config
-    backup_sshd_config=
+    # !isset($sshd_config_backup)
+    [ -z ${sshd_config_backup+1s} ] && in_target_backup /etc/ssh/sshd_config
+    sshd_config_backup=
     in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
 
