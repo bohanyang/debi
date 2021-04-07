@@ -12,12 +12,15 @@ command_exists() {
     command -v "$1" > /dev/null 2>&1
 }
 
+# Sets variable:
 late_command=
 in_target() {
     local command=
+
     for argument in "$@"; do
         command="$command $argument"
     done
+
     if [ -n "$command" ]; then
         [ -z "$late_command" ] && late_command='true'
         late_command="$late_command;$command"
@@ -29,13 +32,15 @@ in_target_backup() {
 }
 
 configure_sshd() {
-    [ -z ${backup_sshd_config+1} ] && in_target_backup /etc/ssh/sshd_config
+    # !isset($backup_sshd_config)
+    [ -z ${backup_sshd_config+1s} ] && in_target_backup /etc/ssh/sshd_config
     backup_sshd_config=
     in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
 
 prompt_password() {
     local prompt=
+
     if [ $# -gt 0 ]; then
         prompt=$1
     elif [ "$username" = root ]; then
@@ -43,13 +48,16 @@ prompt_password() {
     else
         prompt="Choose a password for user $username: "
     fi
+
     stty -echo
     trap 'stty echo' EXIT
+
     while [ -z "$password" ]; do
         echo -n "$prompt" > /dev/tty
         read -r password < /dev/tty
         echo > /dev/tty
     done
+
     stty echo
     trap - EXIT
 }
@@ -267,7 +275,7 @@ while [ $# -gt 0 ]; do
             dry_run=true
             ;;
         *)
-            err "No such option: \"$1\""
+            err "Unknown option: \"$1\""
     esac
     shift
 done
