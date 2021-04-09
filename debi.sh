@@ -280,12 +280,12 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-installer="debian-$suite"
-installer_directory="/boot/$installer"
-
 if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
     err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 fi
+
+installer="debian-$suite"
+installer_directory="/boot/$installer"
 
 save_preseed='cat'
 if [ "$dry_run" = false ]; then
