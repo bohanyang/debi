@@ -280,17 +280,11 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
-    err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
-fi
-
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
-if [ "$account_setup" = true ]; then
-    prompt_password
-elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
-    prompt_password "Choose a password for the installer user of the SSH network console: "
+if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
+    err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 fi
 
 save_preseed='cat'
@@ -300,6 +294,12 @@ if [ "$dry_run" = false ]; then
     mkdir -p "$installer_directory"
     cd "$installer_directory"
     save_preseed='tee -a preseed.cfg'
+fi
+
+if [ "$account_setup" = true ]; then
+    prompt_password
+elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
+    prompt_password "Choose a password for the installer user of the SSH network console: "
 fi
 
 $save_preseed << 'EOF'
@@ -503,7 +503,7 @@ EOF
     fi
 
     $save_preseed << 'EOF'
-        1074 1075 -1 $default_filesystem \
+        1075 1076 -1 $default_filesystem \
             method{ format } \
             format{ } \
             use_filesystem{ } \
