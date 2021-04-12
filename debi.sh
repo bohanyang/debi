@@ -511,7 +511,7 @@ EOF
             mountpoint{ / } \
         .
 EOF
-    echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
+    echo 'd-i partman-auto/choose_recipe select naive' | $save_preseed
 
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
@@ -519,7 +519,7 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 EOF
-
+    [ "$efi" = true ] && echo 'd-i partman-efi/non_efi_system boolean true' | $save_preseed
 fi
 
 $save_preseed << 'EOF'
@@ -560,7 +560,7 @@ popularity-contest popularity-contest/participate boolean false
 d-i grub-installer/bootdev string default
 EOF
 
-[ "$force_efi_extra_removable" = true ] && echo "d-i grub-installer/force-efi-extra-removable boolean true" | $save_preseed
+[ "$force_efi_extra_removable" = true ] && echo 'd-i grub-installer/force-efi-extra-removable boolean true' | $save_preseed
 [ -n "$kernel_params" ] && echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
 
 $save_preseed << 'EOF'
