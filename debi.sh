@@ -347,7 +347,7 @@ EOF
 echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
 if [ "$network_console" = true ]; then
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 
 # Network console
 
