@@ -519,7 +519,7 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 EOF
-    [ "$efi" = true ] && echo 'd-i partman-efi/non_efi_system boolean true' | $save_preseed
+
 fi
 
 $save_preseed << 'EOF'
