@@ -1,5 +1,34 @@
 # Debian Network Reinstall Script
 
+## 甲骨文云服务器重装 Debian
+
+下载脚本：
+
+```
+curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && chmod a+rx debi.sh
+```
+
+运行脚本：
+
+```
+sudo ./debi.sh --cdn --network-console --ethx --bbr --user root --password <这里设置 root 密码>
+```
+
+* 以上命令选项开启了 BBR；设置了网卡名称形式是 `eth0` 而不是 `ens3` 这种。
+* 如果是一般的 x86 架构 64 位机器（不是 ARM 架构的），还可以添加 `--cloud-kernel` 使用轻量版内核。
+* 不加 `--password` 选项会提示输入密码。
+
+如果没有报错可以重启：
+
+```
+sudo shutdown -r now
+```
+
+约 30 秒后可以尝试 SSH 登录 `installer` 用户，密码与之前设置的相同。如果成功连接，可以按 Ctrl-A 然后再按 4 监控安装日志。安装完成后会自动重启进入新系统。
+
+
+[甲骨文云服务器自动获取 IPv6](https://github.com/bohanyang/debi/wiki/%E7%94%B2%E9%AA%A8%E6%96%87%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%87%AA%E5%8A%A8%E8%8E%B7%E5%8F%96-IPv6)
+
 ## Introduction
 
 This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
