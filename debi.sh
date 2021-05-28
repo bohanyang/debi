@@ -347,7 +347,7 @@ EOF
 echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
 if [ "$network_console" = true ]; then
-    $save_preseed << EOF
+    $save_preseed << 'EOF'
 
 # Network console
 
@@ -511,7 +511,7 @@ EOF
             mountpoint{ / } \
         .
 EOF
-    echo "d-i partman-auto/choose_recipe select naive" | $save_preseed
+    echo 'd-i partman-auto/choose_recipe select naive' | $save_preseed
 
     $save_preseed << 'EOF'
 d-i partman-basicfilesystems/no_swap boolean false
@@ -560,7 +560,7 @@ popularity-contest popularity-contest/participate boolean false
 d-i grub-installer/bootdev string default
 EOF
 
-[ "$force_efi_extra_removable" = true ] && echo "d-i grub-installer/force-efi-extra-removable boolean true" | $save_preseed
+[ "$force_efi_extra_removable" = true ] && echo 'd-i grub-installer/force-efi-extra-removable boolean true' | $save_preseed
 [ -n "$kernel_params" ] && echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
 
 $save_preseed << 'EOF'
