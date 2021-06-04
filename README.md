@@ -94,7 +94,7 @@ Otherwise, you can run this command to revert all changes made by the script:
 
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
  * `--netmask <string>` e.g. `255.255.255.0`, `ffff:ffff:ffff:ffff::`
- * `--gateway <string>` e.g. `10.0.0.1`
+ * `--gateway <string>` e.g. `10.0.0.1`, `none` if no gateway
  * `--dns '8.8.8.8 8.8.4.4'` (Default IPv6 DNS: `2001:4860:4860::8888 2001:4860:4860::8844`)
  * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
