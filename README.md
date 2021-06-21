@@ -14,6 +14,12 @@ curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && chm
 sudo ./debi.sh --cdn --network-console --ethx --bbr --user root --password <这里设置 root 密码>
 ```
 
+**❗ ARM 机器安装失败临时解决办法：添加以下参数（安装 5.10 新版内核）**
+```
+--install 'ca-certificates libpam-systemd linux-image-5.10.0-0.bpo.7-arm64 flash-kernel'
+```
+
+
 * 以上命令选项开启了 BBR；设置了网卡名称形式是 `eth0` 而不是 `ens3` 这种。
 * 如果是一般的 x86 架构 64 位机器（不是 ARM 架构的），还可以添加 `--cloud-kernel` 使用轻量版内核。
 * 不加 `--password` 选项会提示输入密码。
