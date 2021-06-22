@@ -318,7 +318,6 @@ if [ -z "$kernel" ]; then
             err 'Backports kernel is not available for sid/unstable distribution'
         fi
         install="$kernel/$suite-backports $install"
-        kernel=none
     fi
 fi
 
@@ -571,7 +570,6 @@ $save_preseed << EOF
 d-i base-installer/kernel/image string $kernel
 EOF
 
-[ "$kernel" = none ] && echo 'd-i base-installer/kernel/skip-install boolean true' | $save_preseed
 [ "$install_recommends" = false ] && echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
 
 [ "$security_repository" = mirror ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
