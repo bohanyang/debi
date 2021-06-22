@@ -98,6 +98,8 @@ force_gpt=true
 efi=
 filesystem=ext4
 kernel=
+cloud_kernel=false
+bpo_kernel=false
 install_recommends=true
 install='ca-certificates libpam-systemd'
 upgrade=
@@ -223,7 +225,10 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --cloud-kernel)
-            kernel=linux-image-cloud-amd64
+            cloud_kernel=true
+            ;;
+        --bpo-kernel)
+            bpo_kernel=true
             ;;
         --no-install-recommends)
             install_recommends=false
@@ -279,6 +284,42 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+if [ -z "$architecture" ]; then
+    architecture=$(dpkg --print-architecture 2> /dev/null) ||
+    architecture=$(uname -m)
+    case $architecture in
+        x86_64)
+            architecture=amd64
+            ;;
+        aarch64)
+            architecture=arm64
+            ;;
+        i386)
+            :
+            ;;
+        *)
+            err 'No "--architecture" specified'
+    esac
+fi
+
+if [ -z "$kernel" ]; then
+    if [ "$cloud_kernel" = true ]; then
+        if [ "$architecture" != amd64 ] && [ "$architecture" != arm64 ]; then
+            err 'Cloud kernel is only available for amd64 (x86_64) and arm64 (aarch64) architectures'
+        fi
+        kernel="linux-image-cloud-$architecture"
+    else
+        kernel="linux-image-$architecture"
+    fi
+
+    if [ "$bpo_kernel" = true ]; then
+        if [ "$suite" = sid ] || [ "$suite" = unstable ]; then
+            err 'Backports kernel is not available for sid/unstable distribution'
+        fi
+        kernel="$kernel/$suite-backports"
+    fi
+fi
 
 if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
     err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
@@ -522,14 +563,14 @@ EOF
 
 fi
 
-$save_preseed << 'EOF'
+$save_preseed << EOF
 
 # Base system installation
 
+d-i base-installer/kernel/image string $kernel
 EOF
 
 [ "$install_recommends" = false ] && echo "d-i base-installer/install-recommends boolean $install_recommends" | $save_preseed
-[ -n "$kernel" ] && echo "d-i base-installer/kernel/image string $kernel" | $save_preseed
 
 [ "$security_repository" = mirror ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
 
@@ -579,11 +620,6 @@ EOF
 
 save_grub_cfg='cat'
 if [ "$dry_run" = false ]; then
-    if [ -z "$architecture" ]; then
-        architecture=amd64
-        command_exists dpkg && architecture=$(dpkg --print-architecture)
-    fi
-
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
     firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
