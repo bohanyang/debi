@@ -317,8 +317,8 @@ if [ -z "$kernel" ]; then
         if [ "$suite" = sid ] || [ "$suite" = unstable ]; then
             err 'Backports kernel is not available for sid/unstable distribution'
         fi
-        kernel=none
         install="$kernel/$suite-backports $install"
+        kernel=none
     fi
 fi
 
