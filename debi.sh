@@ -286,21 +286,21 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$architecture" ]; then
-    architecture=$(dpkg --print-architecture 2> /dev/null) ||
-    architecture=$(uname -m)
-    case $architecture in
-        x86_64)
-            architecture=amd64
-            ;;
-        aarch64)
-            architecture=arm64
-            ;;
-        i386)
-            :
-            ;;
-        *)
-            err 'No "--architecture" specified'
-    esac
+    architecture=$(dpkg --print-architecture 2> /dev/null) || {
+        case $(uname -m) in
+            x86_64)
+                architecture=amd64
+                ;;
+            aarch64)
+                architecture=arm64
+                ;;
+            i386)
+                architecture=i386
+                ;;
+            *)
+                err 'No "--architecture" specified'
+        esac
+    }
 fi
 
 if [ -z "$kernel" ]; then
