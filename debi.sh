@@ -285,7 +285,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -z "$architecture" ]; then
+[ -z "$architecture" ] && {
     architecture=$(dpkg --print-architecture 2> /dev/null) || {
         case $(uname -m) in
             x86_64)
@@ -301,41 +301,40 @@ if [ -z "$architecture" ]; then
                 err 'No "--architecture" specified'
         esac
     }
-fi
+}
 
-if [ -z "$kernel" ]; then
-    if [ "$cloud_kernel" = true ]; then
-        if [ "$architecture" != amd64 ] && [ "$architecture" != arm64 ]; then
-            err 'Cloud kernel is only available for amd64 (x86_64) and arm64 (aarch64) architectures'
-        fi
+[ -z "$kernel" ] && {
+    kernel="linux-image-$architecture"
+
+    [ "$cloud_kernel" = true ] && {
+        [ "$architecture" != amd64 ] && [ "$architecture" != arm64 ] &&
+        err 'Cloud kernel is only available for amd64 (x86_64) and arm64 (aarch64) architectures'
+
         kernel="linux-image-cloud-$architecture"
-    else
-        kernel="linux-image-$architecture"
-    fi
+    }
 
-    if [ "$bpo_kernel" = true ]; then
-        if [ "$suite" = sid ] || [ "$suite" = unstable ]; then
-            err 'Backports kernel is not available for sid/unstable distribution'
-        fi
+    [ "$bpo_kernel" = true ] && {
+        [ "$suite" = sid ] || [ "$suite" = unstable ] &&
+        err 'Backports kernel is not available for sid/unstable distribution'
+
         install="$kernel/$suite-backports $install"
-    fi
-fi
+    }
+}
 
-if [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null; then
-    err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
-fi
+[ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
+err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
 save_preseed='cat'
-if [ "$dry_run" = false ]; then
+[ "$dry_run" = false ] && {
     [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory"
     cd "$installer_directory"
     save_preseed='tee -a preseed.cfg'
-fi
+}
 
 if [ "$account_setup" = true ]; then
     prompt_password
@@ -356,7 +355,7 @@ d-i keyboard-configuration/xkb-keymap select us
 d-i netcfg/choose_interface select auto
 EOF
 
-if [ -n "$ip" ]; then
+[ -n "$ip" ] && {
     echo 'd-i netcfg/disable_autoconfig boolean true' | $save_preseed
     echo "d-i netcfg/get_ipaddress string $ip" | $save_preseed
     [ -n "$netmask" ] && echo "d-i netcfg/get_netmask string $netmask" | $save_preseed
@@ -364,7 +363,7 @@ if [ -n "$ip" ]; then
     [ -z "${ip%%*:*}" ] && [ -n "${dns%%*:*}" ] && dns='2001:4860:4860::8888 2001:4860:4860::8844'
     [ -n "$dns" ] && echo "d-i netcfg/get_nameservers string $dns" | $save_preseed
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
-fi
+}
 
 if [ -n "$hostname" ]; then
     echo "d-i netcfg/hostname string $hostname" | $save_preseed
@@ -387,7 +386,7 @@ EOF
 
 echo 'd-i hw-detect/load_firmware boolean true' | $save_preseed
 
-if [ "$network_console" = true ]; then
+[ "$network_console" = true ] && {
     $save_preseed << 'EOF'
 
 # Network console
@@ -405,7 +404,7 @@ EOF
     fi
 
     echo 'd-i network-console/start select Continue' | $save_preseed
-fi
+}
 
 $save_preseed << EOF
 
@@ -420,7 +419,7 @@ d-i mirror/suite string $suite
 d-i mirror/udeb/suite string $suite
 EOF
 
-if [ "$account_setup" = true ]; then
+[ "$account_setup" = true ] && {
     password_hash=$(mkpasswd -m sha-256 "$password" 2> /dev/null) ||
     password_hash=$(openssl passwd -5 "$password" 2> /dev/null) ||
     password_hash=$(busybox mkpasswd -m sha256 "$password" 2> /dev/null) || {
@@ -434,9 +433,7 @@ if [ "$account_setup" = true ]; then
 # Account setup
 
 EOF
-    if [ -n "$authorized_keys_url" ]; then
-        configure_sshd PasswordAuthentication no
-    fi
+    [ -n "$authorized_keys_url" ] && configure_sshd PasswordAuthentication no
 
     if [ "$username" = root ]; then
         if [ -z "$authorized_keys_url" ]; then
@@ -461,13 +458,11 @@ EOF
     else
         configure_sshd PermitRootLogin no
 
-        if [ -n "$authorized_keys_url" ]; then
-            in_target "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
-        fi
+        [ -n "$authorized_keys_url" ] &&
+        in_target "sudo -u $username mkdir -m 0700 -p ~$username/.ssh && busybox wget -O - \"$authorized_keys_url\" | sudo -u $username tee -a ~$username/.ssh/authorized_keys"
 
-        if [ "$sudo_with_password" = false ]; then
-            in_target "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
-        fi
+        [ "$sudo_with_password" = false ] &&
+        in_target "echo \"$username ALL=(ALL:ALL) NOPASSWD:ALL\" > \"/etc/sudoers.d/90-user-$username\""
 
         $save_preseed << EOF
 d-i passwd/root-login boolean false
@@ -485,7 +480,7 @@ EOF
             echo "d-i passwd/user-password-crypted password $password_hash" | $save_preseed
         fi
     fi
-fi
+}
 
 $save_preseed << EOF
 
@@ -497,7 +492,7 @@ d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string $ntp
 EOF
 
-if [ "$disk_partitioning" = true ]; then
+[ "$disk_partitioning" = true ] && {
     $save_preseed << 'EOF'
 
 # Partitioning
@@ -515,10 +510,10 @@ EOF
 
     echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
 
-    if [ -z "$efi" ]; then
+    [ -z "$efi" ] && {
         efi=false
         [ -d /sys/firmware/efi ] && efi=true
-    fi
+    }
 
     $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
@@ -560,8 +555,7 @@ d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
 EOF
-
-fi
+}
 
 $save_preseed << EOF
 
@@ -619,7 +613,7 @@ EOF
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
 save_grub_cfg='cat'
-if [ "$dry_run" = false ]; then
+[ "$dry_run" = false ] && {
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
     firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
@@ -656,15 +650,15 @@ EOF
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
-fi
+}
 
-if [ -z "$boot_directory" ]; then
+[ -z "$boot_directory" ] && {
     if grep -q '\s/boot\s' /proc/mounts; then
         boot_directory=/
     else
         boot_directory=/boot/
     fi
-fi
+}
 
 installer_directory="$boot_directory$installer"
 
