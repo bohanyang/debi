@@ -81,6 +81,7 @@ dns='8.8.8.8 8.8.4.4'
 hostname=
 network_console=false
 suite=buster
+daily_d_i=false
 mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
@@ -153,7 +154,18 @@ while [ $# -gt 0 ]; do
             ;;
         --suite)
             suite=$2
+            [ "$2" = 'bullseye' ] ||
+            [ "$2" = 'testing' ] ||
+            [ "$2" = 'sid' ] ||
+            [ "$2" = 'unstable' ] &&
+            daily_d_i=true
             shift
+            ;;
+        --release-d-i)
+            daily_d_i=false
+            ;;
+        --daily-d-i)
+            daily_d_i=true
             ;;
         --mirror-protocol)
             mirror_protocol=$2
@@ -416,7 +428,6 @@ d-i mirror/$mirror_protocol/hostname string $mirror_host
 d-i mirror/$mirror_protocol/directory string $mirror_directory
 d-i mirror/$mirror_protocol/proxy string
 d-i mirror/suite string $suite
-d-i mirror/udeb/suite string $suite
 EOF
 
 [ "$account_setup" = true ] && {
@@ -615,6 +626,7 @@ EOF
 save_grub_cfg='cat'
 [ "$dry_run" = false ] && {
     base_url="$mirror_protocol://$mirror_host$mirror_directory/dists/$suite/main/installer-$architecture/current/images/netboot/debian-installer/$architecture"
+    [ "$daily_d_i" = true ] && base_url="https://d-i.debian.org/daily-images/amd64/daily/netboot/debian-installer/$architecture"
     firmware_url="https://cdimage.debian.org/cdimage/unofficial/non-free/firmware/$suite/current/firmware.cpio.gz"
 
     download "$base_url/linux" linux
