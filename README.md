@@ -1,5 +1,7 @@
 # Debian Network Reinstall Script
 
+[General description in English ↓](#introduction)
+
 ## Oracle 云服务器重装 Debian
 
 **暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 系统模板。**
