@@ -163,6 +163,9 @@ while [ $# -gt 0 ]; do
                 11|bullseye)
                     suite=bullseye
                     daily_d_i=true
+                    ;;
+                *)
+                    err "Unsupported version: $2"
             esac
             shift
             ;;
