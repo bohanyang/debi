@@ -103,7 +103,8 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--dns '8.8.8.8 8.8.4.4'` (Default IPv6 DNS: `2001:4860:4860::8888 2001:4860:4860::8844`)
  * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
- * `--suite buster` Choose the version to install: `buster` or `stable` for 10, `bullseye` or `testing` for 11, `stretch` or `oldstable` for 9, `sid` or `unstable`
+ * `--version 10` Supports: `9`, `10`, `11`, `stretch`, `buster`, `bullseye`
+ * `--suite buster` **For normal cases, please use `--version` instead.** e.g. `stretch`, `buster`, `bullseye`, `sid`, `oldstable`, `stable`, `testing`, `unstable`
  * `--release-d-i` d-i (Debian Installer) for the released versions: 10 (buster) and 9 (stretch)
  * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased versions: 11 (bullseye) and sid (unstable)
  * `--mirror-protocol http` or `https` or `ftp`

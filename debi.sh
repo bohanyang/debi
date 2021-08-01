@@ -152,13 +152,26 @@ while [ $# -gt 0 ]; do
         --network-console)
             network_console=true
             ;;
+        --version)
+            case $2 in
+                9|stretch)
+                    suite=stretch
+                    ;;
+                10|buster)
+                    suite=buster
+                    ;;
+                11|bullseye)
+                    suite=bullseye
+                    daily_d_i=true
+            esac
+            shift
+            ;;
         --suite)
             suite=$2
-            [ "$2" = 'bullseye' ] ||
-            [ "$2" = 'testing' ] ||
-            [ "$2" = 'sid' ] ||
-            [ "$2" = 'unstable' ] &&
-            daily_d_i=true
+            case $2 in
+                bullseye|testing|sid|unstable)
+                    daily_d_i=true
+            esac
             shift
             ;;
         --release-d-i)
@@ -326,8 +339,8 @@ done
     }
 
     [ "$bpo_kernel" = true ] && {
-        [ "$suite" = sid ] || [ "$suite" = unstable ] &&
-        err 'Backports kernel is not available for sid/unstable distribution'
+        [ "$suite" != buster ] && [ "$suite" != stretch ] &&
+        err 'Backports kernel is only available for 10 (buster) and 9 (stretch)'
 
         install="$kernel/$suite-backports $install"
     }
