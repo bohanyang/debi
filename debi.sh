@@ -692,7 +692,7 @@ installer_directory="$boot_directory$installer"
 
 # shellcheck disable=SC2034
 mem=$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })
-[ $((mem / 1024)) -lt 483 ] && kernel_params="$kernel_params lowmem/low="
+[ $((mem / 1024)) -le 512 ] && kernel_params="$kernel_params lowmem/low=1"
 
 initrd="$installer_directory/initrd.gz"
 [ "$firmware" = true ] && initrd="$initrd $installer_directory/firmware.cpio.gz"
