@@ -86,6 +86,7 @@ mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
 security_repository=http://security.debian.org/debian-security
+security_archive=$suite/updates
 account_setup=true
 username=debian
 password=
@@ -163,6 +164,7 @@ while [ $# -gt 0 ]; do
                 11|bullseye)
                     suite=bullseye
                     daily_d_i=true
+                    security_archive=$suite-security
                     ;;
                 *)
                     err "Unsupported version: $2"
@@ -172,8 +174,13 @@ while [ $# -gt 0 ]; do
         --suite)
             suite=$2
             case $2 in
-                bullseye|testing|sid|unstable)
+                bullseye)
                     daily_d_i=true
+                    security_archive=$suite-security
+                    ;;
+                testing|sid|unstable)
+                    daily_d_i=true
+                    security_archive=testing-security
             esac
             shift
             ;;
@@ -600,7 +607,7 @@ $save_preseed << EOF
 # Apt setup
 
 d-i apt-setup/services-select multiselect updates, backports
-d-i apt-setup/local0/repository string $security_repository $suite/updates main
+d-i apt-setup/local0/repository string $security_repository $security_archive main
 d-i apt-setup/local0/source boolean true
 EOF
 
