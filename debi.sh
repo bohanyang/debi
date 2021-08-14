@@ -4,7 +4,7 @@
 set -eu
 
 err() {
-    echo "Error: $1." 1>&2
+    echo "\nError: $1.\n" 1>&2
     exit 1
 }
 
@@ -142,7 +142,7 @@ has_cloud_kernel() {
     esac
 
     local tmp; tmp=''; [ "$bpo_kernel" = true ] && tmp='-backports'
-    echo "\nWarning: No cloud kernel is available for $architecture/$suite$tmp.\nContinuing with the default..." 1>&2
+    echo "\nWarning: No cloud kernel is available for $architecture/$suite$tmp.\nContinuing with the default...\n" 1>&2
     sleep 5
 
     return 1
@@ -153,7 +153,7 @@ has_backports() {
         stretch|oldstable|buster|stable|bullseye|testing) return
     esac
 
-    echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default..." 1>&2
+    echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default...\n" 1>&2
     sleep 5
 
     return 1
