@@ -2,9 +2,9 @@
 
 [General description in English ↓](#introduction)
 
-## Oracle 云服务器重装 Debian
+## VPS 网络重装 Debian 10 脚本
 
-**暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 系统模板。**
+**暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 20.04 或 18.04 系统模板。**
 
 下载脚本：
 
@@ -15,13 +15,14 @@ curl -fLO https://raw.githubusercontent.com/bohanyang/debi/master/debi.sh && chm
 运行脚本：
 
 ```
-sudo ./debi.sh --cdn --network-console --ethx --bbr --user root --password <这里设置 root 密码>
+sudo ./debi.sh --cdn --network-console --ethx --bbr --user root --password <新系统用户密码>
 ```
-* ❗ **Oracle ARM 架构还需要添加 `--bpo-kernel` 参数，以安装新版 5.10 内核，否则系统可能无法启动**
-* 以上命令选项开启了 BBR；设置了网卡名称形式是 `eth0` 而不是 `ens3` 这种。
-* 不加 `--password` 选项会提示输入密码。
-* （可选）添加 `--cloud-kernel` 参数，以安装空间占用较小的内核，但可能会导致 UEFI 启动的机器（如 Oracle、Azure 及 Hyper-V、Google Cloud 等）VNC 黑屏。BIOS 启动的普通 VPS 则没有此问题。
-* 默认使用 UTC 时区，中国时区请加 `--timezone Asia/Shanghai`
+
+* `--bbr` 开启 BBR
+* `--ethx` 网卡名称使用传统形式，如 `eth0` 而不是 `ens3`
+* `--cloud-kernel` 安装占用空间较小的 `cloud` 内核，但可能会导致 UEFI 启动的机器（如 Oracle、Azure 及 Hyper-V、Google Cloud 等）VNC 黑屏。BIOS 启动的普通 VPS 则没有此问题。
+* 默认时区为 UTC，添加 `--timezone Asia/Shanghai` 可使用中国时区。
+* 默认使用 Debian 官方 CDN 镜像源（deb.debian.org），添加 `--china` 可使用阿里云镜像源。
 
 如果没有报错可以重启：
 
@@ -37,7 +38,7 @@ sudo shutdown -r now
 
 ## Introduction
 
-This script is written to reinstall a VPS/virtual machine to Debian 10 Buster.
+This script is written to reinstall a VPS/virtual machine to minimal Debian 10.
 
 ## Should Work On
 
@@ -103,10 +104,10 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--dns '8.8.8.8 8.8.4.4'` (Default IPv6 DNS: `2001:4860:4860::8888 2001:4860:4860::8844`)
  * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
- * `--version 10` Supports: `9`, `10`, `11`, `stretch`, `buster`, `bullseye`
- * `--suite buster` **For normal cases, please use `--version` instead.** e.g. `stretch`, `buster`, `bullseye`, `sid`, `oldstable`, `stable`, `testing`, `unstable`
+ * `--version 11` Supports: `9`, `10`, `11`, `stretch`, `buster`, `bullseye`
+ * `--suite bullseye` **For normal cases, please use `--version` instead.** e.g. `stretch`, `buster`, `bullseye`, `sid`, `oldstable`, `stable`, `testing`, `unstable`
  * `--release-d-i` d-i (Debian Installer) for the released versions: 10 (buster) and 9 (stretch)
- * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased versions: 11 (bullseye) and sid (unstable)
+ * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased version: 11 (bullseye), sid (unstable)
  * `--mirror-protocol http` or `https` or `ftp`
  * `--https` alias to `--mirror-protocol https`
  * `--mirror-host deb.debian.org`

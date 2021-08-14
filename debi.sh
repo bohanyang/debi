@@ -74,19 +74,100 @@ download() {
     fi
 }
 
+set_security_archive() {
+    case $suite in
+        stretch|oldstable|buster|stable)
+            security_archive="$suite/updates"
+            ;;
+        bullseye|testing)
+            security_archive="$suite-security"
+            ;;
+        sid|unstable)
+            security_archive=''
+            ;;
+        *)
+            err "Unsupported suite: $suite"
+    esac
+}
+
+set_daily_d_i() {
+    case $suite in
+        stretch|oldstable|buster|stable)
+            daily_d_i=false
+            ;;
+        bullseye|testing|sid|unstable)
+            daily_d_i=true
+            ;;
+        *)
+            err "Unsupported suite: $suite"
+    esac
+}
+
+set_suite() {
+    suite=$1
+    set_daily_d_i
+    set_security_archive
+}
+
+set_debian_version() {
+    case $1 in
+        9|stretch|oldstable)
+            set_suite stretch
+            ;;
+        10|buster|stable)
+            set_suite buster
+            ;;
+        11|bullseye|testing)
+            set_suite bullseye
+            ;;
+        sid|unstable)
+            set_suite sid
+            ;;
+        *)
+            err "Unsupported version: $1"
+    esac
+}
+
+has_cloud_kernel() {
+    case $suite in
+        stretch|oldstable)
+            [ "$architecture" = amd64 ] && [ "$bpo_kernel" = true ] && return
+            ;;
+        buster|stable)
+            [ "$architecture" = amd64 ] && return
+            [ "$architecture" = arm64 ] && [ "$bpo_kernel" = true ] && return
+            ;;
+        bullseye|testing|sid|unstable)
+            [ "$architecture" = amd64 ] || [ "$architecture" = arm64 ] && return
+    esac
+
+    local tmp; tmp=''; [ "$bpo_kernel" = true ] && tmp='-backports'
+    echo "Warning: No cloud kernel is available for $architecture/$suite$tmp." 1>&2
+    
+    return 1
+}
+
+has_backports() {
+    case $suite in
+        stretch|oldstable|buster|stable|bullseye|testing) return
+    esac
+
+    echo "Warning: No backports kernel is available for $suite." 1>&2
+
+    return 1
+}
+
 ip=
 netmask=
 gateway=
 dns='8.8.8.8 8.8.4.4'
 hostname=
 network_console=false
-suite=buster
-daily_d_i=false
+set_debian_version 10
 mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
 security_repository=http://security.debian.org/debian-security
-security_archive=buster/updates
 account_setup=true
 username=debian
 password=
@@ -154,42 +235,11 @@ while [ $# -gt 0 ]; do
             network_console=true
             ;;
         --version)
-            case $2 in
-                9|stretch)
-                    suite=stretch
-                    daily_d_i=false
-                    security_archive=stretch/updates
-                    ;;
-                10|buster)
-                    suite=buster
-                    daily_d_i=false
-                    security_archive=buster/updates
-                    ;;
-                11|bullseye)
-                    suite=bullseye
-                    daily_d_i=true
-                    security_archive=bullseye-security
-                    ;;
-                *)
-                    err "Unsupported version: $2"
-            esac
+            set_debian_version "$2"
             shift
             ;;
         --suite)
-            suite=$2
-            case $2 in
-                bullseye|testing)
-                    daily_d_i=true
-                    security_archive="$suite-security"
-                    ;;
-                sid|unstable)
-                    daily_d_i=true
-                    security_archive=''
-                    ;;
-                *)
-                    daily_d_i=false
-                    security_archive="$suite/updates"
-            esac
+            set_suite "$2"
             shift
             ;;
         --release-d-i)
@@ -349,19 +399,8 @@ done
 [ -z "$kernel" ] && {
     kernel="linux-image-$architecture"
 
-    [ "$cloud_kernel" = true ] && {
-        [ "$architecture" != amd64 ] && [ "$architecture" != arm64 ] &&
-        err 'Cloud kernel is only available for amd64 (x86_64) and arm64 (aarch64) architectures'
-
-        kernel="linux-image-cloud-$architecture"
-    }
-
-    [ "$bpo_kernel" = true ] && {
-        [ "$suite" != buster ] && [ "$suite" != stretch ] &&
-        err 'Backports kernel is only available for 10 (buster) and 9 (stretch)'
-
-        install="$kernel/$suite-backports $install"
-    }
+    [ "$cloud_kernel" = true ] && has_cloud_kernel && kernel="linux-image-cloud-$architecture"
+    [ "$bpo_kernel" = true ] && has_backports && install="$kernel/$suite-backports $install"
 }
 
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
