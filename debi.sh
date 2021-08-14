@@ -133,7 +133,7 @@ set_debian_version() {
 
 has_cloud_kernel() {
     case $suite in
-        stretch)
+        stretch|oldoldstable)
             [ "$architecture" = amd64 ] && [ "$bpo_kernel" = true ] && return
             ;;
         buster|oldstable)
@@ -153,7 +153,7 @@ has_cloud_kernel() {
 
 has_backports() {
     case $suite in
-        stretch|buster|oldstable|bullseye|stable|bookworm|testing) return
+        stretch|oldoldstable|buster|oldstable|bullseye|stable|bookworm|testing) return
     esac
 
     echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default...\n" 1>&2
