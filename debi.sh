@@ -142,7 +142,7 @@ has_cloud_kernel() {
     esac
 
     local tmp; tmp=''; [ "$bpo_kernel" = true ] && tmp='-backports'
-    echo "Warning: No cloud kernel is available for $architecture/$suite$tmp.\n\n...Continuing with the default." 1>&2
+    echo "\nWarning: No cloud kernel is available for $architecture/$suite$tmp.\nContinuing with the default..." 1>&2
     sleep 5
 
     return 1
@@ -153,7 +153,7 @@ has_backports() {
         stretch|oldstable|buster|stable|bullseye|testing) return
     esac
 
-    echo "Warning: No backports kernel is available for $suite.\n\n...Continuing with the default." 1>&2
+    echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default..." 1>&2
     sleep 5
 
     return 1
