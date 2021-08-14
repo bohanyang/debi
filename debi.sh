@@ -76,10 +76,10 @@ download() {
 
 set_security_archive() {
     case $suite in
-        stretch|oldstable|buster|stable)
+        stretch|oldoldstable|buster|oldstable)
             security_archive="$suite/updates"
             ;;
-        bullseye|testing)
+        bullseye|stable|bookworm|testing)
             security_archive="$suite-security"
             ;;
         sid|unstable)
@@ -92,10 +92,10 @@ set_security_archive() {
 
 set_daily_d_i() {
     case $suite in
-        stretch|oldstable|buster|stable)
+        stretch|oldoldstable|buster|oldstable|bullseye|stable)
             daily_d_i=false
             ;;
-        bullseye|testing|sid|unstable)
+        bookworm|testing|sid|unstable)
             daily_d_i=true
             ;;
         *)
@@ -111,14 +111,17 @@ set_suite() {
 
 set_debian_version() {
     case $1 in
-        9|stretch|oldstable)
+        9|stretch|oldoldstable)
             set_suite stretch
             ;;
-        10|buster|stable)
+        10|buster|oldstable)
             set_suite buster
             ;;
-        11|bullseye|testing)
+        11|bullseye|stable)
             set_suite bullseye
+            ;;
+        12|bookworm|testing)
+            set_suite bookworm
             ;;
         sid|unstable)
             set_suite sid
@@ -130,14 +133,14 @@ set_debian_version() {
 
 has_cloud_kernel() {
     case $suite in
-        stretch|oldstable)
+        stretch)
             [ "$architecture" = amd64 ] && [ "$bpo_kernel" = true ] && return
             ;;
-        buster|stable)
+        buster|oldstable)
             [ "$architecture" = amd64 ] && return
             [ "$architecture" = arm64 ] && [ "$bpo_kernel" = true ] && return
             ;;
-        bullseye|testing|sid|unstable)
+        bullseye|stable|bookworm|testing|sid|unstable)
             [ "$architecture" = amd64 ] || [ "$architecture" = arm64 ] && return
     esac
 
@@ -150,7 +153,7 @@ has_cloud_kernel() {
 
 has_backports() {
     case $suite in
-        stretch|oldstable|buster|stable|bullseye|testing) return
+        stretch|buster|oldstable|bullseye|stable|bookworm|testing) return
     esac
 
     echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default...\n" 1>&2
@@ -165,7 +168,7 @@ gateway=
 dns='8.8.8.8 8.8.4.4'
 hostname=
 network_console=false
-set_debian_version 10
+set_debian_version 11
 mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
