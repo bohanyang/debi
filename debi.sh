@@ -715,7 +715,7 @@ save_grub_cfg='cat'
     gzip -d initrd.gz
     # cpio reads a list of file names from the standard input
     echo preseed.cfg | cpio -o -H newc -A -F initrd
-    gzip -9 initrd
+    gzip -1 initrd
 
     mkdir -p /etc/default/grub.d
     tee /etc/default/grub.d/zz-debi.cfg 1>&2 << EOF
