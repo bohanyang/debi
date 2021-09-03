@@ -4,7 +4,7 @@
 set -eu
 
 err() {
-    echo "\nError: $1.\n" 1>&2
+    echo -e "\nError: $1.\n" 1>&2
     exit 1
 }
 
@@ -70,7 +70,7 @@ download() {
     elif command_exists busybox && busybox wget --help > /dev/null 2>&1; then
         busybox wget -O "$2" "$1"
     else
-        err 'Cannot find "wget", "curl" or "busybox wget" to download files'
+        err 'Cannot find "wget", "curl" or "busybox wget" to download files.'
     fi
 }
 
@@ -86,7 +86,7 @@ set_security_archive() {
             security_archive=''
             ;;
         *)
-            err "Unsupported suite: $suite"
+            err "Unsupported suite: $suite."
     esac
 }
 
@@ -99,7 +99,7 @@ set_daily_d_i() {
             daily_d_i=true
             ;;
         *)
-            err "Unsupported suite: $suite"
+            err "Unsupported suite: $suite."
     esac
 }
 
@@ -127,7 +127,7 @@ set_debian_version() {
             set_suite sid
             ;;
         *)
-            err "Unsupported version: $1"
+            err "Unsupported version: $1."
     esac
 }
 
@@ -378,7 +378,7 @@ while [ $# -gt 0 ]; do
             dry_run=true
             ;;
         *)
-            err "Unknown option: \"$1\""
+            err "Unknown option: \"$1\"."
     esac
     shift
 done
@@ -396,7 +396,7 @@ done
                 architecture=i386
                 ;;
             *)
-                err 'No "--architecture" specified'
+                err 'No "--architecture" specified.'
         esac
     }
 }
@@ -409,14 +409,14 @@ done
 }
 
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
-err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
+err "Failed to download SSH authorized public keys from \"$authorized_keys_url\"."
 
 installer="debian-$suite"
 installer_directory="/boot/$installer"
 
 save_preseed='cat'
 [ "$dry_run" = false ] && {
-    [ "$(id -u)" -ne 0 ] && err 'root privilege is required'
+    [ "$(id -u)" -ne 0 ] && err 'Root privilege is required.'
     rm -rf "$installer_directory"
     mkdir -p "$installer_directory"
     cd "$installer_directory"
@@ -737,7 +737,7 @@ EOF
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     else
-        err 'Could not find "update-grub" or "grub2-mkconfig" command'
+        err 'Could not find "update-grub" or "grub2-mkconfig" command.'
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
