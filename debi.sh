@@ -4,8 +4,13 @@
 set -eu
 
 err() {
-    echo "\nError: $1.\n" 1>&2
+    printf "\nError: %s.\n" "$1" 1>&2
     exit 1
+}
+
+warn() {
+    printf "\nWarning: %s.\nContinuing with the default...\n" "$1" 1>&2
+    sleep 5
 }
 
 command_exists() {
@@ -145,8 +150,7 @@ has_cloud_kernel() {
     esac
 
     local tmp; tmp=''; [ "$bpo_kernel" = true ] && tmp='-backports'
-    echo "\nWarning: No cloud kernel is available for $architecture/$suite$tmp.\nContinuing with the default...\n" 1>&2
-    sleep 5
+    warn "No cloud kernel is available for $architecture/$suite$tmp"
 
     return 1
 }
@@ -156,8 +160,7 @@ has_backports() {
         stretch|oldoldstable|buster|oldstable|bullseye|stable|bookworm|testing) return
     esac
 
-    echo "\nWarning: No backports kernel is available for $suite.\nContinuing with the default...\n" 1>&2
-    sleep 5
+    warn "No backports kernel is available for $suite"
 
     return 1
 }
@@ -715,7 +718,7 @@ save_grub_cfg='cat'
     gzip -d initrd.gz
     # cpio reads a list of file names from the standard input
     echo preseed.cfg | cpio -o -H newc -A -F initrd
-    gzip -9 initrd
+    gzip -1 initrd
 
     mkdir -p /etc/default/grub.d
     tee /etc/default/grub.d/zz-debi.cfg 1>&2 << EOF
