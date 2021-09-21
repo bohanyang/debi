@@ -827,6 +827,7 @@ menuentry 'Debian Installer' --id debi {
     insmod part_gpt
     insmod ext2
     insmod xfs
+    insmod btrfs
     linux $installer_directory/linux$kernel_params
     initrd $initrd
 }
