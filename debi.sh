@@ -607,6 +607,11 @@ EOF
     $save_preseed << 'EOF'
 d-i partman-auto/expert_recipe string \
     naive :: \
+        1 1 8 free \
+            $iflabel{ gpt } \
+            $reusemethod{ } \
+            method{ biosgrub } \
+        . \
 EOF
     if [ "$efi" = true ]; then
         $save_preseed << 'EOF'
@@ -615,14 +620,6 @@ EOF
             $reusemethod{ } \
             method{ efi } \
             format{ } \
-        . \
-EOF
-    else
-        $save_preseed << 'EOF'
-        1 1 1 free \
-            $iflabel{ gpt } \
-            $reusemethod{ } \
-            method{ biosgrub } \
         . \
 EOF
     fi
