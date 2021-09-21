@@ -610,7 +610,7 @@ d-i partman-auto/expert_recipe string \
 EOF
     if [ "$efi" = true ]; then
         $save_preseed << 'EOF'
-        106 106 106 free \
+        106 106 1075 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
             method{ efi } \
