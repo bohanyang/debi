@@ -595,7 +595,12 @@ EOF
         echo 'd-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n 1)"' | $save_preseed
     fi
 
-    [ "$force_gpt" = true ] && echo 'd-i partman-partitioning/default_label string gpt' | $save_preseed
+    [ "$force_gpt" = true ] && {
+        $save_preseed << 'EOF'
+d-i partman-partitioning/choose_label string gpt
+d-i partman-partitioning/default_label string gpt
+EOF
+    }
 
     echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
 
@@ -633,10 +638,14 @@ EOF
             mountpoint{ / } \
         .
 EOF
-    echo 'd-i partman-auto/choose_recipe select naive' | $save_preseed
+    if [ "$efi" = true ]; then
+        echo 'd-i partman-efi/non_efi_system boolean true' | $save_preseed
+    fi
 
     $save_preseed << 'EOF'
+d-i partman-auto/choose_recipe select naive
 d-i partman-basicfilesystems/no_swap boolean false
+d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
