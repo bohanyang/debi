@@ -110,6 +110,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased version: 12 (bookworm), sid (unstable)
  * `--mirror-protocol http` or `https` or `ftp`
  * `--https` alias to `--mirror-protocol https`
+ * `--proxy, --mirror-proxy` Set an HTTP proxy for APT and downloads
  * `--mirror-host deb.debian.org`
  * `--mirror-directory /debian`
  * `--security-repository http://security.debian.org/debian-security` Magic value: `'mirror' = <mirror-protocol>://<mirror-host>/<mirror-directory>/../debian-security`

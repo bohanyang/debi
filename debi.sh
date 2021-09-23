@@ -68,6 +68,16 @@ prompt_password() {
 }
 
 download() {
+    # Set "$http/https/ftp_proxy" with "$mirror_proxy"
+    # only when none of those have ever been set
+    [ -n "$mirror_proxy" ] &&
+    [ -z ${http_proxy+1s} ] &&
+    [ -z ${https_proxy+1s} ] &&
+    [ -z ${ftp_proxy+1s} ] &&
+    export http_proxy="$mirror_proxy" &&
+    export https_proxy="$mirror_proxy" &&
+    export ftp_proxy="$mirror_proxy"
+
     if command_exists wget; then
         wget -O "$2" "$1"
     elif command_exists curl; then
@@ -77,6 +87,26 @@ download() {
     else
         err 'Cannot find "wget", "curl" or "busybox wget" to download files'
     fi
+}
+
+# Set "$mirror_proxy" with "$http/https/ftp_proxy"
+# only when it is empty and one of those is not empty
+set_mirror_proxy() {
+    [ -n "$mirror_proxy" ] && return
+
+    case $mirror_protocol in
+        http)
+            if [ -n ${http_proxy:+1s} ]; then mirror_proxy="$http_proxy"; fi
+            ;;
+        https)
+            if [ -n ${https_proxy:+1s} ]; then mirror_proxy="$https_proxy"; fi
+            ;;
+        ftp)
+            if [ -n ${ftp_proxy:+1s} ]; then mirror_proxy="$ftp_proxy"; fi
+            ;;
+        *)
+            err "Unsupported protocol: $mirror_protocol"
+    esac
 }
 
 set_security_archive() {
@@ -175,6 +205,7 @@ set_debian_version 11
 mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
+mirror_proxy=
 security_repository=http://security.debian.org/debian-security
 account_setup=true
 username=debian
@@ -269,6 +300,10 @@ while [ $# -gt 0 ]; do
             ;;
         --mirror-directory)
             mirror_directory=${2%/}
+            shift
+            ;;
+        --mirror-proxy|--proxy)
+            mirror_proxy=$2
             shift
             ;;
         --security-repository)
@@ -496,6 +531,8 @@ EOF
     echo 'd-i network-console/start select Continue' | $save_preseed
 }
 
+set_mirror_proxy
+
 $save_preseed << EOF
 
 # Mirror settings
@@ -504,7 +541,7 @@ d-i mirror/country string manual
 d-i mirror/protocol string $mirror_protocol
 d-i mirror/$mirror_protocol/hostname string $mirror_host
 d-i mirror/$mirror_protocol/directory string $mirror_directory
-d-i mirror/$mirror_protocol/proxy string
+d-i mirror/$mirror_protocol/proxy string $mirror_proxy
 d-i mirror/suite string $suite
 EOF
 
