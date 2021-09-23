@@ -38,7 +38,7 @@ in_target_backup() {
 
 configure_sshd() {
     # !isset($sshd_config_backup)
-    [ -z ${sshd_config_backup+1s} ] && in_target_backup /etc/ssh/sshd_config
+    [ -z "${sshd_config_backup+1s}" ] && in_target_backup /etc/ssh/sshd_config
     sshd_config_backup=
     in_target sed -Ei \""s/^#?$1 .+/$1 $2/"\" /etc/ssh/sshd_config
 }
@@ -71,9 +71,9 @@ download() {
     # Set "$http/https/ftp_proxy" with "$mirror_proxy"
     # only when none of those have ever been set
     [ -n "$mirror_proxy" ] &&
-    [ -z ${http_proxy+1s} ] &&
-    [ -z ${https_proxy+1s} ] &&
-    [ -z ${ftp_proxy+1s} ] &&
+    [ -z "${http_proxy+1s}" ] &&
+    [ -z "${https_proxy+1s}" ] &&
+    [ -z "${ftp_proxy+1s}" ] &&
     export http_proxy="$mirror_proxy" &&
     export https_proxy="$mirror_proxy" &&
     export ftp_proxy="$mirror_proxy"
@@ -96,19 +96,13 @@ set_mirror_proxy() {
 
     case $mirror_protocol in
         http)
-            if [ -n ${http_proxy+1s} ]; then
-                mirror_proxy="$http_proxy"
-            fi
+            if [ -n "${http_proxy+1s}" ]; then mirror_proxy="$http_proxy"; fi
             ;;
         https)
-            if [ -n ${https_proxy+1s} ]; then
-                mirror_proxy="$https_proxy"
-            fi
+            if [ -n "${https_proxy+1s}" ]; then mirror_proxy="$https_proxy"; fi
             ;;
         ftp)
-            if [ -n ${ftp_proxy+1s} ]; then
-                mirror_proxy="$ftp_proxy"
-            fi
+            if [ -n "${ftp_proxy+1s}" ]; then mirror_proxy="$ftp_proxy"; fi
             ;;
         *)
             err "Unsupported protocol: $mirror_protocol"
