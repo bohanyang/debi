@@ -96,13 +96,19 @@ set_mirror_proxy() {
 
     case $mirror_protocol in
         http)
-            if [ -n ${http_proxy+1s} ]; then mirror_proxy="$http_proxy"; fi
+            if [ -n ${http_proxy+1s} ]; then
+                mirror_proxy="$http_proxy"
+            fi
             ;;
         https)
-            if [ -n ${https_proxy+1s} ]; then mirror_proxy="$https_proxy"; fi
+            if [ -n ${https_proxy+1s} ]; then
+                mirror_proxy="$https_proxy"
+            fi
             ;;
         ftp)
-            if [ -n ${ftp_proxy+1s} ]; then mirror_proxy="$ftp_proxy"; fi
+            if [ -n ${ftp_proxy+1s} ]; then
+                mirror_proxy="$ftp_proxy"
+            fi
             ;;
         *)
             err "Unsupported protocol: $mirror_protocol"
