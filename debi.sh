@@ -306,6 +306,9 @@ while [ $# -gt 0 ]; do
             mirror_proxy=$2
             shift
             ;;
+        --reuse-proxy)
+            set_mirror_proxy
+            ;;
         --security-repository)
             security_repository=$2
             shift
@@ -530,8 +533,6 @@ EOF
 
     echo 'd-i network-console/start select Continue' | $save_preseed
 }
-
-set_mirror_proxy
 
 $save_preseed << EOF
 
