@@ -132,7 +132,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--cloud-kernel` Choose `linux-image-cloud-amd64` or `...arm64` as the kernel image
  * `--bpo-kernel` Choose the kernel image from Debian Backports (newer version from the next Debian release)
  * `--no-install-recommends`
- * `--install 'ca-certificates libpam-systemd'`
+ * `--install 'ca-certificates libpam-systemd'` Install additional APT packages. Space-separated and quoted.
  * `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
  * `--full-upgrade` `apt dist-upgrade`
  * `--no-upgrade` 
@@ -141,7 +141,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--hold` Don't reboot or power off after installation
  * `--power-off` Power off after installation rather than reboot
  * `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
- * `--boot-directory <string>`
+ * `--boot-directory <string>` Automatically set to `/` if there is an individual boot partition otherwise set to `/boot`. You can try to treak this if needed (for example setting subvolume for btrfs)
  * `--firmware` Load additional [non-free firmwares](https://wiki.debian.org/Firmware#Firmware_during_the_installation)
  * `--no-force-efi-extra-removable` [See](https://wiki.debian.org/UEFI#Force_grub-efi_installation_to_the_removable_media_path)
  * `--grub-timeout 5` How many seconds the GRUB menu shows before entering the installer
