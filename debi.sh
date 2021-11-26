@@ -195,6 +195,7 @@ has_backports() {
     return 1
 }
 
+interface=auto
 ip=
 netmask=
 gateway=
@@ -227,6 +228,7 @@ install='ca-certificates libpam-systemd'
 upgrade=
 kernel_params=
 bbr=false
+ssh_port=
 hold=false
 power_off=false
 architecture=
@@ -249,6 +251,10 @@ while [ $# -gt 0 ]; do
             mirror_host=mirrors.aliyun.com
             ntp=ntp.aliyun.com
             security_repository=mirror
+            ;;
+        --interface)
+            interface=$2
+            shift
             ;;
         --ip)
             ip=$2
@@ -391,6 +397,10 @@ while [ $# -gt 0 ]; do
         --bbr)
             bbr=true
             ;;
+        --ssh-port)
+            ssh_port=$2
+            shift
+            ;;
         --hold)
             hold=true
             ;;
@@ -470,7 +480,7 @@ elif [ "$network_console" = true ] && [ -z "$authorized_keys_url" ]; then
     prompt_password "Choose a password for the installer user of the SSH network console: "
 fi
 
-$save_preseed << 'EOF'
+$save_preseed << EOF
 # Localization
 
 d-i debian-installer/language string en
@@ -480,7 +490,7 @@ d-i keyboard-configuration/xkb-keymap select us
 
 # Network configuration
 
-d-i netcfg/choose_interface select auto
+d-i netcfg/choose_interface select $interface
 EOF
 
 [ -n "$ip" ] && {
@@ -608,6 +618,8 @@ EOF
         fi
     fi
 }
+
+[ -n "$ssh_port" ] && configure_sshd Port "$ssh_port"
 
 $save_preseed << EOF
 
@@ -804,9 +816,7 @@ EOF
 
 installer_directory="$boot_directory$installer"
 
-# shellcheck disable=SC2034
-mem=$(grep ^MemTotal: /proc/meminfo | { read -r x y z; echo "$y"; })
-[ $((mem / 1024)) -le 512 ] && kernel_params="$kernel_params lowmem/low=1"
+kernel_params="$kernel_params lowmem/low=1"
 
 initrd="$installer_directory/initrd.gz"
 [ "$firmware" = true ] && initrd="$initrd $installer_directory/firmware.cpio.gz"

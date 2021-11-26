@@ -98,6 +98,8 @@ Otherwise, you can run this command to revert all changes made by the script:
 
 ## Available Options
 
+ * `--interface <string>` Manually select a network interface, e.g. eth1
+ * `--ethx` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
  * `--netmask <string>` e.g. `255.255.255.0`, `ffff:ffff:ffff:ffff::`
  * `--gateway <string>` e.g. `10.0.0.1`, `none` if no gateway
@@ -135,9 +137,9 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--install 'ca-certificates libpam-systemd'` Install additional APT packages. Space-separated and quoted.
  * `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
  * `--full-upgrade` `apt dist-upgrade`
- * `--no-upgrade` 
- * `--ethx` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
+ * `--no-upgrade`
  * `--bbr` Enable TCP BBR congestion control
+ * `--ssh-port <integer>` SSH port
  * `--hold` Don't reboot or power off after installation
  * `--power-off` Power off after installation rather than reboot
  * `--architecture <string>` e.g. `amd64`, `i386`, `arm64`, `armhf`, etc.
