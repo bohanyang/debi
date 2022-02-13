@@ -815,6 +815,7 @@ EOF
 }
 
 installer_directory="$boot_directory$installer"
+installer_directory=$(grub-mkrelpath $installer_directory)
 
 kernel_params="$kernel_params lowmem/low=1"
 
