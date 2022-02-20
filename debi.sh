@@ -232,7 +232,6 @@ ssh_port=
 hold=false
 power_off=false
 architecture=
-boot_directory=
 firmware=false
 force_efi_extra_removable=true
 grub_timeout=5
@@ -411,10 +410,6 @@ while [ $# -gt 0 ]; do
             architecture=$2
             shift
             ;;
-        --boot-directory)
-            boot_directory=$2
-            shift
-            ;;
         --firmware)
             firmware=true
             ;;
@@ -462,8 +457,7 @@ done
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
 err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 
-installer="debian-$suite"
-installer_directory="/boot/$installer"
+installer_directory="/boot/debian-$suite"
 
 save_preseed='cat'
 [ "$dry_run" = false ] && {
@@ -806,16 +800,7 @@ EOF
     save_grub_cfg="tee -a $grub_cfg"
 }
 
-[ -z "$boot_directory" ] && {
-    if grep -q '\s/boot\s' /proc/mounts; then
-        boot_directory=/
-    else
-        boot_directory=/boot/
-    fi
-}
-
-installer_directory="$boot_directory$installer"
-installer_directory=$(grub-mkrelpath $installer_directory)
+installer_directory=$(grub-mkrelpath "$installer_directory")
 
 kernel_params="$kernel_params lowmem/low=1"
 
