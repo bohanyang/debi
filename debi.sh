@@ -800,8 +800,9 @@ EOF
     save_grub_cfg="tee -a $grub_cfg"
 }
 
-installer_directory=$(grub-mkrelpath "$installer_directory" 2> /dev/null) ||
-installer_directory=$(grub2-mkrelpath "$installer_directory" 2> /dev/null) || {
+mkrelpath=$installer_directory
+installer_directory=$(grub-mkrelpath "$mkrelpath" 2> /dev/null) ||
+installer_directory=$(grub2-mkrelpath "$mkrelpath" 2> /dev/null) || {
     err 'Could not find "grub-mkrelpath" or "grub2-mkrelpath" command'
 }
 
