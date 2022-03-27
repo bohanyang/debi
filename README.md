@@ -129,6 +129,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--no-force-gpt` By default, GPT rather than MBR partition table will be created. This option disables it.
  * `--bios` Don't create *EFI system partition*. If GPT is being used, create a *BIOS boot partition* (`bios_grub` partition). Default if `/sys/firmware/efi` is absent. [See](https://askubuntu.com/a/501360)
  * `--efi` Create an *EFI system partition*. Default if `/sys/firmware/efi` exists
+ * `--esp 106` Size of the *EFI system partition*. e.g. `106`, `538` and `1075` result to 100 MiB, 512 MiB, 1 GiB respectively
  * `--filesystem ext4`
  * `--kernel <string>` Choose an package for the kernel image
  * `--cloud-kernel` Choose `linux-image-cloud-amd64` or `...arm64` as the kernel image

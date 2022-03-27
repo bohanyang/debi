@@ -219,6 +219,7 @@ disk_partitioning=true
 disk=
 force_gpt=true
 efi=
+esp=106
 filesystem=ext4
 kernel=
 cloud_kernel=false
@@ -359,6 +360,10 @@ while [ $# -gt 0 ]; do
             ;;
         --efi)
             efi=true
+            ;;
+        --esp)
+            esp=$2
+            shift
             ;;
         --filesystem)
             filesystem=$2
@@ -658,8 +663,10 @@ d-i partman-auto/expert_recipe string \
     naive :: \
 EOF
     if [ "$efi" = true ]; then
+        $save_preseed << EOF
+        $esp $esp $esp free \\
+EOF
         $save_preseed << 'EOF'
-        106 106 106 free \
             $iflabel{ gpt } \
             $reusemethod{ } \
             method{ efi } \
