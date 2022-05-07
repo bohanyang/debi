@@ -808,10 +808,12 @@ EOF
 }
 
 mkrelpath=$installer_directory
+[ "$dry_run" = true ] && mkrelpath=/boot
 installer_directory=$(grub-mkrelpath "$mkrelpath" 2> /dev/null) ||
 installer_directory=$(grub2-mkrelpath "$mkrelpath" 2> /dev/null) || {
     err 'Could not find "grub-mkrelpath" or "grub2-mkrelpath" command'
 }
+[ "$dry_run" = true ] && installer_directory="$installer_directory/debian-$suite"
 
 kernel_params="$kernel_params lowmem/low=1"
 
