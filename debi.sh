@@ -745,8 +745,13 @@ popularity-contest popularity-contest/participate boolean false
 
 # Boot loader installation
 
-d-i grub-installer/bootdev string default
 EOF
+
+if [ -n "$disk" ]; then
+        echo "d-i grub-installer/bootdev string $disk" | $save_preseed
+else
+        echo 'd-i grub-installer/bootdev string default' | $save_preseed
+fi
 
 [ "$force_efi_extra_removable" = true ] && echo 'd-i grub-installer/force-efi-extra-removable boolean true' | $save_preseed
 [ -n "$kernel_params" ] && echo "d-i debian-installer/add-kernel-opts string$kernel_params" | $save_preseed
