@@ -748,9 +748,9 @@ popularity-contest popularity-contest/participate boolean false
 EOF
 
 if [ -n "$disk" ]; then
-        echo "d-i grub-installer/bootdev string $disk" | $save_preseed
+    echo "d-i grub-installer/bootdev string $disk" | $save_preseed
 else
-        echo 'd-i grub-installer/bootdev string default' | $save_preseed
+    echo 'd-i grub-installer/bootdev string default' | $save_preseed
 fi
 
 [ "$force_efi_extra_removable" = true ] && echo 'd-i grub-installer/force-efi-extra-removable boolean true' | $save_preseed
