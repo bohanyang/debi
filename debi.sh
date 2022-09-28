@@ -828,7 +828,7 @@ installer_directory=$(grub2-mkrelpath "$mkrelpath" 2> /dev/null) || {
 
 kernel_params="$kernel_params lowmem/low=1"
 
-[ -n "$force_lowmem" ] && kernel_params="$kernel_params lowmem/low=1 lowmem=+$force_lowmem"
+[ -n "$force_lowmem" ] && kernel_params="$kernel_params lowmem=+$force_lowmem"
 
 initrd="$installer_directory/initrd.gz"
 [ "$firmware" = true ] && initrd="$initrd $installer_directory/firmware.cpio.gz"
