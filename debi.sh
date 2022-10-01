@@ -228,6 +228,7 @@ install_recommends=true
 install='ca-certificates libpam-systemd'
 upgrade=
 kernel_params=
+force_lowmem=
 bbr=false
 ssh_port=
 hold=false
@@ -347,6 +348,11 @@ while [ $# -gt 0 ]; do
             ;;
         --no-part|--no-disk-partitioning)
             disk_partitioning=false
+            ;;
+        --force-lowmem)
+            [ "$2" != 0 ] && [ "$2" != 1 ] && [ "$2" != 2 ] && err 'Low memory level can only be 0, 1 or 2'
+            force_lowmem=$2
+            shift
             ;;
         --disk)
             disk=$2
@@ -821,6 +827,8 @@ installer_directory=$(grub2-mkrelpath "$mkrelpath" 2> /dev/null) || {
 [ "$dry_run" = true ] && installer_directory="$installer_directory/debian-$suite"
 
 kernel_params="$kernel_params lowmem/low=1"
+
+[ -n "$force_lowmem" ] && kernel_params="$kernel_params lowmem=+$force_lowmem"
 
 initrd="$installer_directory/initrd.gz"
 [ "$firmware" = true ] && initrd="$initrd $installer_directory/firmware.cpio.gz"
