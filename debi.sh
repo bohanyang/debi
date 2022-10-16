@@ -634,13 +634,13 @@ d-i time/zone string $timezone
 d-i clock-setup/utc boolean true
 d-i clock-setup/ntp boolean true
 d-i clock-setup/ntp-server string $ntp
+
+# Partitioning
+
 EOF
 
 [ "$disk_partitioning" = true ] && {
     $save_preseed << 'EOF'
-
-# Partitioning
-
 d-i partman-auto/method string regular
 EOF
     if [ -n "$disk" ]; then
@@ -649,14 +649,16 @@ EOF
         # shellcheck disable=SC2016
         echo 'd-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n 1)"' | $save_preseed
     fi
+}
 
-    [ "$force_gpt" = true ] && {
-        $save_preseed << 'EOF'
+[ "$force_gpt" = true ] && {
+    $save_preseed << 'EOF'
 d-i partman-partitioning/choose_label string gpt
 d-i partman-partitioning/default_label string gpt
 EOF
-    }
+}
 
+[ "$disk_partitioning" = true ] && {
     echo "d-i partman/default_filesystem string $filesystem" | $save_preseed
 
     [ -z "$efi" ] && {
