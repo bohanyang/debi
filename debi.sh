@@ -127,10 +127,10 @@ set_security_archive() {
 
 set_daily_d_i() {
     case $suite in
-        stretch|oldoldstable|buster|oldstable|bullseye|stable)
+        stretch|oldoldstable|buster|oldstable|bullseye|stable|bookworm)
             daily_d_i=false
             ;;
-        bookworm|testing|sid|unstable)
+        testing|sid|unstable)
             daily_d_i=true
             ;;
         *)
