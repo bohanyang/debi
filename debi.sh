@@ -111,7 +111,7 @@ set_mirror_proxy() {
 
 set_security_archive() {
     case $suite in
-        buster|oldoldstable|burixie|oldstable)
+        buster|oldoldstable|bullseye|oldstable)
             security_archive="$suite/updates"
             ;;
         bookworm|stable|trixie|testing)
