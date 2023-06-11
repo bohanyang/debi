@@ -2,9 +2,9 @@
 
 [General description in English ↓](#introduction)
 
-## VPS 网络重装 Debian 11 脚本
+## VPS 网络重装 Debian 12 脚本
 
-**暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 20.04 或 18.04 系统模板。**
+**暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 系统模板。**
 
 下载脚本：
 
@@ -38,7 +38,7 @@ sudo shutdown -r now
 
 ## Introduction
 
-This script is written to reinstall a VPS/virtual machine to minimal Debian 11.
+This script is written to reinstall a VPS/virtual machine to minimal Debian 10/11/12.
 
 ## Should Work On
 
@@ -106,10 +106,10 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--dns '8.8.8.8 8.8.4.4'` (Default IPv6 DNS: `2001:4860:4860::8888 2001:4860:4860::8844`)
  * `--hostname <string>` FQDN hostname (includes the domain name), e.g. `server1.example.com`
  * `--network-console` Enable the network console of the installer. `ssh installer@ip` to connect
- * `--version 11` Supports: `9`, `10`, `11`, `12`
- * `--suite bullseye` **For normal cases, please use `--version` instead.** e.g. `stable`, `testing`, `sid`
- * `--release-d-i` d-i (Debian Installer) for the released versions: 11 (bullseye), 10 (buster) and 9 (stretch)
- * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased version: 12 (bookworm), sid (unstable)
+ * `--version 12` Supports: `10`, `11`, `12`, `13`
+ * `--suite bullseye` **Please use `--version` instead if you don't have special needs.** e.g. `stable`, `testing`, `sid`
+ * `--release-d-i` d-i (Debian Installer) for the released versions: 12 (bookworm), 11 (bullseye) and 10 (buster)
+ * `--daily-d-i` Use latest daily build of d-i (Debian Installer) for the unreleased version: 13 (trixie), sid (unstable)
  * `--mirror-protocol http` or `https` or `ftp`
  * `--https` alias to `--mirror-protocol https`
  * `--reuse-proxy` Reuse the value of `http(s)_proxy` environment variable as the mirror proxy

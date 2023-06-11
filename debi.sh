@@ -111,10 +111,10 @@ set_mirror_proxy() {
 
 set_security_archive() {
     case $suite in
-        stretch|oldoldstable|buster|oldstable)
+        buster|oldoldstable|burixie|oldstable)
             security_archive="$suite/updates"
             ;;
-        bullseye|stable|bookworm|testing)
+        bookworm|stable|trixie|testing)
             security_archive="$suite-security"
             ;;
         sid|unstable)
@@ -127,10 +127,10 @@ set_security_archive() {
 
 set_daily_d_i() {
     case $suite in
-        stretch|oldoldstable|buster|oldstable|bullseye|stable|bookworm)
+        buster|oldoldstable|bullseye|oldstable|bookworm|stable)
             daily_d_i=false
             ;;
-        testing|sid|unstable)
+        trixie|testing|sid|unstable)
             daily_d_i=true
             ;;
         *)
@@ -146,16 +146,16 @@ set_suite() {
 
 set_debian_version() {
     case $1 in
-        9|stretch|oldoldstable)
-            set_suite stretch
-            ;;
-        10|buster|oldstable)
+        10|buster|oldoldstable)
             set_suite buster
             ;;
-        11|bullseye|stable)
+        11|bullseye|oldstable)
             set_suite bullseye
             ;;
-        12|bookworm|testing)
+        12|bookworm|stable)
+            set_suite bookworm
+            ;;
+        13|trixie|testing)
             set_suite bookworm
             ;;
         sid|unstable)
@@ -168,14 +168,11 @@ set_debian_version() {
 
 has_cloud_kernel() {
     case $suite in
-        stretch|oldoldstable)
-            [ "$architecture" = amd64 ] && [ "$bpo_kernel" = true ] && return
-            ;;
-        buster|oldstable)
+        buster|oldoldstable)
             [ "$architecture" = amd64 ] && return
             [ "$architecture" = arm64 ] && [ "$bpo_kernel" = true ] && return
             ;;
-        bullseye|stable|bookworm|testing|sid|unstable)
+        bullseye|oldstable|bookworm|stable|trixie|testing|sid|unstable)
             [ "$architecture" = amd64 ] || [ "$architecture" = arm64 ] && return
     esac
 
@@ -187,7 +184,7 @@ has_cloud_kernel() {
 
 has_backports() {
     case $suite in
-        stretch|oldoldstable|buster|oldstable|bullseye|stable|bookworm|testing) return
+        buster|oldoldstable|bullseye|oldstable|bookworm|stable|trixie|testing) return
     esac
 
     warn "No backports kernel is available for $suite"
@@ -202,7 +199,7 @@ gateway=
 dns='8.8.8.8 8.8.4.4'
 hostname=
 network_console=false
-set_debian_version 11
+set_debian_version 12
 mirror_protocol=http
 mirror_host=deb.debian.org
 mirror_directory=/debian
