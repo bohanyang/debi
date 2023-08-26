@@ -502,6 +502,15 @@ done
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
 err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 
+non_free_firmware_available=false
+case $suite in
+    bookworm|stable|trixie|testing|sid|unstable)
+        non_free_firmware_available=true
+        ;;
+    *)
+        apt_non_free_firmware=false
+esac
+
 apt_components=main
 [ "$apt_contrib" = true ] && apt_components="$apt_components contrib"
 [ "$apt_non_free" = true ] && apt_components="$apt_components non-free"
@@ -771,12 +780,13 @@ $save_preseed << EOF
 
 # Apt setup
 
-d-i apt-setup/non-free-firmware boolean $apt_non_free_firmware
 d-i apt-setup/contrib boolean $apt_contrib
 d-i apt-setup/non-free boolean $apt_non_free
 d-i apt-setup/enable-source-repositories boolean $apt_src
 d-i apt-setup/services-select multiselect $apt_services
 EOF
+
+[ "$non_free_firmware_available" = true ] && echo "d-i apt-setup/non-free-firmware boolean $apt_non_free_firmware" | $save_preseed
 
 # If not sid/unstable
 [ -n "$security_archive" ] && {
