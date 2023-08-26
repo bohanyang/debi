@@ -135,6 +135,8 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--cloud-kernel` Choose `linux-image-cloud-amd64` or `...arm64` as the kernel image
  * `--bpo-kernel` Choose the kernel image from Debian Backports (newer version from the next Debian release)
  * `--no-install-recommends`
+ * `--apt-non-free-firmware` (Debian 12 or later), `--apt-non-free`, `--apt-contrib`, `--apt-src`, `--apt-backports`
+ * `--no-apt-non-free-firmware` (Debian 12 or later), `--no-apt-non-free`, `--no-apt-contrib`, `--no-apt-src`, `--no-apt-backports`
  * `--install 'ca-certificates libpam-systemd'` Install additional APT packages. Space-separated and quoted.
  * `--safe-upgrade` **(Default)** `apt upgrade --with-new-pkgs`. [See](https://salsa.debian.org/installer-team/pkgsel/-/blob/master/debian/postinst)
  * `--full-upgrade` `apt dist-upgrade`

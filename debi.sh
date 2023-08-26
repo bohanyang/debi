@@ -235,6 +235,11 @@ firmware=false
 force_efi_extra_removable=true
 grub_timeout=5
 dry_run=false
+apt_non_free_firmware=false
+apt_non_free=false
+apt_contrib=false
+apt_src=true
+apt_backports=true
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -382,6 +387,38 @@ while [ $# -gt 0 ]; do
         --bpo-kernel)
             bpo_kernel=true
             ;;
+        --apt-non-free-firmware)
+            apt_non_free_firmware=true
+            ;;
+        --apt-non-free)
+            apt_non_free=true
+            apt_contrib=true
+            ;;
+        --apt-contrib)
+            apt_contrib=true
+            ;;
+        --apt-src)
+            apt_src=true
+            ;;
+        --apt-backports)
+            apt_backports=true
+            ;;
+        --no-apt-non-free-firmware)
+            apt_non_free_firmware=false
+            ;;
+        --no-apt-non-free)
+            apt_non_free=false
+            ;;
+        --no-apt-contrib)
+            apt_contrib=false
+            apt_non_free=false
+            ;;
+        --no-apt-src)
+            apt_src=false
+            ;;
+        --no-apt-backports)
+            apt_backports=false
+            ;;
         --no-install-recommends)
             install_recommends=false
             ;;
@@ -464,6 +501,23 @@ done
 
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
 err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
+
+non_free_firmware_available=false
+case $suite in
+    bookworm|stable|trixie|testing|sid|unstable)
+        non_free_firmware_available=true
+        ;;
+    *)
+        apt_non_free_firmware=false
+esac
+
+apt_components=main
+[ "$apt_contrib" = true ] && apt_components="$apt_components contrib"
+[ "$apt_non_free" = true ] && apt_components="$apt_components non-free"
+[ "$apt_non_free_firmware" = true ] && apt_components="$apt_components non-free-firmware"
+
+apt_services=updates
+[ "$apt_backports" = true ] && apt_services="$apt_services, backports"
 
 installer_directory="/boot/debian-$suite"
 
@@ -722,17 +776,24 @@ EOF
 
 [ "$security_repository" = mirror ] && security_repository=$mirror_protocol://$mirror_host${mirror_directory%/*}/debian-security
 
-# If not sid/unstable
-[ -n "$security_archive" ] && {
-    $save_preseed << EOF
+$save_preseed << EOF
 
 # Apt setup
 
-d-i apt-setup/services-select multiselect updates, backports
-d-i apt-setup/local0/repository string $security_repository $security_archive main
-d-i apt-setup/local0/source boolean true
+d-i apt-setup/contrib boolean $apt_contrib
+d-i apt-setup/non-free boolean $apt_non_free
+d-i apt-setup/enable-source-repositories boolean $apt_src
+d-i apt-setup/services-select multiselect $apt_services
 EOF
 
+[ "$non_free_firmware_available" = true ] && echo "d-i apt-setup/non-free-firmware boolean $apt_non_free_firmware" | $save_preseed
+
+# If not sid/unstable
+[ -n "$security_archive" ] && {
+    $save_preseed << EOF
+d-i apt-setup/local0/repository string $security_repository $security_archive $apt_components
+d-i apt-setup/local0/source boolean $apt_src
+EOF
 }
 
 $save_preseed << 'EOF'
