@@ -222,7 +222,7 @@ kernel=
 cloud_kernel=false
 bpo_kernel=false
 install_recommends=true
-install='ca-certificates libpam-systemd'
+install=
 upgrade=
 kernel_params=
 force_lowmem=
@@ -803,7 +803,7 @@ $save_preseed << 'EOF'
 tasksel tasksel/first multiselect ssh-server
 EOF
 
-[ -n "$install" ] && echo "d-i pkgsel/include string $install" | $save_preseed
+[ -n "$install" ] && echo "d-i pkgsel/include string ca-certificates libpam-systemd $install" | $save_preseed
 [ -n "$upgrade" ] && echo "d-i pkgsel/upgrade select $upgrade" | $save_preseed
 
 $save_preseed << 'EOF'
