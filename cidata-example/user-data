@@ -1,0 +1,21 @@
+#cloud-config
+hostname: ci01
+user: debian
+disable_root: false
+ssh_pwauth: true
+password: 'kuras001'
+ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCgBp08hAwwPk2w2T+yvlqil7jqXlzM7ulIA9lrgJB9NJLZV3wyYEmcxP/frTSUanjWtiYlrmn5d6EJFwR01Ga+aD6hwQoSZtKyVGY7zKfM6NWKF/lcpFT6HxPg33C4tpueqSqupSlx2yoPqRZhVoCeERrN9k/7fN8Bv8Xvfa/LN8sAI4v8CEJ7BpRXplRwnxceECBdJm0d3ebzMTnj1sfWBTgu/5iwpDh8DRR6LEab7famSTTB8jo6gz3gcwZC+Q3L/UTxS4kcjiQTuX7G74ae9+oSOpuPfP7N0Yo7lJDr8LCZHqkAZC47mQ2baatmD4hc3ZdVD64k6V1b/ms+37/7 youth@DESKTOP-AV4DNMN
+chpasswd: { expire: false }
+
+write_files:
+  - content: |
+      [Swap]
+      What=/swapfile
+
+      [Install]
+      WantedBy=swap.target
+    path: /etc/systemd/system/swapfile.swap
+
+runcmd:
+  - [ sh, -c, "[ ! -e /swapfile ] && { fallocate -l 100M /swapfile && chmod 0600 /swapfile && mkswap /swapfile; }; systemctl daemon-reload && systemctl enable --now swapfile.swap" ]

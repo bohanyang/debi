@@ -151,6 +151,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--grub-timeout 5` How many seconds the GRUB menu shows before entering the installer
  * `--force-lowmem <integer>` Valid values: 0, 1, 2. Force [low memory level](https://salsa.debian.org/installer-team/lowmem). Useful if your machine has memory less than 500M where level 2 is set (see issue #45). `--force-lowmem 1` may solve it. 
  * `--dry-run` Print generated preseed and GRUB entry without downloading the installer and actually saving them
+ * `--cidata ./cidata-example` Custom data for cloud-init. **VM provider's data source will be IGNORED.** See example.
 
 ### Presets
 

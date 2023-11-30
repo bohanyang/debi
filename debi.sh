@@ -18,7 +18,7 @@ command_exists() {
 }
 
 # Sets variable:
-late_command=
+in_target_script=
 in_target() {
     local command=
 
@@ -27,8 +27,8 @@ in_target() {
     done
 
     if [ -n "$command" ]; then
-        [ -z "$late_command" ] && late_command='true'
-        late_command="$late_command;$command"
+        [ -z "$in_target_script" ] && in_target_script='true'
+        in_target_script="$in_target_script;$command"
     fi
 }
 
@@ -200,11 +200,11 @@ dns='8.8.8.8 8.8.4.4'
 hostname=
 network_console=false
 set_debian_version 12
-mirror_protocol=http
+mirror_protocol=https
 mirror_host=deb.debian.org
 mirror_directory=/debian
 mirror_proxy=
-security_repository=http://security.debian.org/debian-security
+security_repository=mirror
 account_setup=true
 username=debian
 password=
@@ -222,7 +222,7 @@ kernel=
 cloud_kernel=false
 bpo_kernel=false
 install_recommends=true
-install='ca-certificates libpam-systemd'
+install=
 upgrade=
 kernel_params=
 force_lowmem=
@@ -240,12 +240,18 @@ apt_non_free=false
 apt_contrib=false
 apt_src=true
 apt_backports=true
+cidata=
 
 while [ $# -gt 0 ]; do
     case $1 in
-        --cdn|--aws)
+        --cdn)
             mirror_protocol=https
-            [ "$1" = '--aws' ] && mirror_host=cdn-aws.deb.debian.org
+            mirror_host=deb.debian.org
+            security_repository=mirror
+            ;;
+        --aws)
+            mirror_protocol=https
+            mirror_host=cdn-aws.deb.debian.org
             security_repository=mirror
             ;;
         --china)
@@ -467,6 +473,12 @@ while [ $# -gt 0 ]; do
             ;;
         --dry-run)
             dry_run=true
+            ;;
+        --cidata)
+            cidata=$(realpath "$2")
+            [ ! -f "$cidata/meta-data" ] && err 'No "meta-data" file found in the cloud-init directory'
+            [ ! -f "$cidata/user-data" ] && err 'No "user-data" file found in the cloud-init directory'
+            shift
             ;;
         *)
             err "Unknown option: \"$1\""
@@ -803,6 +815,9 @@ $save_preseed << 'EOF'
 tasksel tasksel/first multiselect ssh-server
 EOF
 
+install="$install ca-certificates libpam-systemd"
+[ -n "$cidata" ] && install="$install cloud-init"
+
 [ -n "$install" ] && echo "d-i pkgsel/include string $install" | $save_preseed
 [ -n "$upgrade" ] && echo "d-i pkgsel/upgrade select $upgrade" | $save_preseed
 
@@ -832,7 +847,13 @@ EOF
 
 [ "$bbr" = true ] && in_target '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$late_command" ] && echo "d-i preseed/late_command string in-target sh -c '$late_command'" | $save_preseed
+[ -n "$cidata" ] && in_target 'echo "{ datasource_list: [ NoCloud ], datasource: { NoCloud: { fs_label: ~ } } }" > /etc/cloud/cloud.cfg.d/99_debi.cfg'
+
+late_command='true'
+[ -n "$in_target_script" ] && late_command="$late_command; in-target sh -c '$in_target_script'"
+[ -n "$cidata" ] && late_command="$late_command; mkdir -p /target/var/lib/cloud/seed/nocloud; cp -r /cidata/. /target/var/lib/cloud/seed/nocloud/"
+
+echo "d-i preseed/late_command string $late_command" | $save_preseed
 
 [ "$power_off" = true ] && echo 'd-i debian-installer/exit/poweroff boolean true' | $save_preseed
 
@@ -850,6 +871,12 @@ save_grub_cfg='cat'
     gzip -d initrd.gz
     # cpio reads a list of file names from the standard input
     echo preseed.cfg | cpio -o -H newc -A -F initrd
+
+    if [ -n "$cidata" ]; then
+        cp -r "$cidata" cidata
+        find cidata | cpio -o -H newc -A -F initrd
+    fi
+
     gzip -1 initrd
 
     mkdir -p /etc/default/grub.d
