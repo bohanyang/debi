@@ -245,21 +245,25 @@ cidata=
 while [ $# -gt 0 ]; do
     case $1 in
         --cdn)
-            mirror_protocol=https
             mirror_host=deb.debian.org
-            security_repository=mirror
             ;;
         --aws)
-            mirror_protocol=https
             mirror_host=cdn-aws.deb.debian.org
-            security_repository=mirror
             ;;
-        --china)
+        --aliyun)
             dns='223.5.5.5 223.6.6.6'
-            mirror_protocol=https
             mirror_host=mirrors.aliyun.com
             ntp=ntp.aliyun.com
-            security_repository=mirror
+            ;;
+        --ustc|--china)
+            dns='119.29.29.29'
+            mirror_host=mirrors.ustc.edu.cn
+            ntp=time.ustc.edu.cn
+            ;;
+        --tuna)
+            dns='119.29.29.29'
+            mirror_host=mirrors.tuna.tsinghua.edu.cn
+            ntp=ntp.tuna.tsinghua.edu.cn
             ;;
         --interface)
             interface=$2
