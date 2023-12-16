@@ -167,7 +167,23 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--mirror-host cdn-aws.deb.debian.org`
  * `--security-repository mirror`
 
-### `--china`
+### `--ustc` | `--china`
+
+ * `--dns '119.29.29.29'`
+ * `--mirror-protocol https`
+ * `--mirror-host mirrors.ustc.edu.cn`
+ * `--security-repository mirror`
+ * `--ntp time.amazonaws.cn`
+
+### `--tuna`
+
+ * `--dns '119.29.29.29'`
+ * `--mirror-protocol https`
+ * `--mirror-host mirrors.tuna.tsinghua.edu.cn`
+ * `--security-repository mirror`
+ * `--ntp time.amazonaws.cn`
+
+### `--aliyun`
 
  * `--dns '223.5.5.5 223.6.6.6'`
  * `--mirror-protocol https`
