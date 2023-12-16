@@ -212,7 +212,7 @@ password=
 authorized_keys_url=
 sudo_with_password=false
 timezone=UTC
-ntp=0.debian.pool.ntp.org
+ntp=time.google.com
 disk_partitioning=true
 disk=
 force_gpt=true
@@ -246,10 +246,15 @@ cidata=
 while [ $# -gt 0 ]; do
     case $1 in
         --cdn)
-            mirror_host=deb.debian.org
             ;;
         --aws)
             mirror_host=cdn-aws.deb.debian.org
+            ntp=time.aws.com
+            ;;
+        --cloudflare)
+            dns='1.1.1.1 1.0.0.1'
+            dns6='2606:4700:4700::1111 2606:4700:4700::1001'
+            ntp=time.cloudflare.com
             ;;
         --aliyun)
             dns='223.5.5.5 223.6.6.6'
