@@ -135,7 +135,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--authorized-keys-url <string>` URL to your authorized keys for SSH authentication. e.g. `https://github.com/torvalds.keys`
  * `--sudo-with-password` Require password when the user invokes `sudo` command
  * `--timezone UTC` e.g. `Asia/Shanghai` for China (UTC+8) https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
- * `--ntp 0.debian.pool.ntp.org`
+ * `--ntp time.google.com`
  * `--no-disk-partitioning, --no-part` **(Manual installation)** Proceed disk partitioning manually in VNC or remote console
  * `--disk <string>` Manually select a disk for installation. **Please remember to specify this when more than one disk is available!** e.g. `/dev/sda`
  * `--no-force-gpt` By default, GPT rather than MBR partition table will be created. This option disables it.
