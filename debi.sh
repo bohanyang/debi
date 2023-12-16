@@ -197,6 +197,7 @@ ip=
 netmask=
 gateway=
 dns='8.8.8.8 8.8.4.4'
+dns6='2001:4860:4860::8888 2001:4860:4860::8844'
 hostname=
 network_console=false
 set_debian_version 12
@@ -252,18 +253,21 @@ while [ $# -gt 0 ]; do
             ;;
         --aliyun)
             dns='223.5.5.5 223.6.6.6'
+            dns6='2400:3200::1 2400:3200:baba::1'
             mirror_host=mirrors.aliyun.com
-            ntp=ntp.aliyun.com
+            ntp=time.amazonaws.cn
             ;;
         --ustc|--china)
             dns='119.29.29.29'
+            dns6='2402:4e00::'
             mirror_host=mirrors.ustc.edu.cn
-            ntp=time.ustc.edu.cn
+            ntp=time.amazonaws.cn
             ;;
         --tuna)
             dns='119.29.29.29'
+            dns6='2402:4e00::'
             mirror_host=mirrors.tuna.tsinghua.edu.cn
-            ntp=ntp.tuna.tsinghua.edu.cn
+            ntp=time.amazonaws.cn
             ;;
         --interface)
             interface=$2
@@ -283,6 +287,10 @@ while [ $# -gt 0 ]; do
             ;;
         --dns)
             dns=$2
+            shift
+            ;;
+        --dns6)
+            dns6=$2
             shift
             ;;
         --hostname)
