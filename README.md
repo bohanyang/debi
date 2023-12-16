@@ -22,7 +22,7 @@ sudo ./debi.sh --cdn --network-console --ethx --bbr --user root --password <新�
 * `--ethx` 网卡名称使用传统形式，如 `eth0` 而不是 `ens3`
 * `--cloud-kernel` 安装占用空间较小的 `cloud` 内核，但可能会导致 UEFI 启动的机器（如 Oracle、Azure 及 Hyper-V、Google Cloud 等）VNC 黑屏。BIOS 启动的普通 VPS 则没有此问题。
 * 默认时区为 UTC，添加 `--timezone Asia/Shanghai` 可使用中国时区。
-* 默认使用 Debian 官方 CDN 镜像源（deb.debian.org），添加 `--china` 可使用阿里云镜像源。
+* 默认使用 Debian 官方 CDN 镜像源（deb.debian.org），添加 `--ustc` 可使用中科大镜像源。
 
 如果没有报错可以重启：
 
@@ -98,6 +98,17 @@ Otherwise, you can run this command to revert all changes made by the script:
 
 ## Available Options
 
+### Presets
+
+| Region | Alias          | Mirror                               | DNS        | NTP                 |
+|--------|----------------|--------------------------------------|------------|---------------------|
+| Global | Default        | https://deb.debian.org               | Google     | time.google.com     |
+| Global | `--cloudflare` | https://deb.debian.org               | Cloudflare | time.cloudflare.com |
+| Global | `--aws`        | https://cdn-aws.deb.debian.org       | Google     | time.aws.com        |
+| China  | `--ustc`       | https://mirrors.ustc.edu.cn          | DNSPod     | time.amazonaws.cn   |
+| China  | `--tuna`       | https://mirrors.tuna.tsinghua.edu.cn | DNSPod     | time.amazonaws.cn   |
+| China  | `--aliyun`     | https://mirrors.aliyun.com           | AliDNS     | time.amazonaws.cn   |
+
  * `--interface <string>` Manually select a network interface, e.g. eth1
  * `--ethx` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
@@ -153,44 +164,3 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--force-lowmem <integer>` Valid values: 0, 1, 2. Force [low memory level](https://salsa.debian.org/installer-team/lowmem). Useful if your machine has memory less than 500M where level 2 is set (see issue #45). `--force-lowmem 1` may solve it. 
  * `--dry-run` Print generated preseed and GRUB entry without downloading the installer and actually saving them
  * `--cidata ./cidata-example` Custom data for cloud-init. **VM provider's data source will be IGNORED.** See example.
-
-### Presets
-
-### `--cdn`
-
- * `--mirror-protocol https`
- * `--mirror-host deb.debian.org`
- * `--security-repository mirror`
-
-### `--aws`
-
- * `--mirror-protocol https`
- * `--mirror-host cdn-aws.deb.debian.org`
- * `--security-repository mirror`
-
-### `--ustc` | `--china`
-
- * `--dns '119.29.29.29'`
- * `--dns6 '2402:4e00::'`
- * `--mirror-protocol https`
- * `--mirror-host mirrors.ustc.edu.cn`
- * `--security-repository mirror`
- * `--ntp time.amazonaws.cn`
-
-### `--tuna`
-
- * `--dns '119.29.29.29'`
- * `--dns6 '2402:4e00::'`
- * `--mirror-protocol https`
- * `--mirror-host mirrors.tuna.tsinghua.edu.cn`
- * `--security-repository mirror`
- * `--ntp time.amazonaws.cn`
-
-### `--aliyun`
-
- * `--dns '223.5.5.5 223.6.6.6'`
- * `--dns6 '2400:3200::1 2400:3200:baba::1'`
- * `--mirror-protocol https`
- * `--mirror-host mirrors.aliyun.com`
- * `--security-repository mirror`
- * `--ntp time.amazonaws.cn`
