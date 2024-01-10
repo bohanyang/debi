@@ -915,8 +915,17 @@ EOF
         echo 'zz_debi=/etc/default/grub.d/zz-debi.cfg; if [ -f "$zz_debi" ]; then . "$zz_debi"; fi' >> /etc/default/grub
         grub_cfg=/boot/grub2/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
+    elif command_exists grub-mkconfig; then
+        tmp=$(mktemp)
+        grep -vF zz_debi /etc/default/grub > "$tmp"
+        cat "$tmp" > /etc/default/grub
+        rm "$tmp"
+        # shellcheck disable=SC2016
+        echo 'zz_debi=/etc/default/grub.d/zz-debi.cfg; if [ -f "$zz_debi" ]; then . "$zz_debi"; fi' >> /etc/default/grub
+        grub_cfg=/boot/grub/grub.cfg
+        grub-mkconfig -o "$grub_cfg"
     else
-        err 'Could not find "update-grub" or "grub2-mkconfig" command'
+        err 'Could not find "update-grub" or "grub2-mkconfig" or "grub-mkconfig" command'
     fi
 
     save_grub_cfg="tee -a $grub_cfg"
