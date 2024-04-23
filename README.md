@@ -4,8 +4,6 @@
 
 ## VPS 网络重装 Debian 12 脚本
 
-**暂不支持 Oracle Linux 作为原系统。创建新机器时请选择 Ubuntu 系统模板。**
-
 下载脚本：
 
 ```
@@ -54,7 +52,7 @@ This script is written to reinstall a VPS/virtual machine to minimal Debian 10/1
 
  * Debian 8 or later
  * Ubuntu 14.04 or later
- * CentOS 7 or later
+ * RHEL/CentOS/Alma/Rocky/Oracle Linux 7 or later
 
 ## How It Works
 
