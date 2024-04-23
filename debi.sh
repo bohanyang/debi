@@ -915,6 +915,7 @@ EOF
         # shellcheck disable=SC2016
         echo 'zz_debi=/etc/default/grub.d/zz-debi.cfg; if [ -f "$zz_debi" ]; then . "$zz_debi"; fi' >> /etc/default/grub
         grub_cfg=/boot/grub2/grub.cfg
+        [ -d /sys/firmware/efi ] && grub_cfg=/boot/efi/EFI/*/grub.cfg
         grub2-mkconfig -o "$grub_cfg"
     elif command_exists grub-mkconfig; then
         tmp=$(mktemp)
