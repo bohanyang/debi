@@ -11,6 +11,7 @@ This script is written to reinstall VPS/VMs to minimal Debian.
 - ✔ KVM or physical machines ❌ Containers
 - ✔ Debian or Ubuntu or Red Hat Linux as original OS with GRUB 2 bootloader
 - ✔ MBR or GPT partition table
+- ✔ Multiple disks or LVM
 - ✔ IPv4 or IPv6
 - ✔ Legacy BIOS or UEFI boot
 - ✔ Most VPS or cloud providers
