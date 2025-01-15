@@ -193,17 +193,19 @@ has_backports() {
 }
 
 cidr_to_netmask() {
-    local cidr=$1
-    local mask=""
+    cidr=$1
+    mask=""
 
-    for ((i=0; i<4; i++)); do
+    i=0
+    while [ $i -lt 4 ]; do
         if [ $cidr -ge 8 ]; then
-            mask+="255."
+            mask="${mask}255."
             cidr=$((cidr - 8))
         else
-            mask+=$((256 - 2**(8 - cidr))).
+            mask="${mask}$((256 - (1 << (8 - cidr))))."
             cidr=0
         fi
+        i=$((i + 1))
     done
 
     # Remove the trailing dot
