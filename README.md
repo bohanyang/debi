@@ -71,6 +71,7 @@ Otherwise, you can run this command to revert all changes made by the script:
  * `--interface <string>` Manually select a network interface, e.g. eth1
  * `--ethx` Disable *Consistent Network Device Naming* to get interface names like *ethX* back
  * `--ip <string>` Disable the auto network config (DHCP) and configure a static IP address, e.g. `10.0.0.2`, `1.2.3.4/24`, `2001:2345:6789:abcd::ef/48`
+ * `--static-ipv4` Disable the auto network config (DHCP) and configure with the current IPv4 address and gateway detected automatically
  * `--netmask <string>` e.g. `255.255.255.0`, `ffff:ffff:ffff:ffff::`
  * `--gateway <string>` e.g. `10.0.0.1`, `none` if no gateway
  * `--dns '8.8.8.8 8.8.4.4'`
