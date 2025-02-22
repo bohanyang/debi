@@ -274,7 +274,7 @@ while [ $# -gt 0 ]; do
             mirror_host=mirrors.tuna.tsinghua.edu.cn
             ntp=time.amazonaws.cn
             ;;
-        --static-ip)
+        --static-ipv4)
             ip=$(ip r get 1.1.1.1 | awk '/src/ {print $7}')
             gateway=$(ip r get 1.1.1.1 | awk '/via/ {print $3}')
             _cidr=$(ip -o -f inet addr show | grep -w "$ip" | awk '{print $4}' | cut -d'/' -f2)
