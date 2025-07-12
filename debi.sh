@@ -196,8 +196,9 @@ interface=auto
 ip=
 netmask=
 gateway=
-dns='8.8.8.8 8.8.4.4'
-dns6='2001:4860:4860::8888 2001:4860:4860::8844'
+dns='1.1.1.1 1.0.0.1'
+dns6='2606:4700:4700::1111 2606:4700:4700::1001'
+dns10='1.1.1.1 2606:4700:4700::1111'
 hostname=
 network_console=false
 set_debian_version 12
@@ -596,6 +597,10 @@ EOF
     echo 'd-i netcfg/confirm_static boolean true' | $save_preseed
 }
 
+[ -z "$ip" ] && {
+    echo "d-i netcfg/get_nameservers string $dns10" | $save_preseed
+}
+
 if [ -n "$hostname" ]; then
     echo "d-i netcfg/hostname string $hostname" | $save_preseed
     hostname=debian
@@ -873,7 +878,8 @@ EOF
 
 [ "$bbr" = true ] && in_target '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$cidata" ] && in_target 'echo "{ datasource_list: [ NoCloud ], datasource: { NoCloud: { fs_label: ~ } } }" > /etc/cloud/cloud.cfg.d/99_debi.cfg'
+[ -n "$cidata" ] && in_target 'echo "{ datasource_list: [ NoCloud ], datasource: { NoCloud: { fs_label: ~ } } }" > /etc/cloud/cloud.cfg.d/99_mandate_nocloud.cfg'
+[ -n "$cidata" ] && in_target 'printf "%s\n%s\n" "policy: disabled" "datasource: NoCloud" > /etc/cloud/ds-identify.cfg'
 
 late_command='true'
 [ -n "$in_target_script" ] && late_command="$late_command; in-target sh -c '$in_target_script'"
