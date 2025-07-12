@@ -109,7 +109,7 @@ sudo reboot
       - 使用 Alt+Left/Alt+Right 切换
 
 
-**⚠️ 注意事項**
+**⚠️ 注意事项**
 
 如果使用了 `--authorized-keys-url`，SSH 的密码认证将被禁用 (必须使用 SSH 密钥登录)，**但你仍然需要设置一个用户密码**，用于 VNC 控制台登录和执行 sudo 命令。
 
