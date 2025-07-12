@@ -1,5 +1,8 @@
 # Debian Network Reinstall Script
 
+- [中文版在这里](./README.zh-CN.md)
+- [日本語はこちら](./README.ja-JP.md)
+
 ## What is this?
 
 A script that reinstalls any VPS or physical machine to minimal Debian via network boot. Works by injecting the Debian installer into GRUB and automatically configuring the installation process.
