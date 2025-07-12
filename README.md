@@ -1,7 +1,7 @@
 # Debian Network Reinstall Script
 
-- [中文版在这里](./README.zh-CN.md)
-- [日本語はこちら](./README.ja-JP.md)
+- <span lang="zh-CN">[中文版在这里](./README.zh-CN.md)</span>
+- <span lang="ja-JP">[日本語はこちら](./README.ja-JP.md)</span>
 
 ## What is this?
 
