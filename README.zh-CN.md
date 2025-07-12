@@ -1,3 +1,5 @@
+<div lang="zh-CN">
+
 # Debian 网络重装脚本
 
 ## 这是什么？
@@ -348,3 +350,6 @@ sudo ./debi.sh --network-console --authorized-keys-url YOUR_KEYS_URL
 -----
 
 *作者 [@bohanyang](https://github.com/bohanyang) • [问题反馈](https://github.com/bohanyang/debi/issues) • [GitHub 仓库](https://github.com/bohanyang/debi)*
+
+</div>
+
