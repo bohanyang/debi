@@ -108,8 +108,10 @@ sudo reboot
       - **Alt+F4**: 系统日志 (可监控自动化安装进度)
       - 使用 Alt+Left/Alt+Right 切换
 
-> [!IMPORTANT]  
-> 如果使用了 `--authorized-keys-url`，SSH 的密码认证将被禁用 (必须使用 SSH 密钥登录)，**但你仍然需要设置一个用户密码**，用于 VNC 控制台登录和执行 sudo 命令。
+
+**⚠️ 注意事項**
+
+如果使用了 `--authorized-keys-url`，SSH 的密码认证将被禁用 (必须使用 SSH 密钥登录)，**但你仍然需要设置一个用户密码**，用于 VNC 控制台登录和执行 sudo 命令。
 
 ### 存储和分区
 
