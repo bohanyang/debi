@@ -878,8 +878,7 @@ EOF
 
 [ "$bbr" = true ] && in_target '{ echo "net.core.default_qdisc=fq"; echo "net.ipv4.tcp_congestion_control=bbr"; } > /etc/sysctl.d/bbr.conf'
 
-[ -n "$cidata" ] && in_target 'echo "{ datasource_list: [ NoCloud ], datasource: { NoCloud: { fs_label: ~ } } }" > /etc/cloud/cloud.cfg.d/99_mandate_nocloud.cfg'
-[ -n "$cidata" ] && in_target 'printf "%s\n%s\n" "policy: disabled" "datasource: NoCloud" > /etc/cloud/ds-identify.cfg'
+[ -n "$cidata" ] && in_target 'echo "{ datasource_list: [ NoCloud ], datasource: { ConfigDrive: { dsmode: disabled }, NoCloud: { fs_label: ~, dsmode: local } } }" > /etc/cloud/cloud.cfg.d/99_mandate_nocloud.cfg'
 
 late_command='true'
 [ -n "$in_target_script" ] && late_command="$late_command; in-target sh -c '$in_target_script'"
