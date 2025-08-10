@@ -109,12 +109,16 @@ set_mirror_proxy() {
     esac
 }
 
+# Determines the security repository path format based on Debian suite
+# - Buster (Debian 10): Uses old format "buster/updates" 
+# - Bullseye onwards and testing: Uses new format "suite-security"
+# - Sid/unstable: No security repository (fixes go directly to unstable)
 set_security_archive() {
     case $suite in
-        buster|oldoldstable)
+        buster)
             security_archive="$suite/updates"
             ;;
-        bullseye|oldstable|bookworm|stable|trixie|testing)
+        bullseye|oldoldstable|bookworm|oldstable|trixie|stable|forky|testing)
             security_archive="$suite-security"
             ;;
         sid|unstable)
@@ -125,12 +129,16 @@ set_security_archive() {
     esac
 }
 
+# Determines whether to use daily or stable installer builds
+# - Stable/oldstable releases: Use stable installer builds (thoroughly tested)
+# - Testing/unstable: Use daily installer builds (latest changes, may be less stable)
+# Daily builds are necessary for testing/unstable as they need the latest kernel and packages
 set_daily_d_i() {
     case $suite in
-        buster|oldoldstable|bullseye|oldstable|bookworm|stable)
+        buster|bullseye|oldoldstable|bookworm|oldstable|trixie|stable)
             daily_d_i=false
             ;;
-        trixie|testing|sid|unstable)
+        forky|testing|sid|unstable)
             daily_d_i=true
             ;;
         *)
@@ -144,19 +152,31 @@ set_suite() {
     set_security_archive
 }
 
+# Maps version numbers and release aliases to actual suite names
+# Accepts: version number (10-14), suite name (buster, bullseye, etc.), or alias (stable, testing, etc.)
+# Current mapping:
+# - 10/buster: No longer supported as oldoldstable (archived)
+# - 11/bullseye/oldoldstable: LTS support
+# - 12/bookworm/oldstable: Previous stable
+# - 13/trixie/stable: Current stable release
+# - 14/forky/testing: Next release in development
+# - sid/unstable: Rolling development branch
 set_debian_version() {
     case $1 in
-        10|buster|oldoldstable)
+        10|buster)
             set_suite buster
             ;;
-        11|bullseye|oldstable)
+        11|bullseye|oldoldstable)
             set_suite bullseye
             ;;
-        12|bookworm|stable)
+        12|bookworm|oldstable)
             set_suite bookworm
             ;;
-        13|trixie|testing)
+        13|trixie|stable)
             set_suite trixie
+            ;;
+        14|forky|testing)
+            set_suite forky
             ;;
         sid|unstable)
             set_suite sid
@@ -166,13 +186,19 @@ set_debian_version() {
     esac
 }
 
+# Checks if cloud-optimized kernels are available for the current architecture and suite
+# Cloud kernels are minimal kernels optimized for cloud/virtual environments
+# - Buster: Only amd64 has cloud kernel, arm64 requires backports
+# - Bullseye onwards: Both amd64 and arm64 have cloud kernels
+# - Other architectures (i386, etc.): No cloud kernels available
+# Returns 0 if available, 1 if not
 has_cloud_kernel() {
     case $suite in
-        buster|oldoldstable)
+        buster)
             [ "$architecture" = amd64 ] && return
             [ "$architecture" = arm64 ] && [ "$bpo_kernel" = true ] && return
             ;;
-        bullseye|oldstable|bookworm|stable|trixie|testing|sid|unstable)
+        bullseye|oldoldstable|bookworm|oldstable|trixie|stable|forky|testing|sid|unstable)
             [ "$architecture" = amd64 ] || [ "$architecture" = arm64 ] && return
     esac
 
@@ -182,9 +208,14 @@ has_cloud_kernel() {
     return 1
 }
 
+# Checks if backports repository is available for the current suite
+# Backports provide newer versions of packages from testing/unstable rebuilt for stable releases
+# - All stable releases and testing: Have backports available
+# - Sid/unstable: No backports (already has the latest packages)
+# Returns 0 if available, 1 if not
 has_backports() {
     case $suite in
-        buster|oldoldstable|bullseye|oldstable|bookworm|stable|trixie|testing) return
+        buster|bullseye|oldoldstable|bookworm|oldstable|trixie|stable|forky|testing) return
     esac
 
     warn "No backports kernel is available for $suite"
@@ -201,7 +232,7 @@ dns6='2606:4700:4700::1111 2606:4700:4700::1001'
 dns10='1.1.1.1 2606:4700:4700::1111'
 hostname=
 network_console=false
-set_debian_version 12
+set_debian_version 13
 mirror_protocol=https
 mirror_host=deb.debian.org
 mirror_directory=/debian
@@ -540,9 +571,14 @@ done
 [ -n "$authorized_keys_url" ] && ! download "$authorized_keys_url" /dev/null &&
 err "Failed to download SSH authorized public keys from \"$authorized_keys_url\""
 
+# Determines if the non-free-firmware repository component is available
+# Starting from Debian 12 (Bookworm), firmware was split into a separate component
+# to make it easier to include necessary firmware while keeping main free
+# - Bookworm onwards: non-free-firmware component available
+# - Bullseye and earlier: Firmware is in non-free component
 non_free_firmware_available=false
 case $suite in
-    bookworm|stable|trixie|testing|sid|unstable)
+    bookworm|oldstable|trixie|stable|forky|testing|sid|unstable)
         non_free_firmware_available=true
         ;;
     *)

@@ -31,7 +31,7 @@ sudo ./debi.sh --user root
 sudo reboot
 ```
 
-**默认设置：** Debian 12 (bookworm)，DHCP 网络，创建一个名为 `debian` 并拥有 sudo 权限的用户，脚本会提示你为该用户设置密码。
+**默认设置：** Debian 13 (trixie)，DHCP 网络，创建一个名为 `debian` 并拥有 sudo 权限的用户，脚本会提示你为该用户设置密码。
 
 ## 平台支持
 
@@ -66,8 +66,8 @@ sudo reboot
 
 | 选项 | 默认值 | 描述 |
 | :--- | :--- | :--- |
-| `--version 12` | `12` | Debian 版本：`10`, `11`, `12`, `13` |
-| `--suite bookworm` | `bookworm` | Debian 发行代号：`stable`, `testing`, `sid` 等 |
+| `--version 13` | `13` | Debian 版本：`10`, `11`, `12`, `13`, `14` |
+| `--suite trixie` | `trixie` | Debian 发行代号：`stable`, `testing`, `sid` 等 |
 | `--user debian` | `debian` | 用户名 (使用 `root` 则只创建 root 用户) |
 | `--password PASSWORD` | *交互式提示* | 用户密码 (如果未指定，则会提示输入) |
 | `--authorized-keys-url URL` | *密码认证* | 从 URL 加载 SSH 公钥 (例如 `https://github.com/user.keys`) |
@@ -269,7 +269,7 @@ sudo ./debi.sh --ip 192.168.1.100/24 --gateway 192.168.1.1 --cidata ./cloud-conf
 
 ```bash
 sudo ./debi.sh \
-  --version 12 \
+  --version 13 \
   --user admin \
   --timezone Europe/London \
   --disk /dev/nvme0n1 \

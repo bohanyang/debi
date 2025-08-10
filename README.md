@@ -31,7 +31,7 @@ sudo ./debi.sh --user root
 sudo reboot
 ```
 
-**Default settings:** Debian 12 (bookworm), DHCP networking, user `debian` with sudo access, you'll be prompted for password.
+**Default settings:** Debian 13 (trixie), DHCP networking, user `debian` with sudo access, you'll be prompted for password.
 
 ## Platform Support
 
@@ -64,8 +64,8 @@ sudo reboot
 ### System & User Configuration
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--version 12` | `12` | Debian version: `10`, `11`, `12`, `13` |
-| `--suite bookworm` | `bookworm` | Debian suite: `stable`, `testing`, `sid`, etc. |
+| `--version 13` | `13` | Debian version: `10`, `11`, `12`, `13`, `14` |
+| `--suite trixie` | `trixie` | Debian suite: `stable`, `testing`, `sid`, etc. |
 | `--user debian` | `debian` | Username (use `root` for root-only) |
 | `--password PASSWORD` | *prompt* | User password (prompted if not specified) |
 | `--authorized-keys-url URL` | *password auth* | SSH keys from URL (e.g., `https://github.com/user.keys`) |
@@ -245,7 +245,7 @@ sudo ./debi.sh --ip 192.168.1.100/24 --gateway 192.168.1.1 --cidata ./cloud-conf
 ### Advanced Custom Configuration
 ```bash
 sudo ./debi.sh \
-  --version 12 \
+  --version 13 \
   --user admin \
   --timezone Europe/London \
   --disk /dev/nvme0n1 \

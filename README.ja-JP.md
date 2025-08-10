@@ -30,7 +30,7 @@ sudo ./debi.sh --user root
 sudo reboot
 ````
 
-**デフォルト設定:** Debian 12 (bookworm)、DHCPによるネットワーク設定、sudo権限を持つ`debian`ユーザーが作成され、パスワードの入力を求められます。
+**デフォルト設定:** Debian 13 (trixie)、DHCPによるネットワーク設定、sudo権限を持つ`debian`ユーザーが作成され、パスワードの入力を求められます。
 
 ## プラットフォームサポート
 
@@ -65,8 +65,8 @@ sudo reboot
 
 | オプション | デフォルト値 | 説明 |
 |---|---|---|
-| `--version 12` | `12` | Debianのバージョン: `10`, `11`, `12`, `13` |
-| `--suite bookworm` | `bookworm` | Debianのスイート: `stable`, `testing`, `sid` など |
+| `--version 13` | `13` | Debianのバージョン: `10`, `11`, `12`, `13`, `14` |
+| `--suite trixie` | `trixie` | Debianのスイート: `stable`, `testing`, `sid` など |
 | `--user debian` | `debian` | ユーザー名 (`root`を指定するとrootユーザーのみ) |
 | `--password PASSWORD` | *プロンプト* | ユーザーのパスワード（指定しない場合はプロンプト表示） |
 | `--authorized-keys-url URL` | *パスワード認証* | URLからSSH公開鍵を設定 (例: `https://github.com/user.keys`) |
@@ -267,7 +267,7 @@ sudo ./debi.sh --ip 192.168.1.100/24 --gateway 192.168.1.1 --cidata ./cloud-conf
 
 ```bash
 sudo ./debi.sh \
-  --version 12 \
+  --version 13 \
   --user admin \
   --timezone Europe/London \
   --disk /dev/nvme0n1 \
